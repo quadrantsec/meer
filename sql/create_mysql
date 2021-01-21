@@ -1,0 +1,282 @@
+#
+# This file is largely based off of Barnyard2 "schemas/create_mysql_file". 
+
+# Made cid INT to BIGINT
+
+# NEW flow
+# NEW http
+# NEW tls
+# NEW ssh_server
+# NEW metadata
+# NEW smtp
+# NEW email
+
+# Added "app_proto" to "event"
+# Added "flow_id" "event".
+# Added "ip_src_t" to "iphdr"
+# Added "ip_dst_t" to "iphdr"
+
+CREATE TABLE `schema` ( vseq        INT      UNSIGNED NOT NULL,
+                      ctime       DATETIME NOT NULL,
+                      PRIMARY KEY (vseq));
+INSERT INTO `schema`  (vseq, ctime) VALUES ('108', now());       
+
+CREATE TABLE event  ( sid 	  INT 	   UNSIGNED NOT NULL,
+                      cid 	  BIGINT   UNSIGNED NOT NULL,
+                      signature   INT      UNSIGNED NOT NULL, 
+                      timestamp 	   DATETIME NOT NULL,
+		      app_proto	  VARCHAR(16),
+		      flow_id	  BIGINT,
+                      PRIMARY KEY (sid,cid),
+                      INDEX       sig (signature),
+                      INDEX       time (timestamp));
+
+CREATE TABLE event_json (
+  		      sid INT unsigned NOT NULL,
+                      cid BIGINT unsigned NOT NULL,
+		      json TEXT,
+                      KEY `event` (`sid`,`cid`));
+
+
+CREATE TABLE signature ( sig_id       INT          UNSIGNED NOT NULL AUTO_INCREMENT,
+                         sig_name     VARCHAR(255) NOT NULL,
+                         sig_class_id INT          UNSIGNED NOT NULL,
+                         sig_priority INT          UNSIGNED,
+                         sig_rev      INT          UNSIGNED,
+                         sig_sid      INT          UNSIGNED,
+                         sig_gid      INT          UNSIGNED,
+                         PRIMARY KEY (sig_id),
+                         INDEX   sign_idx (sig_name(20)),
+                         INDEX   sig_class_id_idx (sig_class_id));
+
+CREATE TABLE sig_reference (sig_id  INT    UNSIGNED NOT NULL,
+                            ref_seq INT    UNSIGNED NOT NULL,
+                            ref_id  INT    UNSIGNED NOT NULL,
+                            PRIMARY KEY(sig_id, ref_seq, ref_id));
+
+CREATE TABLE reference (  `ref_id`        INT  UNSIGNED NOT NULL AUTO_INCREMENT,
+                          `ref_system_id` INT  UNSIGNED NOT NULL,
+                          `ref_tag`       TEXT NOT NULL,
+                          PRIMARY KEY (`ref_id`));
+
+CREATE TABLE reference_system ( `ref_system_id` INT  UNSIGNED NOT NULL AUTO_INCREMENT,
+                                `ref_system_name` VARCHAR(20),
+                                PRIMARY KEY (`ref_system_id`));
+
+CREATE TABLE sig_class ( sig_class_id        INT    UNSIGNED NOT NULL AUTO_INCREMENT,
+                         sig_class_name      VARCHAR(60) NOT NULL,
+                         PRIMARY KEY (sig_class_id),
+                         INDEX       (sig_class_id),
+                         INDEX       (sig_class_name));
+
+# store info about the sensor supplying data
+CREATE TABLE sensor ( sid	  INT 	   UNSIGNED NOT NULL AUTO_INCREMENT,
+                      hostname    TEXT,
+                      interface   TEXT,
+                      filter	  TEXT,
+                      detail	  TINYINT,
+                      encoding	  TINYINT,
+                      last_cid    BIGINT      UNSIGNED NOT NULL,
+		      health	  INT	   DEFAULT 0,
+                      last_event  INT      DEFAULT 0, 
+                      PRIMARY KEY (sid));
+
+# All of the fields of an ip header
+CREATE TABLE iphdr  ( sid 	  INT 	   UNSIGNED NOT NULL,
+                      cid 	  BIGINT   UNSIGNED NOT NULL,
+                      ip_src      INT      UNSIGNED NOT NULL,
+                      ip_dst      INT      UNSIGNED NOT NULL,
+		      ip_src_t	  VARCHAR(45) NOT NULL, 
+		      ip_dst_t    VARCHAR(45) NOT NULL, 
+                      ip_ver      TINYINT  UNSIGNED,
+                      ip_hlen     TINYINT  UNSIGNED,
+                      ip_tos  	  TINYINT  UNSIGNED,
+                      ip_len 	  SMALLINT UNSIGNED,
+                      ip_id    	  SMALLINT UNSIGNED,
+                      ip_flags    TINYINT  UNSIGNED,
+                      ip_off      SMALLINT UNSIGNED,
+                      ip_ttl   	  TINYINT  UNSIGNED,
+                      ip_proto 	  TINYINT  UNSIGNED NOT NULL,
+                      ip_csum 	  SMALLINT UNSIGNED,
+                      PRIMARY KEY (sid,cid),
+                      INDEX ip_src (ip_src),
+                      INDEX ip_dst (ip_dst));
+
+# All of the fields of a tcp header
+CREATE TABLE tcphdr(  sid 	  INT 	   UNSIGNED NOT NULL,
+                      cid 	  BIGINT   UNSIGNED NOT NULL,
+                      tcp_sport   SMALLINT UNSIGNED NOT NULL,
+                      tcp_dport   SMALLINT UNSIGNED NOT NULL,
+                      tcp_seq     INT      UNSIGNED,
+                      tcp_ack     INT      UNSIGNED,
+                      tcp_off     TINYINT  UNSIGNED,
+                      tcp_res     TINYINT  UNSIGNED,
+                      tcp_flags   TINYINT  UNSIGNED NOT NULL,
+                      tcp_win     SMALLINT UNSIGNED,
+                      tcp_csum    SMALLINT UNSIGNED,
+                      tcp_urp     SMALLINT UNSIGNED,
+                      PRIMARY KEY (sid,cid),
+                      INDEX       tcp_sport (tcp_sport),
+                      INDEX       tcp_dport (tcp_dport),
+                      INDEX       tcp_flags (tcp_flags));
+
+# All of the fields of a udp header
+CREATE TABLE udphdr(  sid 	  INT 	   UNSIGNED NOT NULL,
+                      cid 	  BIGINT   UNSIGNED NOT NULL,
+                      udp_sport   SMALLINT UNSIGNED NOT NULL,
+                      udp_dport   SMALLINT UNSIGNED NOT NULL,
+                      udp_len     SMALLINT UNSIGNED,
+                      udp_csum    SMALLINT UNSIGNED,
+                      PRIMARY KEY (sid,cid),
+                      INDEX       udp_sport (udp_sport),
+                      INDEX       udp_dport (udp_dport));
+
+# All of the fields of an icmp header
+CREATE TABLE icmphdr( sid 	  INT 	   UNSIGNED NOT NULL,
+                      cid 	  BIGINT   UNSIGNED NOT NULL,
+                      icmp_type   TINYINT  UNSIGNED NOT NULL,
+                      icmp_code   TINYINT  UNSIGNED NOT NULL,
+                      icmp_csum   SMALLINT UNSIGNED,
+                      icmp_id     SMALLINT UNSIGNED,
+                      icmp_seq    SMALLINT UNSIGNED,
+                      PRIMARY KEY (sid,cid),
+                      INDEX       icmp_type (icmp_type));
+
+# Protocol options
+CREATE TABLE opt    ( sid         INT      UNSIGNED NOT NULL,
+                      cid         BIGINT   UNSIGNED NOT NULL,
+                      optid       INT      UNSIGNED NOT NULL,
+                      opt_proto   TINYINT  UNSIGNED NOT NULL,
+                      opt_code    TINYINT  UNSIGNED NOT NULL,
+                      opt_len     SMALLINT,
+                      opt_data    TEXT,
+                      PRIMARY KEY (sid,cid,optid));
+
+# Packet payload
+CREATE TABLE data   ( sid           INT      UNSIGNED NOT NULL,
+                      cid           BIGINT   UNSIGNED NOT NULL,
+                      data_payload  TEXT,
+                      PRIMARY KEY (sid,cid));
+
+# encoding is a lookup table for storing encoding types
+CREATE TABLE encoding(encoding_type TINYINT UNSIGNED NOT NULL,
+                      encoding_text TEXT NOT NULL,
+                      PRIMARY KEY (encoding_type));
+INSERT INTO encoding (encoding_type, encoding_text) VALUES (0, 'hex');
+INSERT INTO encoding (encoding_type, encoding_text) VALUES (1, 'base64');
+INSERT INTO encoding (encoding_type, encoding_text) VALUES (2, 'ascii');
+
+# detail is a lookup table for storing different detail levels
+CREATE TABLE detail  (detail_type TINYINT UNSIGNED NOT NULL,
+                      detail_text TEXT NOT NULL,
+                      PRIMARY KEY (detail_type));
+INSERT INTO detail (detail_type, detail_text) VALUES (0, 'fast');
+INSERT INTO detail (detail_type, detail_text) VALUES (1, 'full');
+
+# be sure to also use the snortdb-extra tables if you want
+# mappings for tcp flags, protocols, and ports
+
+CREATE TABLE extra (id BIGINT AUTO_INCREMENT NOT NULL,
+                    sid 	INT	UNSIGNED NOT NULL,
+                    cid 	BIGINT  UNSIGNED NOT NULL,
+                    type 	INT	UNSIGNED NOT NULL,
+                    datatype 	INT	UNSIGNED NOT NULL,
+                    len 	INT	UNSIGNED NOT NULL,
+                    data 	MEDIUMTEXT NOT NULL,
+                    PRIMARY KEY (id),
+                    KEY `event` (sid,cid));
+
+
+# This is for when DNS lookups are enabled
+
+CREATE TABLE dns (sid         INT      UNSIGNED NOT NULL,
+		  cid         BIGINT   UNSIGNED NOT NULL,
+		  src_host    VARCHAR(255),
+		  dst_host    VARCHAR(255),
+		  INDEX       src_host (src_host),
+	 	  INDEX	      dst_host (dst_host), 
+                  KEY `event` (sid,cid));
+
+
+CREATE TABLE flow (sid         INT      UNSIGNED NOT NULL,
+		   cid         BIGINT  UNSIGNED NOT NULL,
+		   pkts_toserver	BIGINT	NOT NULL,
+		   pkts_toclient	BIGINT	NOT NULL, 
+		   bytes_toserver	BIGINT	NOT NULL, 
+		   bytes_toclient	BIGINT  NOT NULL, 
+                   start_timestamp      DATETIME NOT NULL,
+		   KEY `event` (sid,cid));
+
+
+CREATE TABLE http (sid        		INT      UNSIGNED NOT NULL,
+		   cid         		BIGINT   UNSIGNED NOT NULL,
+	  	   hostname    		VARCHAR(255), 
+		   url	      		TEXT, 
+		   xff		        VARCHAR(64),
+		   http_content_type 	VARCHAR(64), 
+		   http_method		VARCHAR(16), 
+		   http_user_agent 	TEXT, 
+		   http_refer		TEXT, 
+		   protocol		VARCHAR(32), 
+		   status		INT, 
+		   length		BIGINT, 
+	   	   KEY `event` (sid,cid)); 
+
+
+CREATE TABLE tls ( sid         		INT	UNSIGNED NOT NULL,
+                   cid      		BIGINT  UNSIGNED NOT NULL,
+		   subject		VARCHAR(256), 
+		   issuerdn		VARCHAR(256), 
+		   serial		INT	UNSIGNED NULL,
+		   fingerprint 		VARCHAR(128), 
+		   session_resumed 	VARCHAR(8),
+		   sni	      	 	VARCHAR(255), 
+		   version     		VARCHAR(16), 
+		   notbefore    	DATETIME,
+		   notafter		DATETIME,
+		   KEY `event` (sid,cid));
+
+
+CREATE TABLE ssh_server (sid         		INT      UNSIGNED NOT NULL,
+                   	 cid         		BIGINT   UNSIGNED NOT NULL,
+ 	                 proto_version		VARCHAR(8),
+		    	 sofware_version	VARCHAR(64),
+			 KEY `event` (sid,cid));		    
+
+CREATE TABLE ssh_client (sid         	    INT         UNSIGNED NOT NULL,
+			 cid     	    BIGINT      UNSIGNED NOT NULL,
+       		         proto_version 	    VARCHAR(8),
+	                 sofware_version    VARCHAR(64),
+	                 KEY `event` (sid,cid));
+
+CREATE TABLE metadata ( sid         INT         UNSIGNED NOT NULL,
+                   	cid         BIGINT      UNSIGNED NOT NULL,
+                   	metadata TEXT, 
+	           	KEY `event` (sid,cid));
+
+
+CREATE TABLE smtp (sid         INT         UNSIGNED NOT NULL,
+                   cid         BIGINT      UNSIGNED NOT NULL,
+                   helo        VARCHAR(255), 
+                   mail_from   VARCHAR(255),
+		   rcpt_to     TEXT,
+		   KEY `event` (sid,cid));
+
+
+CREATE TABLE email (sid         INT         UNSIGNED NOT NULL,
+                    cid         BIGINT      UNSIGNED NOT NULL,
+		    status	VARCHAR(32),
+		    email_from  VARCHAR(1024),
+		    email_to	TEXT,
+                    email_cc    TEXT,
+		    attachment  TEXT,
+                    KEY `event` (sid,cid));
+
+CREATE TABLE stats (
+		      hostname  VARCHAR(32), 
+		      timestamp DATETIME NOT NULL,
+		      stats TEXT NOT NULL, 
+		      KEY `stats` (`hostname`, `timestamp`)); 
+
+		      
+

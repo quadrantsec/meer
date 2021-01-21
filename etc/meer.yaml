@@ -1,0 +1,310 @@
+%YAML 1.1
+---
+
+# @@@@@@@@@@  @@@@@@@@ @@@@@@@@ @@@@@@@    
+# @@! @@! @@! @@!      @@!      @@!  @@@   Quadrant Information Security
+# @!! !!@ @!@ @!!!:!   @!!!:!   @!@!!@a    https://quadrantsec.com
+# !!:     !!: !!:      !!:      !!: :!a    Copyright (C) 2018-2019
+#  :      :   : :: ::  : :: ::   :   : :
+
+#  Meer configuration file [http://github.com/beave/meer]
+#  Champ Clark III & The Quadrant Information Security Team: https://quadrantsec.com
+#  Copyright (C) 2018-2019 Quadrant Information Security., et al.
+
+meer-core:
+
+#############################################################################
+# Core Meer Settings
+#############################################################################
+
+  core:
+
+    hostname: "mysensor"  # Unique name for this sensor (no spaces)
+    interface: "eth0"     # Can be anything.  Sagan "syslog", suricata "eth0".
+
+    runas: "suricata"	  # User to "drop privileges" too. 
+    #runas: "sagan"
+
+    classification: "/etc/suricata/classification.config"
+    #classification: "/usr/local/etc/sagan-rules/classification.config"
+
+    meer_log: "/var/log/meer/meer.log"   # Meer log file
+
+    # Meer can decode various types of data with an alert (ie "event_type:
+    # alert").  This section enabled/disabled the JSON decoders for the 
+    # event type of "alert". 
+
+    metadata: enabled
+    flow: enabled
+    http: enabled
+    tls: enabled
+    ssh: enabled
+    smtp: enabled
+    email: enabled
+    json: enabled
+
+    # This enables the "fingerprint" option.  When used in conjunction with the 
+    # "fingerprint.rules" (https://github.com/quadrantsec/fingerprint-rules), 
+    # this will record things like operating system type,  type of system it is
+    # (client/server), etc.  This data get routed differently and does not 
+    # generate "alerts". 
+  
+    fingerprint: enabled
+    fingerprint_log: "/tmp/fingerprint.eve"
+
+    # "client_stats" are specific to Sagan and allow Sagan/Meer to record
+    # information about systems sending Sagan data.  This has no affect on 
+    # Suricata. 
+
+    client_stats: disabled
+
+    # The "oui_lookup" allows Meer to lookup vender information based off
+    # a MAC address.  Information is stored in fingerprinting JSON.  The
+    # MAC/OUI database
+    #
+    # https://gitlab.com/wireshark/wireshark/raw/master/manuf
+
+    oui_lookup: disabled
+    oui_filename: "/usr/local/etc/manuf"
+
+    # If "dns" is enabled, Meer will do reverse DNS (PTR) lookups of an IP. 
+    # The "dns_cache" is the amount of time Meer should "cache" a PTR record
+    # for.  The DNS cache prevents Meer from doing repeated lookups of an 
+    # already looked up PTR record.  This reduces overloading DNS servers.
+
+    dns: enabled
+    dns_cache: 900	# Time in seconds. 
+
+    # "health" checks are a set of signatures that are triggered every so 
+    # often to ensure a sensor is up and operational.  When these events
+    # are triggered,  they are not stored into the database as normal alert
+    # data.  For example,  with MySQL/MariaDB output enabled, they update the 
+    # "sensor.health" table with the current epoch time.  Think of these
+    # events like a "ping" for your sensor.  This can be useful for detecting
+    # when Meer, Suricata or Sagan have "died" unexpectedly.
+
+    health: enabled
+    health_signatures: 20000001,20000002,20000003,20000004
+
+    waldo_file: "/var/log/meer/meer.waldo"	# Where to store the last 
+                                                # position in the 
+                                                # "follow-eve" file. 
+
+    lock_file: "/var/log/meer/meer.lck"		# To prevent dueling processes.
+
+    follow_eve: "/var/log/suricata/alert.json"	# The Suricata/Sagan file to monitor
+    #follow-eve: "/var/log/sagan/alert.json"	
+
+#############################################################################
+# Output Plugins 
+#############################################################################
+
+output-plugins:
+
+  ###########################################################################
+  # MySQL/MariaDB output - Stores data from Suricata or Sagan into a semi-
+  # traditional "Barnyard2/Snort" like database. 
+  ###########################################################################
+
+  sql:
+
+    enabled: yes
+    driver: mysql        # "mysql" or "postgresql"
+    debug: no
+    server: 127.0.0.1
+    port: 3306           # Change to 5432 for PostgreSQL 
+    username: "XXXX"
+    password: "XXXXXX"
+    database: "snort_test"
+
+    # Automatically reconnect to the database when disconnected.
+
+    reconnect: enabled
+    reconnect_time: 10 
+
+    # Store decoded JSON data that is similar to Unified2 "extra" data to the
+    # "extra" table.
+
+    extra_data: enabled
+
+    # Store extra decoded JSON metadata from Suricata or Sagan.  This requires
+    # your database to have the metadata, flow, http, etc. tables.  If all are
+    # disabled,  Meer will store data in strictly a Barnyard2/Snort method. 
+    # If you want to store this decoded information,  and you likely do,  make
+    # sure you have the decoders enabled in the "core" section of this Meer 
+    # configuration file! 
+
+    metadata: enabled
+    flow: enabled
+    http: enabled
+    tls: enabled
+    ssh: enabled
+    smtp: enabled
+    email: enabled
+    json: enabled
+    stats: enabled
+
+    # If you would like Meer to mimic the legacy "reference" tables from
+    # Snort/Barnyard2, enable it here.  If your using more than one database
+    # to store Suricata or Sagan data, you'll likely want to leave this 
+    # disabled. The legacy reference system isn't very efficient and there's
+    # better ways to keep track of this data.  This is also a memory hog and
+    # performance killer.  See tools/reference_handler/reference_handler.pl to
+    # build a centralized reference table.
+
+    reference_system: disabled
+    sid_file: "/etc/suricata/rules/sid-msg.map"	  # Created with "create-sidmap"
+    reference: "/etc/suricata/reference.config"
+
+    #sid_file: "/usr/local/etc/sagan-rules/sagan-sid-msg.map"
+    #reference: "/usr/local/etc/sagan-rules/reference.config"
+
+  ###########################################################################
+  # The "pipe" output module - This allows Meer to send a copy of an event
+  # to a named pipe (FIFO) in its raw,  JSON form.  This allows for 
+  # third party tools, like Sagan, to do further analysis on the event. 
+  ###########################################################################
+  
+  pipe:
+
+    enabled: no
+    pipe_location: /var/sagan/fifo/sagan.fifo
+    pipe_size: 1048576                        # System must support F_GETPIPE_SZ/F_SETPIPE_SZ
+    metadata: enabled
+
+    # Below are the "event_types" from Suricata/Sagan. This tells Meer what to send
+    # to the named pipe/FIFO. 
+
+    alert: enabled
+    files: enabled
+    flow: enabled
+    dns: enabled
+    http: enabled
+    tls: enabled
+    ssh: enabled
+    smtp: enabled
+    fileinfo: enabled
+    dhcp: enabled
+    stats: enabled
+
+  ###########################################################################
+  # external 
+  #
+  # EVE data (JSON) is passed via stdin to the external program.   The 
+  # external program can be written in any language you choose (shell script, 
+  # Python, Perl, etc). 
+  #
+  # This can be useful for automatic firewalling,  building block lists, 
+  # replicating "snortsam" functionality, etc.  See the "tools/external"
+  # directory for example routines that use this feature.
+  #
+  # If this option is enabled, any rule that has the metadata of "meer 
+  # external" (ie - "metadata:meer external") will cause the external script 
+  # to be executed.  Execution can also be controlled by Snort metadata
+  # "policies".
+  ###########################################################################
+
+  external:
+
+    enabled: yes
+    debug: no
+
+    # Execution of an external program based on metadata "policy".  When Meer
+    # encounters a "policy" (security-ips, balanced-ips, connectivity-ips, 
+    # and max-detect-ips),  Meer will execute the specified routine.  
+    # Currently only Snort rules have these types of polices.  This can be
+    # useful when you want to execute an external script that will to "block"
+    # or "firewall" based off the policy types.  This section only applies if
+    # you are using Suricata with Snort rules.  Snort's polices are
+    # below:
+
+    # connectivity-ips  - You run a lot of real time applications (VOIP, 
+    # financial transactions, etc), and don't want to run any rules that 
+    # could affect the current performance of your sensor.  The rules in this 
+    # category make snort happy, additionally this category focuses on the high
+    # profile most likely to affect the largest number of people type of
+    # vulnerabilities.
+
+    # balanced-ips - You are normal, you run normal stuff and you want normal
+    # security protections.  This is the best policy to start from if you are 
+    # new, old, or just plain average.  If you don't have any special
+    # requirements for super high speeds or super secure networks start here.
+
+    # security-ips - You don't care about dropping your bosses email, everything
+    # in your environment is tightly regulated and you don't tolerate people 
+    # stepping outside of your security policy.  This policy hates on IM, P2P,
+    # vulnerabilities, malware, web apps that cause productivity loss, remote
+    # access, and just about anything not related to getting work done.  
+    # If you run your network with an iron fist start here.
+
+    # I can't seem to find any documentation on what "max-detect-ips" is :(
+
+    policy-security-ips: enabled
+    policy-max-detect-ips: enabled
+    policy-connectivity-ips: enabled
+    policy-balanced-ips: enabled
+
+    # Execute the program _any_ time an alert is detected
+
+    execute-on-all: disabled
+
+    program: "/usr/local/bin/external_program"
+
+
+  ###########################################################################
+  # "redis" allows you to send Suricata/Sagan EVE data to a Redis database. 
+  # This will mimic the way Suricata writes EVE data to Redis with the 
+  # exception of "client_stats" which is a Sagan specific processor. 
+  ###########################################################################
+
+  redis:
+
+    enabled: no
+    debug: no
+    server: 127.0.0.1
+    #password: "mypassword"
+    port: 6379
+    batch: 1                 # Batching (pipelining) data.  When set to 1 then
+                             # no batching is performed and data is immediately 
+                             # sent to Redis.  If increase,  data is batched 
+                             # and sent in bulk to increase performance.  The max
+                             # is 100.
+    key: "suricata"	     # Default 'channel' to use.  If none is specified, the 
+                             # channel name will become the "event_type"  type 
+                             # (ie - alert, # dhcp, dns, flow, etc). If set, Meer
+                             # will send data to Redis similar to Suricata. 
+    mode: list               # How to publish data to Redis.  Valid types are 
+                             # "list" ("lpush"), "rpush", "channel" ("publish"), 
+                             # "set".
+    append_id: disabled      # If enabled, this will append the "hostname" and
+                             # waldo position to the key.  For example,  the 
+                             # Redis object can become "alert:hostname:1". This
+                             # is good when you are using the "set" mode. 
+
+    # This controls event_types to send to Redis. 
+
+    alert: enabled
+    files: enabled
+    flow: enabled
+    dns: enabled
+    http: enabled
+    tls: enabled
+    ssh: enabled
+    smtp: enabled
+    fileinfo: enabled
+    dhcp: enabled
+    stats: enabled
+
+    # Fingerprint data can be temporarily stored in a Redis database.  When an alert
+    # fires, this information can be used to determine the targets operating system, 
+    # type (client/server), etc.  This can be useful in determining the validity of
+    # an event. If used in conjunction with the SQL output,  the fingerprint data for
+    # the targeted system is stored in the 'fingerprint' table.
+
+    fingerprint: enabled
+
+    # This controls sending Sagan client tracking data to Redis.  This has no affect 
+    # on Suricata systems. 
+ 
+    client_stats: disabled
+
