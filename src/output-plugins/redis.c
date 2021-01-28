@@ -221,7 +221,7 @@ return(true);
 }
 
 
-void JSON_To_Redis ( char *json_string, char *key )
+void JSON_To_Redis ( const char *json_string, const char *key )
 {
 
     int i = 0;

@@ -107,7 +107,7 @@ int main (int argc, char *argv[])
     bool skip_flag = 0;
     bool wait_flag = false;
 
-    char buf[BUFFER_SIZE + PACKET_BUFFER_SIZE_DEFAULT];
+    char buf[BUFFER_SIZE + PACKET_BUFFER_SIZE_DEFAULT] = { 0 }; 
 
     uint64_t linecount = 0;
     uint64_t old_size = 0;
@@ -184,7 +184,7 @@ int main (int argc, char *argv[])
     Meer_Log(NORMAL, " @@@@@@@@@@  @@@@@@@@ @@@@@@@@ @@@@@@@    Meer version %s", VERSION);
     Meer_Log(NORMAL, " @@! @@! @@! @@!      @@!      @@!  @@@   Quadrant Information Security");
     Meer_Log(NORMAL, " @!! !!@ @!@ @!!!:!   @!!!:!   @!@!!@a    https://quadrantsec.com");
-    Meer_Log(NORMAL, " !!:     !!: !!:      !!:      !!: :!a    Copyright (C) 2018-2020");
+    Meer_Log(NORMAL, " !!:     !!: !!:      !!:      !!: :!a    Copyright (C) 2018-2021");
     Meer_Log(NORMAL, "  :      :   : :: ::  : :: ::   :   : :");
     Meer_Log(NORMAL, "");
 
@@ -338,7 +338,21 @@ int main (int argc, char *argv[])
                     linecount++;
                 }
 
+	    /* If our Waldo is > than our line count,  the file was likely truncated while Meer was
+	       "offline".  Reset the Waldo,  and inform the user.  On restart, we'll treat the spool
+  	       as a new file. */
+
+	    if ( MeerWaldo->position > linecount )
+		{
+
+		Meer_Log(WARN, "Spool might have been truncated!  Resetting Waldo to zero and aborting.");
+		MeerWaldo->position = 0; 
+		Signal_Handler(SIGTERM);
+
+		}
+
             Meer_Log(NORMAL, "Reached target record of %" PRIu64 ".  Processing new records.", MeerWaldo->position);
+
 
         }
     else

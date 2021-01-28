@@ -47,11 +47,12 @@
 #define IPv6		6
 
 #define DNS_CACHE_DEFAULT	900
-#define PACKET_BUFFER_SIZE_DEFAULT 524288
+#define PACKET_BUFFER_SIZE_DEFAULT 2048000		/* Any larger seems to cause problems without malloc */
 
 #define SQL_RECONNECT_TIME 10
 
 #define MAX_SQL_QUERY	10240 + PACKET_BUFFER_SIZE_DEFAULT
+
 
 #define		EXTRA_ORIGNAL_CLIENT_IPV4		1
 #define         EXTRA_ORIGNAL_CLIENT_IPV6               2

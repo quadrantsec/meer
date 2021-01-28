@@ -196,7 +196,9 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
             if ( MeerOutput->redis_flag )
                 {
                     snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s", json_object_get_string ( tmp_ip ));
+
                     Redis_Writer( "SET", redis_prefix, (char*)json_object_to_json_string(encode_json), 0);
+
                 }
 
 #endif

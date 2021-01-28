@@ -139,7 +139,11 @@ void Remove_Return(char *s)
 {
     char *s1, *s2;
     for(s1 = s2 = s; *s1; *s1++ = *s2++ )
+        {
         while( *s2 == '\n' )s2++;
+	while( (int)*s2 == 13 )s2++; 
+
+	}
 }
 
 void Remove_Spaces(char *s)
@@ -399,26 +403,20 @@ void DNS_Lookup( char *host, char *str, size_t size )
 
 }
 
-bool Validate_JSON_String( char *validate_in_string )
+bool Validate_JSON_String( const char *validate_in_string )
 {
 
-    char validate_string[BUFFER_SIZE + PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-
-    strlcpy(validate_string, validate_in_string, sizeof(validate_string));
-
-
-    if ( validate_string[0] != '{' )
+    if ( validate_in_string[0] != '{' )
         {
-            Meer_Log(WARN, "JSON: \"%s\".  Doesn't appear to start as a valid JSON/EVE string. Skipping line.", validate_in_string);
+            Meer_Log(WARN, "JSON \"%s\".  Doesn't appear to start as a valid JSON/EVE string. Skipping line.", validate_in_string);
+ 
             return 1;
         }
 
-
-    /* 1 == flows, http, non \n terminated.   2 == entire line with \n. */
-
-    if ( ( validate_string[ strlen(validate_string) - 1] != '}' ) && ( validate_string[ strlen(validate_string) - 2] != '}' ) )
+    if ( ( validate_in_string[ strlen(validate_in_string) - 1] != '}' ) && ( validate_in_string[ strlen(validate_in_string) - 2] != '}' ) )
         {
-            Meer_Log(WARN, "JSON: \"%s\". JSON might be truncated.  Consider increasing 'payload-buffer-size' in Suricata or Sagan. Skipping line.", validate_string);
+            Meer_Log(WARN, "JSON: \"%s\". JSON might be truncated.  Consider increasing 'payload-buffer-size' in Suricata or Sagan. Skipping line.", validate_in_string);
+ 
             return 1;
         }
 
