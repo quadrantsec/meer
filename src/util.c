@@ -140,10 +140,10 @@ void Remove_Return(char *s)
     char *s1, *s2;
     for(s1 = s2 = s; *s1; *s1++ = *s2++ )
         {
-        while( *s2 == '\n' )s2++;
-	while( (int)*s2 == 13 )s2++; 
+            while( *s2 == '\n' )s2++;
+            while( (int)*s2 == 13 )s2++;
 
-	}
+        }
 }
 
 void Remove_Spaces(char *s)
@@ -409,14 +409,14 @@ bool Validate_JSON_String( const char *validate_in_string )
     if ( validate_in_string[0] != '{' )
         {
             Meer_Log(WARN, "JSON \"%s\".  Doesn't appear to start as a valid JSON/EVE string. Skipping line.", validate_in_string);
- 
+
             return 1;
         }
 
     if ( ( validate_in_string[ strlen(validate_in_string) - 1] != '}' ) && ( validate_in_string[ strlen(validate_in_string) - 2] != '}' ) )
         {
             Meer_Log(WARN, "JSON: \"%s\". JSON might be truncated.  Consider increasing 'payload-buffer-size' in Suricata or Sagan. Skipping line.", validate_in_string);
- 
+
             return 1;
         }
 
