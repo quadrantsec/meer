@@ -295,7 +295,6 @@ void Fingerprint_EVENT_JSON ( struct _DecodeAlert *DecodeAlert, struct _Fingerpr
 
                     json_object_object_add(encode_json_http, "http_user_agent", json_object_new_string( DecodeAlert->http_user_agent ));
 
-
                 }
 
             if ( DecodeAlert->http_xff[0] != '\0' )
