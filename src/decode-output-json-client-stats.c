@@ -102,14 +102,14 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
 
     /* IP Address */
 
-    if (json_object_object_get_ex(json_obj, "ipaddr", &tmp))
+    if (json_object_object_get_ex(json_obj, "ip_address", &tmp))
         {
             cs_ipaddr = (char *)json_object_get_string(tmp);
         }
 
     if ( cs_ipaddr == NULL )
         {
-            Meer_Log(WARN, "[%s, line %d] 'ipaddr' appears incomplete or invalid. Abort", __FILE__, __LINE__);
+            Meer_Log(WARN, "[%s, line %d] 'ip_address' appears incomplete or invalid. Abort", __FILE__, __LINE__);
             json_object_put(encode_json);
             return;
         }
@@ -169,11 +169,11 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
     if ( MeerOutput->redis_flag )
         {
 
-	    // This isn't quite it, but Mark has modified the key format.  We'll need to update it when that
-	    // change takes place.
+            // This isn't quite it, but Mark has modified the key format.  We'll need to update it when that
+            // change takes place.
             // snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s|%s|%s",cs_ipaddr, dns, cs_timestamp );
 
-	    snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s",cs_ipaddr );
+            snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s",cs_ipaddr );
             Redis_Writer( "SET", redis_prefix, (char*)json_object_to_json_string(encode_json), 0);
 
         }

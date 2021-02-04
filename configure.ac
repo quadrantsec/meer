@@ -110,7 +110,7 @@ if test "x$with_mysql_libraries" != "xno"; then
 fi
 
 AC_ARG_ENABLE(redis,
-  [  --disable-redis          Enable Redis support.],
+  [  --disable-redis          Disable Redis support.],
   [ REDIS="$enableval"],
   [ REDIS="yes" ]
 )
