@@ -171,7 +171,7 @@ bool Decode_JSON( char *json_string )
 #endif
 
 #ifdef HAVE_LIBHIREDIS
-                    if ( fingerprint_return == false )
+                    if ( fingerprint_return == false && MeerOutput->redis_flag == true )
                         {
                             JSON_To_Redis( DecodeAlert->new_json_string, "alert" );
                         }
