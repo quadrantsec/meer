@@ -52,6 +52,7 @@ void Load_YAML_Config ( char *yaml_file );
 #define		YAML_MEER_PIPE		3
 #define		YAML_MEER_EXTERNAL	4
 #define 	YAML_MEER_REDIS		5
+#define		YAML_MEER_BLUEDOT	6
 
 /******************/
 /* Database types */

@@ -170,7 +170,7 @@ bool Redis_Writer ( char *command, char *key, char *value, int expire )
 
     if ( expire == 0 )
         {
-		 printf("%s", command);
+            printf("%s", command);
             reply = redisCommand(MeerOutput->c_redis, "%s %s %s", command, key, value);
 
             if ( MeerOutput->redis_debug )

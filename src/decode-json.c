@@ -182,6 +182,14 @@ bool Decode_JSON( char *json_string )
                             Output_External( DecodeAlert );
                         }
 
+#ifdef WITH_BLUEDOT
+
+                    if ( MeerOutput->bluedot_flag == true )
+                        {
+                            Output_Bluedot( DecodeAlert );
+                        }
+#endif
+
                     free(DecodeAlert);
 
                 }

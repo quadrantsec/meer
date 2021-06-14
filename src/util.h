@@ -46,7 +46,8 @@ struct _Fingerprint_Networks
 void Drop_Priv(void);
 bool Check_Endian(void);
 char *Hexify(char *xdata, int length);
-void DNS_Lookup( char *host, char *str, size_t size );
+void DNS_Lookup_Reverse( char *host, char *str, size_t size );
+int DNS_Lookup_Forward( const char *host, char *str, size_t size );
 bool Validate_JSON_String( const char *buf );
 bool IP2Bit(char *ipaddr, unsigned char *out);
 bool Mask2Bit(int mask, unsigned char *out);
@@ -61,7 +62,5 @@ bool Is_Inrange ( unsigned char *ip, unsigned char *tests, int count);
 void To_UpperC(char *const s);
 uint32_t Djb2_Hash(char *str);
 void Convert_ISO8601_For_SQL( char *time, char *str, size_t size );
-
-
-
+bool Is_Notroutable ( unsigned char *ip );
 

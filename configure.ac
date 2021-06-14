@@ -93,6 +93,12 @@ AC_ARG_ENABLE(mysql,
   [ MYSQL="no" ]
 )
 
+AC_ARG_ENABLE(bluedot,
+  [  --enable-bluedot       Enable Bluedot support.],
+  [ BLUEDOT="$enableval"],
+  [ BLUEDOT="no" ]
+)
+
 AC_ARG_WITH(libmysql_includes,
         [  --with-mysql-includes=DIR    MySQL include directory],
         [with_mysql_includes="$withval"],[with_mysql_includes="no"])
@@ -285,6 +291,11 @@ if test "$MYSQL" = "yes"; then
         AC_CHECK_HEADER([mysql/mysql.h])
         AC_CHECK_LIB(mysqlclient, main,,AC_MSG_ERROR(The MySQL library libmysqlclient is missing!
         If you're not interested in MySQL support use the --disable-mysql flag.))
+        fi
+
+if test "$BLUEDOT" = "yes"; then
+        AC_MSG_RESULT([------- Bluedot Support is enabled -------])
+	AC_DEFINE(WITH_BLUEDOT, 1, With Bluedot)
         fi
 
 if test "$POSTGRES" = "yes"; then

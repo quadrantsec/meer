@@ -62,6 +62,11 @@ MYSQL    *mysql;
 #include "output-plugins/redis.h"
 #endif
 
+#ifdef WITH_BLUEDOT
+#include "output-plugins/bluedot.h"
+#include "util-http.h"
+#endif
+
 
 struct _MeerOutput *MeerOutput;
 struct _MeerConfig *MeerConfig;
@@ -231,8 +236,34 @@ void Init_Output( void )
 
         }
 
+#ifdef WITH_BLUEDOT
 
-    Meer_Log(NORMAL, "--[ Meer engine information ]--------------------------------------------");
+    if ( MeerOutput->bluedot_flag == true )
+        {
+
+            int i = 0;
+
+            url_encoder_rfc_tables_init();
+            char tmp[65];
+
+            i = DNS_Lookup_Forward( MeerOutput->bluedot_host, MeerOutput->bluedot_ip, sizeof(MeerOutput->bluedot_ip) );
+
+            if ( i != 0 )
+                {
+                    Meer_Log(ERROR, "Unable to lookup %s. Abort.", MeerOutput->bluedot_host);
+                }
+
+            Meer_Log(NORMAL, "--[ Bluedot information ]-----------------------------------------");
+            Meer_Log(NORMAL, "");
+            Meer_Log(NORMAL, "Bluedot Output          : %s", MeerOutput->bluedot_flag ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Bluedot Server IP       : %s (%s)", MeerOutput->bluedot_ip, MeerOutput->bluedot_host);
+            Meer_Log(NORMAL, "");
+        }
+
+#endif
+
+
+    Meer_Log(NORMAL, "--[ Meer engine information ]---------------------------------------");
     Meer_Log(NORMAL, "");
 
 
@@ -546,6 +577,7 @@ bool Output_External ( struct _DecodeAlert *DecodeAlert )
     if ( MeerOutput->external_execute_on_all == true )
         {
             External( DecodeAlert );
+            json_object_put(json_obj);
             return(0);
         }
 
@@ -561,6 +593,8 @@ bool Output_External ( struct _DecodeAlert *DecodeAlert )
                     if ( strstr( meer, "external" ) )
                         {
                             External( DecodeAlert );
+                            json_object_put(json_obj);
+
 
                             /* We can return now.  We don't need to check
                                policies, etc */
@@ -593,6 +627,8 @@ bool Output_External ( struct _DecodeAlert *DecodeAlert )
 
                 }
         }
+
+    json_object_put(json_obj);
 
     return(0);
 
@@ -651,3 +687,43 @@ void Output_Stats ( char *json_string )
 #endif
 
 }
+
+
+
+#ifdef WITH_BLUEDOT
+
+bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
+{
+
+    struct json_object *json_obj = NULL;
+    struct json_object *tmp = NULL;
+
+    const char *meer = NULL;
+
+    if ( DecodeAlert->alert_metadata[0] != '\0' )
+        {
+            json_obj = json_tokener_parse(DecodeAlert->alert_metadata);
+
+            if (json_object_object_get_ex(json_obj, "meer", &tmp))
+                {
+
+                    meer = (char *)json_object_get_string(tmp);
+
+                    if ( strstr( meer, "bluedot" ) )
+                        {
+                            Bluedot( DecodeAlert );
+
+                            json_object_put(json_obj);
+                            return(0);
+                        }
+
+                }
+
+        }
+
+
+    json_object_put(json_obj);
+
+}
+
+#endif

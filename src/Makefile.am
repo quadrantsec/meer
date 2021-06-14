@@ -13,6 +13,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      util-strlcat.c \
 							      util-signal.c \
 							      util-base64.c \
+							      util-http.c \
 							      lockfile.c \
 							      stats.c \
 							      waldo.c \
@@ -34,6 +35,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      output-plugins/pipe.c \
 							      output-plugins/external.c \
 							      output-plugins/redis.c \
+							      output-plugins/bluedot.c \
 							      output-plugins/fingerprint.c
 
 

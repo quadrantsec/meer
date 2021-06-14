@@ -160,6 +160,16 @@ struct _MeerOutput
 
 #endif
 
+#ifdef WITH_BLUEDOT
+
+    bool bluedot_flag;
+    bool bluedot_debug;
+    char bluedot_host[128];
+    char bluedot_ip[64];
+    char bluedot_uri[512];
+    char bluedot_source[128];
+
+#endif
 
     bool sql_enabled;
     bool sql_debug;
@@ -239,6 +249,8 @@ struct _MeerCounters
     int OUICount;
 
     int fingerprint_network_count;
+
+    uint32_t bluedot_skip_count;
 
 #if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
 

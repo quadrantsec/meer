@@ -284,6 +284,9 @@
 /* Version number of package */
 #undef VERSION
 
+/* With Bluedot */
+#undef WITH_BLUEDOT
+
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #if defined AC_APPLE_UNIVERSAL_BUILD

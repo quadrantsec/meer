@@ -42,7 +42,12 @@
 #include "meer-def.h"
 #include "config-yaml.h"
 #include "util.h"
+#include "decode-json-alert.h"
 
+#ifdef WITH_BLUEDOT
+#include "output-plugins/bluedot.h"
+struct _Bluedot_Skip *Bluedot_Skip = NULL;
+#endif
 
 struct _MeerConfig *MeerConfig;
 struct _MeerOutput *MeerOutput;
@@ -258,6 +263,13 @@ void Load_YAML_Config( char *yaml_file )
                                 {
                                     sub_type = YAML_MEER_REDIS;
                                 }
+
+#ifdef WITH_BLUEDOT
+                            if ( !strcmp(value, "bluedot") )
+                                {
+                                    sub_type = YAML_MEER_BLUEDOT;
+                                }
+#endif
 
                         }
 
@@ -1143,6 +1155,134 @@ void Load_YAML_Config( char *yaml_file )
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
                                         {
                                             MeerOutput->redis_stats = true;
+                                        }
+
+                                }
+
+                        }
+
+#endif
+
+#ifdef WITH_BLUEDOT
+
+                    if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_BLUEDOT )
+                        {
+
+                            if (!strcmp(last_pass, "enabled"))
+                                {
+                                    if (!strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->bluedot_flag = true;
+                                        }
+                                }
+
+                            if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "debug") )
+                                {
+
+                                    if (!strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->bluedot_debug = true;
+                                        }
+                                }
+
+
+                            if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "host") )
+                                {
+
+                                    if ( value[0] == '\0' )
+                                        {
+                                            Meer_Log(ERROR, "Invalid configuration.  'bluedot' host is invalid");
+                                        }
+
+                                    strlcpy(MeerOutput->bluedot_host, value, sizeof(MeerOutput->bluedot_host));
+                                }
+
+                            if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "uri") )
+                                {
+
+                                    if ( value[0] == '\0' )
+                                        {
+                                            Meer_Log(ERROR, "Invalid configuration.  'bluedot' uri is invalid");
+                                        }
+
+                                    strlcpy(MeerOutput->bluedot_uri, value, sizeof(MeerOutput->bluedot_uri));
+                                }
+
+                            if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "source") )
+                                {
+
+                                    if ( value[0] == '\0' )
+                                        {
+                                            Meer_Log(ERROR, "Invalid configuration.  'bluedot' source is invalid");
+                                        }
+
+                                    strlcpy(MeerOutput->bluedot_source, value, sizeof(MeerOutput->bluedot_source));
+                                }
+
+
+                            if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "skip_networks" ) )
+                                {
+
+                                    Remove_Spaces(value);
+
+                                    int  bluedot_mask = 0;
+
+                                    char *tok = NULL;
+                                    char *bluedot_iprange = NULL;
+                                    char *bluedot_tok = NULL;
+                                    char *bluedot_tmpmask = NULL;
+
+                                    unsigned char bluedot_ipbits[MAXIPBIT] = { 0 };
+                                    unsigned char bluedot_maskbits[MAXIPBIT]= { 0 };
+
+                                    char *bluedot_ptr = strtok_r(value, ",", &tok);
+
+                                    while ( bluedot_ptr != NULL )
+                                        {
+
+                                            bluedot_iprange = strtok_r(bluedot_ptr, "/", &bluedot_tok);
+
+                                            if ( bluedot_iprange == NULL )
+                                                {
+                                                    Meer_Log(ERROR, "[%s, line %d] 'bluedot' - 'skip_networks' is invalid. Abort.", __FILE__, __LINE__);
+                                                }
+
+                                            if (!IP2Bit(bluedot_iprange, bluedot_ipbits))
+                                                {
+                                                    Meer_Log(ERROR, "[%s, line %d] 'bluedot' - 'skip_address' is invalid. Abort", __FILE__, __LINE__);
+                                                }
+
+                                            bluedot_tmpmask = strtok_r(NULL, "/", &bluedot_tok);
+
+                                            if ( bluedot_tmpmask == NULL )
+                                                {
+                                                    bluedot_mask = 32;
+                                                }
+
+                                            Bluedot_Skip = (_Bluedot_Skip *) realloc(Bluedot_Skip, (MeerCounters->bluedot_skip_count+1) * sizeof(_Bluedot_Skip));
+
+                                            if ( Bluedot_Skip == NULL )
+                                                {
+                                                    Meer_Log(ERROR, "[%s, line %d] 'bluedot' - Failed to reallocate memory for Bluedot_Skip Abort!", __FILE__, __LINE__);
+                                                }
+
+                                            memset(&Bluedot_Skip[MeerCounters->bluedot_skip_count], 0, sizeof(_Bluedot_Skip));
+
+                                            bluedot_mask = atoi(bluedot_tmpmask);
+
+                                            if ( bluedot_mask == 0 || !Mask2Bit(bluedot_mask, bluedot_maskbits))
+                                                {
+                                                    Meer_Log(ERROR, "[%s, line %d] Invalid mask for Bluedot 'skip_networks'. Abort", __FILE__, __LINE__);
+                                                }
+
+
+                                            memcpy(Bluedot_Skip[MeerCounters->bluedot_skip_count].range.ipbits, bluedot_ipbits, sizeof(bluedot_ipbits));
+                                            memcpy(Bluedot_Skip[MeerCounters->bluedot_skip_count].range.maskbits, bluedot_maskbits, sizeof(bluedot_maskbits));
+
+                                            MeerCounters->bluedot_skip_count++;
+
+                                            bluedot_ptr = strtok_r(NULL, ",", &tok);
+
                                         }
 
                                 }

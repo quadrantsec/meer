@@ -806,7 +806,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
     if ( MeerConfig->dns == true )
         {
 
-            DNS_Lookup(Alert_Return_Struct->src_ip, Alert_Return_Struct->src_dns, sizeof(Alert_Return_Struct->src_dns));
+            DNS_Lookup_Reverse(Alert_Return_Struct->src_ip, Alert_Return_Struct->src_dns, sizeof(Alert_Return_Struct->src_dns));
 
             if ( Alert_Return_Struct->src_dns[0] != '\0' )
                 {
@@ -815,7 +815,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                 }
 
 
-            DNS_Lookup(Alert_Return_Struct->dest_ip, Alert_Return_Struct->dest_dns, sizeof(Alert_Return_Struct->dest_dns));
+            DNS_Lookup_Reverse(Alert_Return_Struct->dest_ip, Alert_Return_Struct->dest_dns, sizeof(Alert_Return_Struct->dest_dns));
 
             if ( Alert_Return_Struct->dest_dns[0] != '\0' )
                 {

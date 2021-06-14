@@ -188,7 +188,7 @@ int main (int argc, char *argv[])
     Meer_Log(NORMAL, "  :      :   : :: ::  : :: ::   :   : :");
     Meer_Log(NORMAL, "");
 
-    Meer_Log(NORMAL, "Meer PID is %d", getpid() );
+    Meer_Log(NORMAL, "Meer's PID is %d", getpid() );
     Drop_Priv();
 
     CheckLockFile();
