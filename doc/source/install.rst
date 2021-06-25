@@ -34,7 +34,7 @@ Installation from source distributions files gives
 
 Basic steps::
 
-    git clone https://github.com/beave/meer
+    git clone https://github.com/quadrantsec/meer
     cd meer
     ./autogen.sh
     ./configure
