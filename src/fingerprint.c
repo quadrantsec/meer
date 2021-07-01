@@ -201,7 +201,7 @@ void Fingerprint_EVENT_JSON ( struct _DecodeAlert *DecodeAlert, struct _Fingerpr
 
     if ( MeerConfig->dns && DecodeAlert->src_ip != NULL )
         {
-            DNS_Lookup( DecodeAlert->src_ip, dns, sizeof(dns));
+            DNS_Lookup_Reverse( DecodeAlert->src_ip, dns, sizeof(dns));
             json_object_object_add(encode_json,"dns", json_object_new_string( dns ));
         }
 

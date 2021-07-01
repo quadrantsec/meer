@@ -161,7 +161,7 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
 
     if ( MeerConfig->dns )
         {
-            DNS_Lookup( cs_ipaddr, dns, sizeof(dns) );
+            DNS_Lookup_Reverse( cs_ipaddr, dns, sizeof(dns) );
             json_object *jdns = json_object_new_string( dns );
             json_object_object_add(encode_json,"dns", jdns);
         }
