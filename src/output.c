@@ -654,6 +654,7 @@ void Output_Stats ( char *json_string )
         {
             MeerCounters->InvalidJSONCount++;
             Meer_Log(WARN, "Got invalid 'stats' JSON string: %s", json_string);
+	    json_object_put(json_obj);
             return;
         }
 
@@ -681,10 +682,9 @@ void Output_Stats ( char *json_string )
             SQL_Insert_Stats ( json_string, timestamp, hostname );
         }
 
+#endif
 
     json_object_put(json_obj);
-
-#endif
 
 }
 
