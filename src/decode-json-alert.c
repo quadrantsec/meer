@@ -81,6 +81,8 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
     bool has_alert = false;
 
+    char new_ip[64];
+
     Alert_Return_Struct = (struct _DecodeAlert *) malloc(sizeof(_DecodeAlert));
 
     if ( Alert_Return_Struct == NULL )
@@ -194,6 +196,8 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
     Alert_Return_Struct->email_to[0] = '\0';
     Alert_Return_Struct->email_cc[0] = '\0';
     Alert_Return_Struct->email_attachment[0] = '\0';
+
+
 
 
     /* Base information from JSON */
@@ -737,12 +741,32 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
     if ( !Is_IP(Alert_Return_Struct->src_ip, IPv4) && !Is_IP(Alert_Return_Struct->src_ip, IPv6 ) )
         {
-            Meer_Log(ERROR, "JSON: \"%s\" : Invalid src_ip found in flowid %s. Abort.", json_string, Alert_Return_Struct->flowid);
+            Meer_Log(WARN, "JSON: \"%s\" : Invalid src_ip found in flowid %s. Attempting to 'fix'.", json_string, Alert_Return_Struct->flowid);
+
+            if ( Try_And_Fix_IP( Alert_Return_Struct->src_ip, new_ip, sizeof( new_ip )) == true )
+                {
+                    strlcpy(Alert_Return_Struct->src_ip, new_ip, sizeof( new_ip ));
+                }
+            else
+                {
+                    Meer_Log(ERROR, "Unable to correct IP addres flowid %s. Abort.", Alert_Return_Struct->flowid);
+                }
+
         }
 
     if ( !Is_IP(Alert_Return_Struct->dest_ip, IPv4) && !Is_IP(Alert_Return_Struct->dest_ip, IPv6 ) )
         {
-            Meer_Log(ERROR, "JSON: \"%s\" : Invalid dest_ip found in flowid %s. Abort.", json_string, Alert_Return_Struct->flowid);
+            Meer_Log(WARN, "JSON: \"%s\" : Invalid dest_ip found in flowid %s. Attempting to 'fix'.", json_string, Alert_Return_Struct->flowid);
+
+            if ( Try_And_Fix_IP( Alert_Return_Struct->dest_ip, new_ip, sizeof( new_ip )) == true )
+                {
+                    strlcpy(Alert_Return_Struct->dest_ip, new_ip, sizeof( new_ip ));
+                }
+            else
+                {
+                    Meer_Log(ERROR, "Unable to correct IP addres flowid %s. Abort.", Alert_Return_Struct->flowid);
+                }
+
         }
 
     if ( Alert_Return_Struct->proto == NULL )

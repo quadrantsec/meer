@@ -705,3 +705,50 @@ bool Is_Notroutable ( unsigned char *ip )
     return Is_Inrange(ip, (unsigned char *)tests, sizeof(tests)/(sizeof(char[32])));
 }
 
+/****************************************************************************/
+/* Try_And_Fix_IP - In some cases, applications hand us crazy things they   */
+/* "call" TCP/IP addresses.   However,  they aren't valid.  This "corrects" */
+/* those bogus IP addresses (when it can)                                   */
+/****************************************************************************/
+
+bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size )
+{
+
+    uint16_t i=0;
+    uint8_t skip=4;
+    char dumb_ip_return[64] = { 0 };
+    uint8_t p = 0;
+
+    /* Some Microsoft applications (firewall, etc) write out the full IPv6
+       with all 0 and no :'s.   This attempts to put :'s in the correct location */
+
+    if ( strlen(orig_ip) == 32 && !strstr ( orig_ip, ":" ) )
+        {
+
+            for ( i=0; i < strlen(orig_ip); i++ )
+                {
+
+                    if ( i == skip )
+                        {
+                            dumb_ip_return[p] = ':';
+                            skip = skip+4;
+                            p++;
+                        }
+
+                    dumb_ip_return[p] = orig_ip[i];
+                    p++;
+
+                }
+
+            dumb_ip_return[p+1] = '\0';
+            snprintf(str, size, "%s", dumb_ip_return);
+            return(true);
+
+        }
+
+
+    return(false);
+}
+
+
+
