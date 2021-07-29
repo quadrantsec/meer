@@ -108,8 +108,6 @@ bool Decode_JSON( char *json_string )
     if ( bad_json == false )
         {
 
-            fingerprint_return = false;
-
             if ( !strcmp(json_object_get_string(tmp), "alert") )
                 {
 
@@ -118,17 +116,11 @@ bool Decode_JSON( char *json_string )
 
 #ifdef HAVE_LIBHIREDIS
 
-                    /* Added fingerprint */
+                    /* Add fingerprint */
 
                     if (MeerConfig->fingerprint == true )
                         {
                             Add_Fingerprint_To_JSON( json_obj, DecodeAlert );
-                        }
-
-
-
-                    if ( MeerConfig->fingerprint == true )
-                        {
 
                             /* Is this a "fingerprint" signature? */
 
@@ -142,6 +134,8 @@ bool Decode_JSON( char *json_string )
 
                             memset(FingerprintData, 0, sizeof(_FingerprintData));
                             Parse_Fingerprint( DecodeAlert, FingerprintData);
+
+			    fingerprint_return = false;
 
                             if ( FingerprintData->ret == true )
                                 {
@@ -171,6 +165,7 @@ bool Decode_JSON( char *json_string )
 #endif
 
 #ifdef HAVE_LIBHIREDIS
+
                     if ( fingerprint_return == false && MeerOutput->redis_flag == true )
                         {
                             JSON_To_Redis( DecodeAlert->new_json_string, "alert" );
