@@ -51,6 +51,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `curl' library (-lcurl). */
+#undef HAVE_LIBCURL
+
 /* Define to 1 if you have the `hiredis' library (-lhiredis). */
 #undef HAVE_LIBHIREDIS
 
@@ -286,6 +289,9 @@
 
 /* With Bluedot */
 #undef WITH_BLUEDOT
+
+/* With Elasticseach */
+#undef WITH_ELASTICSEARCH
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */

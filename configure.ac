@@ -86,15 +86,20 @@ if test "x$with_postgresql_libraries" != "xno"; then
    LDFLAGS="${LDFLAGS}  -L${with_postgresql_libraries}"
 fi
 
+AC_ARG_ENABLE(elasticsearch,
+  [  --enable-elasticsearch          Enable Elasticsearch output support.],
+  [ ELASTICSEARCH="$enableval"],
+  [ ELASTICSEARCH="no" ]
+)
 
 AC_ARG_ENABLE(mysql,
-  [  --enable-mysql         Enable MySQL/MariaDB support.],
+  [  --enable-mysql          Enable MySQL/MariaDB support.],
   [ MYSQL="$enableval"],
   [ MYSQL="no" ]
 )
 
 AC_ARG_ENABLE(bluedot,
-  [  --enable-bluedot       Enable Bluedot support.],
+  [  --enable-bluedot        Enable Bluedot support.],
   [ BLUEDOT="$enableval"],
   [ BLUEDOT="no" ]
 )
@@ -116,7 +121,7 @@ if test "x$with_mysql_libraries" != "xno"; then
 fi
 
 AC_ARG_ENABLE(redis,
-  [  --disable-redis          Disable Redis support.],
+  [  --disable-redis         Disable Redis support.],
   [ REDIS="$enableval"],
   [ REDIS="yes" ]
 )
@@ -312,6 +317,13 @@ if test "$REDIS" = "yes"; then
        If you're not interested in Redis support use the --disable-redis flag.))
        fi
 
+if test "$ELASTICSEARCH" = "yes"; then
+        AC_MSG_RESULT([------- Elasticsearch output support enabled -------])
+        AC_CHECK_LIB(curl, main,,AC_MSG_ERROR(The libcurl library cannot be found.
+This library is used for Meer's Elasticsearch output support. To disable this feature use the --disable-http flag. ))
+        AC_CHECK_HEADER([curl/curl.h])
+	AC_DEFINE(WITH_ELASTICSEARCH, 1, With Elasticseach)
+        fi
 
 test "x$prefix" = x. || test "x$prefix" = xNONE && prefix=/usr/local
 AC_DEFINE_UNQUOTED(CONFIG_FILE_PATH, "`eval echo "${sysconfdir}/meer.yaml"`", [Meer configuration file]) 

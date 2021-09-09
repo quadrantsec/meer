@@ -745,11 +745,12 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
             if ( Try_And_Fix_IP( Alert_Return_Struct->src_ip, new_ip, sizeof( new_ip )) == true )
                 {
-                    strlcpy(Alert_Return_Struct->src_ip, new_ip, sizeof( new_ip ));
+                    strlcpy(Alert_Return_Struct->src_ip, new_ip, sizeof( Alert_Return_Struct->src_ip ));
                 }
             else
                 {
-                    Meer_Log(ERROR, "Unable to correct IP addres flowid %s. Abort.", Alert_Return_Struct->flowid);
+                    Meer_Log(WARN, "Unable to find a usable source IP address for flowid %s. Using %s (BAD_IP) instead.", Alert_Return_Struct->flowid, BAD_IP);
+                    strlcpy(Alert_Return_Struct->src_ip, BAD_IP, sizeof( Alert_Return_Struct->src_ip ));
                 }
 
         }
@@ -764,7 +765,10 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                 }
             else
                 {
-                    Meer_Log(ERROR, "Unable to correct IP addres flowid %s. Abort.", Alert_Return_Struct->flowid);
+
+                    Meer_Log(WARN, "Unable to find a usable destination IP address for flowid %s. Using %s (BAD_IP) instead.", Alert_Return_Struct->flowid, BAD_IP);
+                    strlcpy(Alert_Return_Struct->dest_ip, BAD_IP, sizeof( Alert_Return_Struct->dest_ip ));
+
                 }
 
         }

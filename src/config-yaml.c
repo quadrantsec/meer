@@ -49,6 +49,10 @@
 struct _Bluedot_Skip *Bluedot_Skip = NULL;
 #endif
 
+#ifdef WITH_ELASTICSEARCH
+#include "output-plugins/elasticsearch.h"
+#endif
+
 struct _MeerConfig *MeerConfig;
 struct _MeerOutput *MeerOutput;
 struct _MeerCounters *MeerCounters;
@@ -268,6 +272,13 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "bluedot") )
                                 {
                                     sub_type = YAML_MEER_BLUEDOT;
+                                }
+#endif
+
+#ifdef WITH_ELASTICSEARCH
+                            if ( !strcmp(value, "elasticsearch") )
+                                {
+                                    sub_type = YAML_MEER_ELASTICSEARCH;
                                 }
 #endif
 
@@ -1160,6 +1171,134 @@ void Load_YAML_Config( char *yaml_file )
                                 }
 
                         }
+
+#endif
+
+#ifdef WITH_ELASTICSEARCH
+
+                    if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_ELASTICSEARCH )
+                        {
+                            if (!strcmp(last_pass, "enabled"))
+                                {
+                                    if (!strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->elasticsearch_flag = true;
+                                        }
+                                }
+
+                            if ( MeerOutput->elasticsearch_flag == true && !strcmp(last_pass, "debug") )
+                                {
+
+                                    if (!strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->elasticsearch_debug = true;
+                                        }
+                                }
+
+                            if ( MeerOutput->elasticsearch_flag == true && !strcmp(last_pass, "insecure") )
+                                {
+
+                                    if (!strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->elasticsearch_insecure = true;
+                                        }
+                                }
+
+
+                            if ( MeerOutput->elasticsearch_flag == true && !strcmp(last_pass, "url") )
+                                {
+
+                                    if ( value[0] == '\0' )
+                                        {
+                                            Meer_Log(ERROR, "Invalid configuration.  'http' url is invalid");
+                                        }
+
+                                    strlcpy(MeerOutput->elasticsearch_url, value, sizeof(MeerOutput->elasticsearch_url));
+                                }
+
+                            if ( MeerOutput->elasticsearch_flag == true && !strcmp(last_pass, "index") )
+                                {
+
+                                    if ( value[0] == '\0' )
+                                        {
+                                            Meer_Log(ERROR, "Invalid configuration.  'http' index is invalid");
+                                        }
+
+                                    strlcpy(MeerOutput->elasticsearch_index, value, sizeof(MeerOutput->elasticsearch_index));
+                                }
+
+                            if ( MeerOutput->elasticsearch_flag == true && !strcmp(last_pass, "username") )
+                                {
+
+                                    if ( value[0] == '\0' )
+                                        {
+                                            Meer_Log(ERROR, "Invalid configuration.  'http' username is invalid");
+                                        }
+
+                                    strlcpy(MeerOutput->elasticsearch_username, value, sizeof(MeerOutput->elasticsearch_username));
+                                }
+
+                            if ( MeerOutput->elasticsearch_flag == true && !strcmp(last_pass, "password") )
+                                {
+
+                                    if ( value[0] == '\0' )
+                                        {
+                                            Meer_Log(ERROR, "Invalid configuration.  'http' password is invalid");
+                                        }
+
+                                    strlcpy(MeerOutput->elasticsearch_password, value, sizeof(MeerOutput->elasticsearch_password));
+                                }
+
+                            if ( MeerOutput->elasticsearch_flag == true && !strcmp(last_pass, "batch") )
+                                {
+
+                                    MeerOutput->elasticsearch_batch = atoi(value);
+
+                                    if ( MeerOutput->elasticsearch_batch == 0 )
+                                        {
+                                            Meer_Log(ERROR, "Invalid configuration.  'http' batch is invalid");
+                                        }
+                                }
+
+                            /*
+                                                        if ( MeerOutput->http_flag == true && !strcmp(last_pass, "authtype") )
+                                                            {
+
+                                                                if ( value[0] == '\0' )
+                                                                    {
+                                                                        Meer_Log(ERROR, "Invalid configuration.  'http' authtype  is invalid");
+                                                                    }
+
+                            				if ( !strcmp(value, "auto" ) )
+                            					{
+                            					MeerOutput->http_authtype = MEER_AUTO_AUTH;
+                            					}
+
+                            				else if ( !strcmp(value, "basic" ) )
+                            					{
+                            					MeerOutput->http_authtype = MEER_BASIC_AUTH;
+                            					}
+
+                            				else if ( !strcmp(value, "digest" ) )
+                            					{
+                            					MeerOutput->http_authtype = MEER_DIGEST_AUTH;
+                            					}
+
+                            				else if ( !strcmp(value, "ntlm" ) )
+                            					{
+                            					MeerOutput->http_authtype = MEER_NTLM_AUTH;
+                            					}
+
+                            				else if ( !strcmp(value, "negotiate" ) )
+                            					{
+                            					MeerOutput->http_authtype = MEER_NEGOTIATE_AUTH;
+                            					}
+
+                                                            }
+                            				*/
+
+                        }
+
 
 #endif
 

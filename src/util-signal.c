@@ -46,6 +46,11 @@
 #include "output-plugins/postgresql.h"
 #endif
 
+#ifdef WITH_ELASTICSEARCH
+#include <curl/curl.h>
+CURL *curl;
+char *response;
+#endif
 
 struct _MeerWaldo *MeerWaldo;
 struct _MeerConfig *MeerConfig;
@@ -122,6 +127,20 @@ void Signal_Handler(int sig_num)
                         }
 
 #endif
+
+                }
+
+#endif
+
+#ifdef WITH_ELASTICSEARCH
+
+            if ( MeerOutput->elasticsearch_flag == true )
+                {
+
+                    free(response);
+
+                    curl_easy_cleanup(curl);
+                    curl_global_cleanup();
 
                 }
 

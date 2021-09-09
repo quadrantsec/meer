@@ -171,6 +171,20 @@ struct _MeerOutput
 
 #endif
 
+#ifdef WITH_ELASTICSEARCH
+
+    bool elasticsearch_flag;
+    bool elasticsearch_debug;
+    bool elasticsearch_insecure;
+    char elasticsearch_url[8192];
+    char elasticsearch_index[512];
+    char elasticsearch_username[64];
+    char elasticsearch_password[128];
+//    uint8_t elasticsearch_authtype;
+    uint16_t elasticsearch_batch;
+
+#endif
+
     bool sql_enabled;
     bool sql_debug;
     bool sql_extra_data;

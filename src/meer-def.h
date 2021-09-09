@@ -28,6 +28,8 @@
 
 #define MEER_LOG	"/var/log/meer.log"
 
+#define BAD_IP		"127.127.127.127"
+
 #define NORMAL		0
 #define ERROR		1
 #define WARN 	        2
@@ -72,6 +74,8 @@
 
 #define 	MAX_REDIS_BATCH				100
 #define		DEFAULT_REDIS_KEY			"suricata"
+
+#define		MAX_ELASTICSEARCH_BATCH			10000
 
 #define 	FINGERPRINT_REDIS_KEY			"fingerprint"
 #define		FINGERPRINT_REDIS_EXPIRE		3600

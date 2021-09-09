@@ -52,6 +52,10 @@
 #include "output-plugins/external.h"
 #include "output-plugins/fingerprint.h"
 
+#ifdef WITH_ELASTICSEARCH
+#include <output-plugins/elasticsearch.h>
+#endif
+
 #ifdef HAVE_LIBMYSQLCLIENT
 #include <mysql/mysql.h>
 MYSQL    *mysql;
@@ -225,6 +229,9 @@ void Init_Output( void )
 
     if ( MeerConfig->fingerprint == true )
         {
+
+            Meer_Log(NORMAL, "--[ Fingerprinting information ]---------------------------------");
+            Meer_Log(NORMAL, "");
             Meer_Log(NORMAL, "Fingerprinting : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Fingerprint log file : %s", MeerConfig->fingerprint_log );
             Meer_Log(NORMAL, "");
@@ -253,7 +260,7 @@ void Init_Output( void )
                     Meer_Log(ERROR, "Unable to lookup %s. Abort.", MeerOutput->bluedot_host);
                 }
 
-            Meer_Log(NORMAL, "--[ Bluedot information ]-----------------------------------------");
+            Meer_Log(NORMAL, "--[ Bluedot information ]----------------------------------------");
             Meer_Log(NORMAL, "");
             Meer_Log(NORMAL, "Bluedot Output          : %s", MeerOutput->bluedot_flag ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Bluedot Server IP       : %s (%s)", MeerOutput->bluedot_ip, MeerOutput->bluedot_host);
@@ -263,7 +270,69 @@ void Init_Output( void )
 #endif
 
 
-    Meer_Log(NORMAL, "--[ Meer engine information ]---------------------------------------");
+#ifdef WITH_ELASTICSEARCH
+
+    if ( MeerOutput->elasticsearch_flag == true )
+        {
+
+            Meer_Log(NORMAL, "--[ Elasticsearch output information ]---------------------------");
+            Meer_Log(NORMAL, "");
+            Meer_Log(NORMAL, "URL to connect to       : \"%s\"", MeerOutput->elasticsearch_url);
+            Meer_Log(NORMAL, "Index template          : \"%s\"", MeerOutput->elasticsearch_index);
+            Meer_Log(NORMAL, "Batch size per/POST     : %d", MeerOutput->elasticsearch_batch);
+
+            if ( MeerOutput->elasticsearch_username[0] != '\0' || MeerOutput->elasticsearch_password[0] != '\0' )
+                {
+                    Meer_Log(NORMAL, "Authentication          : enabled");
+                }
+            else
+                {
+                    Meer_Log(NORMAL, "Authentication          : disabled");
+                }
+
+            /*
+            	    if ( MeerOutput->http_username[0] != '\0' || MeerOutput->http_password[0] != '\0' )
+            	    {
+
+            	    if ( MeerOutput->http_authtype == MEER_AUTO_AUTH )
+            	    	{
+            		Meer_Log(NORMAL, "Authentication type     : auto");
+            		}
+
+            	    else if ( MeerOutput->http_authtype == MEER_BASIC_AUTH )
+            	    	{
+            		Meer_Log(NORMAL, "Authentication type     : basic");
+            		}
+
+            	    else if ( MeerOutput->http_authtype == MEER_DIGEST_AUTH )
+            	    	{
+            		Meer_Log(NORMAL, "Authentication type     : digest");
+            		}
+
+            	    else if ( MeerOutput->http_authtype == MEER_NTLM_AUTH )
+            	    	{
+            		Meer_Log(NORMAL, "Authentication type     : ntlm");
+            		}
+
+            	    else if ( MeerOutput->http_authtype == MEER_NTLM_AUTH )
+            	    	{
+            		Meer_Log(NORMAL, "Authentication type     : negotiate");
+            		}
+
+            		}
+            		*/
+
+            Meer_Log(NORMAL, "");
+
+            Elasticsearch_Init();
+
+        }
+
+
+
+#endif
+
+    Meer_Log(NORMAL, "--[ Meer engine information ]-------------------------------------");
     Meer_Log(NORMAL, "");
 
 
@@ -689,7 +758,6 @@ void Output_Stats ( char *json_string )
 }
 
 
-
 #ifdef WITH_BLUEDOT
 
 bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
@@ -723,6 +791,17 @@ bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
 
 
     json_object_put(json_obj);
+
+}
+
+#endif
+
+#ifdef WITH_ELASTICSEARCH
+
+bool Output_HTTP ( const char *json_string, const char *event_type )
+{
+
+    Elasticsearch( json_string, event_type );
 
 }
 

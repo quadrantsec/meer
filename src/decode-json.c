@@ -118,7 +118,7 @@ bool Decode_JSON( char *json_string )
 
                     /* Add fingerprint */
 
-                    if (MeerConfig->fingerprint == true )
+                    if (MeerConfig->fingerprint == true && MeerOutput->redis_flag == true )
                         {
                             Add_Fingerprint_To_JSON( json_obj, DecodeAlert );
 
@@ -135,7 +135,7 @@ bool Decode_JSON( char *json_string )
                             memset(FingerprintData, 0, sizeof(_FingerprintData));
                             Parse_Fingerprint( DecodeAlert, FingerprintData);
 
-			    fingerprint_return = false;
+                            fingerprint_return = false;
 
                             if ( FingerprintData->ret == true )
                                 {
@@ -185,31 +185,45 @@ bool Decode_JSON( char *json_string )
                         }
 #endif
 
+#ifdef WITH_ELASTICSEARCH
+
+                    if ( MeerOutput->elasticsearch_flag == true )
+                        {
+                            Output_HTTP( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                        }
+
+#endif
+
                     free(DecodeAlert);
 
                 }
 
 #ifdef HAVE_LIBHIREDIS
 
-            if ( !strcmp(json_object_get_string(tmp), "dhcp") && MeerConfig->fingerprint == true )
+            if ( MeerOutput->redis_flag == true )
                 {
 
-                    struct _DecodeDHCP *DecodeDHCP;   /* event_type: dhcp */
-                    DecodeDHCP = (struct _DecodeDHCP *) malloc(sizeof(_DecodeDHCP));
-
-                    if ( DecodeDHCP == NULL )
+                    if ( !strcmp(json_object_get_string(tmp), "dhcp") && MeerConfig->fingerprint == true )
                         {
-                            Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _DecodeDHCP.  Abort!", __FILE__, __LINE__, json_string);
+
+                            struct _DecodeDHCP *DecodeDHCP;   /* event_type: dhcp */
+                            DecodeDHCP = (struct _DecodeDHCP *) malloc(sizeof(_DecodeDHCP));
+
+                            if ( DecodeDHCP == NULL )
+                                {
+                                    Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _DecodeDHCP.  Abort!", __FILE__, __LINE__, json_string);
+                                }
+
+                            memset(DecodeDHCP, 0, sizeof(_DecodeDHCP));
+
+                            Decode_JSON_DHCP( json_obj, json_string, DecodeDHCP );
+
+                            Fingerprint_DHCP_JSON( DecodeDHCP, fingerprint_DHCP_JSON, sizeof(fingerprint_DHCP_JSON));
+                            Output_Fingerprint_DHCP ( DecodeDHCP, fingerprint_DHCP_JSON );
+
+                            free(DecodeDHCP);
                         }
 
-                    memset(DecodeDHCP, 0, sizeof(_DecodeDHCP));
-
-                    Decode_JSON_DHCP( json_obj, json_string, DecodeDHCP );
-
-                    Fingerprint_DHCP_JSON( DecodeDHCP, fingerprint_DHCP_JSON, sizeof(fingerprint_DHCP_JSON));
-                    Output_Fingerprint_DHCP ( DecodeDHCP, fingerprint_DHCP_JSON );
-
-                    free(DecodeDHCP);
                 }
 
 #endif
