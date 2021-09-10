@@ -1,4 +1,10 @@
 
+/* TODO */
+
+/* Add in routing for different "types" (flow, alert, etc) from the config.
+   Make the response larger?  Parse it? 
+   */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"             /* From autoconf */
 #endif
@@ -10,6 +16,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <curl/curl.h>
 
@@ -72,7 +79,13 @@ void Elasticsearch_Init( void )
 
                 }
 
-            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
+            /* Put libcurl in "debug" it we're in "debug" mode! */
+
+            if ( MeerOutput->elasticsearch_debug == true )
+                {
+                    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
+                }
+
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback_func);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
             curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);    /* WIll send SIGALRM if not set */
@@ -100,56 +113,66 @@ void Elasticsearch ( const char *json_string, const char *event_type )
 
     uint16_t i = 0;
 
-//    char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
     char tmp[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-
-//char str[PACKET_BUFFER_SIZE_DEFAULT + 1024] = { 0 };
     char index_name[512] = { 0 };
 
     /* Get what the current index should be */
 
     Elasticsearch_Get_Index(index_name, sizeof(index_name), event_type);
 
+    /* Continue building the batch */
+
     snprintf(tmp, sizeof(tmp), "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
-//snprintf(str, sizeof(str), "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
-
-//    snprintf(elasticsearch_batch[elasticsearch_batch_count], sizeof(elasticsearch_batch[elasticsearch_batch_count]), "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
-
     strlcat(big_batch, tmp, sizeof(big_batch) );
     elasticsearch_batch_count++;
+
+    /* Once we hit the batch size,  submit it. */
 
     if ( elasticsearch_batch_count == MeerOutput->elasticsearch_batch )
         {
 
-            printf("WROTE BATCH\n");
 
-//            for ( i = 0; i < MeerOutput->elasticsearch_batch; i++ )
-//	    {
+            if ( MeerOutput->elasticsearch_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] Writing Batch!", __FILE__, __LINE__);
+                }
 
             curl_easy_setopt(curl, CURLOPT_URL, MeerOutput->elasticsearch_url);
             curl_easy_setopt(curl, CURLOPT_POSTFIELDS, big_batch);
 
+            /* Loop until we get a successful connection to the Elastic backend */
+
             res = curl_easy_perform(curl);
 
-            /*
-            if(res != CURLE_OK)
-            	{
-                 	 fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                     curl_easy_strerror(res));
-            	}
-            	*/
+            while (res != CURLE_OK && res != CURLE_WRITE_ERROR )
+                {
+
+                    Meer_Log(WARN, "[%s, line %d] Couldn't connect to the Elasticsearch server [%s]. Sleeping for 5 seconds.....", __FILE__, __LINE__, curl_easy_strerror(res));
+
+                    sleep(5);
+
+                    res = curl_easy_perform(curl);
+
+                }
 
             if ( response != NULL )
                 {
-                    printf("%s\n", response);
+
+                    if ( MeerOutput->elasticsearch_debug == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] Response from Elasticsearch: %s", __FILE__, __LINE__, response);
+                        }
+
                 }
-
-//		}
-
-//           elasticsearch_batch_count = 0;
+            /*
+                        if ( response != NULL )
+                            {
+                                printf("%s\n", response);
+                            }
+            */
 
             elasticsearch_batch_count = 0;
-            big_batch[0] = '\0';
+            big_batch[0] = '\0';		/* Null out the batch */
         }
 
 }
@@ -165,15 +188,11 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
 
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
-    //printf("now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 
-    // suricata_$EVENTTYPE_$YEAR$MONTH$DAY
-//      suricata_alert_
+    //printf("now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 
     for (i = 0; i < strlen(MeerOutput->elasticsearch_index); i++ )
         {
-
-
             /* $EVENTTYPE */
 
             if ( MeerOutput->elasticsearch_index[i] == '$' &&
@@ -256,8 +275,6 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
                     i = i+4;
 
                 }
-
-
 
 
             index[pos]  = MeerOutput->elasticsearch_index[i];
