@@ -40,7 +40,7 @@ Meer is meant to be modular and simple. This project does not aim to replicate a
 * Meer can do reverse DNS/PTR record lookups.   Meer has an internal DNS cache system so to not overburden DNS servers with repeated queries. 
 * MySQL/MariaDB output is backward compatible with legacy Snort/Barnyard2 database.
 * MySQL/MariaDB internal SQL “caching” makes Meer interactions with databases more efficient. 
-* Supports "fingerprint" rule set.  These are special Suricata & Sagan signatures that allow you to collect data about devices in your network and store them in a Redis database.  See https://github.com/quadrant/fingerprint-rules for more information.
+* Supports "fingerprint" rule set.  These are special Suricata & Sagan signatures that allow you to collect data about devices in your network and store them in a Redis database.  See https://github.com/quadrantsec/fingerprint-rules for more information.
 * Supports "client stats" for Meer when injecting Sagan EVE/JSON data.  This allows give you statistics about who and what is sending Sagan data within an environment. 
 
 # Future "output" support: 
