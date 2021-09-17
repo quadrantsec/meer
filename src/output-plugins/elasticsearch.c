@@ -61,9 +61,6 @@ char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000];
 pthread_cond_t MeerElasticWork;
 pthread_mutex_t MeerElasticMutex;
 
-//pthread_cond_t MeerElasticWork=PTHREAD_COND_INITIALIZER;
-//pthread_mutex_t MeerElasticMutex=PTHREAD_MUTEX_INITIALIZER;
-
 extern uint_fast16_t elastic_proc_msgslot;
 extern uint_fast16_t elastic_proc_running;
 
@@ -241,7 +238,7 @@ void Elasticsearch( void )
     char tmp[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
     char index_name[512] = { 0 };
 
-    struct MemoryStruct chunk;    /* Global for large JSON returns from Elastic */
+    struct MemoryStruct chunk;    /* Large JSON returns from Elastic */
 
     CURL *curl_LOCAL;
     CURLcode res;
@@ -259,7 +256,7 @@ void Elasticsearch( void )
             if ( MeerOutput->elasticsearch_insecure == true )
                 {
 
-                    curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYPEER, false);  /* Need to be an option */
+                    curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYPEER, false); 
                     curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYHOST, false);
                     curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYSTATUS, false);
 
