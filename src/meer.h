@@ -182,6 +182,7 @@ struct _MeerOutput
     char elasticsearch_password[128];
 //    uint8_t elasticsearch_authtype;
     uint16_t elasticsearch_batch;
+    uint8_t elasticsearch_threads;
 
 #endif
 

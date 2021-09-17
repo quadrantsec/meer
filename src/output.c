@@ -71,6 +71,23 @@ MYSQL    *mysql;
 #include "util-http.h"
 #endif
 
+#ifdef WITH_ELASTICSEARCH
+
+#include <pthread.h>
+pthread_cond_t MeerElasticWork=PTHREAD_COND_INITIALIZER;
+pthread_mutex_t MeerElasticMutex=PTHREAD_MUTEX_INITIALIZER;
+
+//pthread_cond_t MeerElasticWork;
+//pthread_mutex_t MeerElasticMutex;
+
+uint_fast16_t elastic_proc_msgslot = 0;
+uint_fast16_t elastic_proc_running = 0;
+
+char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
+char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
+uint16_t elasticsearch_batch_count;
+
+#endif
 
 struct _MeerOutput *MeerOutput;
 struct _MeerConfig *MeerConfig;
@@ -280,6 +297,7 @@ void Init_Output( void )
             Meer_Log(NORMAL, "URL to connect to       : \"%s\"", MeerOutput->elasticsearch_url);
             Meer_Log(NORMAL, "Index template          : \"%s\"", MeerOutput->elasticsearch_index);
             Meer_Log(NORMAL, "Batch size per/POST     : %d", MeerOutput->elasticsearch_batch);
+            Meer_Log(NORMAL, "Threads                 : %d", MeerOutput->elasticsearch_threads);
 
             if ( MeerOutput->elasticsearch_username[0] != '\0' || MeerOutput->elasticsearch_password[0] != '\0' )
                 {
@@ -290,41 +308,10 @@ void Init_Output( void )
                     Meer_Log(NORMAL, "Authentication          : disabled");
                 }
 
-            /*
-            	    if ( MeerOutput->http_username[0] != '\0' || MeerOutput->http_password[0] != '\0' )
-            	    {
-
-            	    if ( MeerOutput->http_authtype == MEER_AUTO_AUTH )
-            	    	{
-            		Meer_Log(NORMAL, "Authentication type     : auto");
-            		}
-
-            	    else if ( MeerOutput->http_authtype == MEER_BASIC_AUTH )
-            	    	{
-            		Meer_Log(NORMAL, "Authentication type     : basic");
-            		}
-
-            	    else if ( MeerOutput->http_authtype == MEER_DIGEST_AUTH )
-            	    	{
-            		Meer_Log(NORMAL, "Authentication type     : digest");
-            		}
-
-            	    else if ( MeerOutput->http_authtype == MEER_NTLM_AUTH )
-            	    	{
-            		Meer_Log(NORMAL, "Authentication type     : ntlm");
-            		}
-
-            	    else if ( MeerOutput->http_authtype == MEER_NTLM_AUTH )
-            	    	{
-            		Meer_Log(NORMAL, "Authentication type     : negotiate");
-            		}
-
-            		}
-            		*/
+            Elasticsearch_Init();
 
             Meer_Log(NORMAL, "");
 
-            Elasticsearch_Init();
 
         }
 
@@ -798,10 +785,50 @@ bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
 
 #ifdef WITH_ELASTICSEARCH
 
-bool Output_HTTP ( const char *json_string, const char *event_type )
+bool Output_Elasticsearch ( const char *json_string, const char *event_type )
 {
 
-    Elasticsearch( json_string, event_type );
+    char tmp[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+    char index_name[512] = { 0 };
+
+    Elasticsearch_Get_Index(index_name, sizeof(index_name), event_type);
+
+    snprintf(tmp, sizeof(tmp), "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
+    strlcat(big_batch, tmp, sizeof(big_batch) );
+    elasticsearch_batch_count++;
+
+    /* Once we hit the batch size,  submit it. */
+
+    if ( elasticsearch_batch_count == MeerOutput->elasticsearch_batch )
+        {
+
+            while ( elastic_proc_running >= MeerOutput->elasticsearch_threads )
+                {
+                    Meer_Log(WARN, "Wating on a free thread! Consider increasing threads?");
+                    sleep(5);
+                }
+
+
+            /* Submit the batch ! */
+
+            pthread_mutex_lock(&MeerElasticMutex);
+
+            strlcpy(big_batch_THREAD, big_batch, sizeof(big_batch_THREAD));
+
+            elastic_proc_msgslot++;
+
+            __atomic_add_fetch(&elastic_proc_running, 1, __ATOMIC_SEQ_CST);
+
+            pthread_cond_signal(&MeerElasticWork);
+            pthread_mutex_unlock(&MeerElasticMutex);
+
+            /* Clear old batch */
+
+            elasticsearch_batch_count = 0;
+            big_batch[0] = '\0';
+
+        }
+
 
 }
 

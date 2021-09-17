@@ -1,8 +1,26 @@
+/*
+** Copyright (C) 2018-2020 Quadrant Information Security <quadrantsec.com>
+** Copyright (C) 2018-2020 Champ Clark III <cclark@quadrantsec.com>
+**
+** This program is free software; you can redistribute it and/or modify
+** it under the terms of the GNU General Public License Version 2 as
+** published by the Free Software Foundation.  You may not use, modify or
+** distribute this program under any other version of the GNU General
+** Public License.
+**
+** This program is distributed in the hope that it will be useful,
+** but WITHOUT ANY WARRANTY; without even the implied warranty of
+** MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+** GNU General Public License for more details.
+**
+** You should have received a copy of the GNU General Public License
+** along with this program; if not, write to the Free Software
+** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+*/
 
 /* TODO */
 
 /* Add in routing for different "types" (flow, alert, etc) from the config.
-   Make the response larger?  Parse it? 
    */
 
 #ifdef HAVE_CONFIG_H
@@ -17,162 +35,85 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <json-c/json.h>
+#include <pthread.h>
 
 #include <curl/curl.h>
 
 #include "meer-def.h"
 #include "meer.h"
 #include "util.h"
+#include "lockfile.h"
 
 #include "output-plugins/elasticsearch.h"
 
 struct _MeerConfig *MeerConfig;
 struct _MeerOutput *MeerOutput;
 
+bool elasticsearch_death = false;
+
 CURL *curl;
-const char *response=NULL;
 
 uint16_t elasticsearch_batch_count = 0;
-//char elasticsearch_batch[MAX_ELASTICSEARCH_BATCH][1024 + PACKET_BUFFER_SIZE_DEFAULT];
-//char elasticsearch_batch_index[MAX_ELASTICSEARCH_BATCH][512] = {{ 0 }};
+char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000];
+char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000];
 
-char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
+pthread_cond_t MeerElasticWork;
+pthread_mutex_t MeerElasticMutex;
 
-/****************************************************************************
- * write_callback_func() - Callback for data received via libcurl
- ****************************************************************************/
+//pthread_cond_t MeerElasticWork=PTHREAD_COND_INITIALIZER;
+//pthread_mutex_t MeerElasticMutex=PTHREAD_MUTEX_INITIALIZER;
 
-size_t static write_callback_func(void *buffer, size_t size, size_t nmemb, void *userp)
+extern uint_fast16_t elastic_proc_msgslot;
+extern uint_fast16_t elastic_proc_running;
+
+static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 {
-    char **response_ptr =  (char**)userp;
-    *response_ptr = strndup(buffer, (size_t)(size *nmemb));     /* Return the string */
-}
+    size_t realsize = size * nmemb;
+    struct MemoryStruct *mem = (struct MemoryStruct *)userp;
 
+    char *ptr = realloc(mem->memory, mem->size + realsize + 1);
+
+    if(!ptr)
+        {
+            /* out of memory! */
+            printf("not enough memory (realloc returned NULL)\n");
+            return 0;
+        }
+
+    mem->memory = ptr;
+    memcpy(&(mem->memory[mem->size]), contents, realsize);
+    mem->size += realsize;
+    mem->memory[mem->size] = 0;
+
+    return realsize;
+}
 
 void Elasticsearch_Init( void )
 {
 
-    struct curl_slist *headers = NULL;
+    uint8_t i=0;
+    int rc=0;
 
-    curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
+    pthread_t elasticsearch_id[MeerOutput->elasticsearch_threads];
+    pthread_attr_t thread_elasticsearch_attr;
+    pthread_attr_init(&thread_elasticsearch_attr);
+    pthread_attr_setdetachstate(&thread_elasticsearch_attr,  PTHREAD_CREATE_DETACHED);
 
-    if ( curl )
+    Meer_Log(NORMAL, "");
+    Meer_Log(NORMAL, "Spawning %d Elasticsearch threads.", MeerOutput->elasticsearch_threads);
+
+    for (i = 0; i < MeerOutput->elasticsearch_threads; i++)
         {
 
-            curl = curl_easy_init();
+            rc = pthread_create ( &elasticsearch_id[i], &thread_elasticsearch_attr, (void *)Elasticsearch, NULL );
 
-            if ( MeerOutput->elasticsearch_insecure == true )
+            if ( rc != 0 )
                 {
 
-                    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false); /* Need to be an option */
-                    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
-                    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYSTATUS, false);
-
+                    Remove_Lock_File();
+                    Meer_Log(ERROR, "Could not pthread_create() for I/O processors [error: %d]", rc);
                 }
-
-            if ( MeerOutput->elasticsearch_username[0] != '\0' && MeerOutput->elasticsearch_password[0] != '\0' )
-                {
-
-                    curl_easy_setopt(curl, CURLOPT_USERNAME, MeerOutput->elasticsearch_username);
-                    curl_easy_setopt(curl, CURLOPT_PASSWORD, MeerOutput->elasticsearch_password);
-
-                }
-
-            /* Put libcurl in "debug" it we're in "debug" mode! */
-
-            if ( MeerOutput->elasticsearch_debug == true )
-                {
-                    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
-                }
-
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback_func);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-            curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);    /* WIll send SIGALRM if not set */
-
-            headers = curl_slist_append(headers, "Content-Type: application/x-ndjson");
-            headers = curl_slist_append (headers, MEER_USER_AGENT);
-
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
-        }
-    else
-        {
-
-            Meer_Log(ERROR, "[%s, line %d] Failed to initialize libcurl.", __FILE__, __LINE__ );
-
-        }
-
-}
-
-
-void Elasticsearch ( const char *json_string, const char *event_type )
-{
-
-    CURLcode res;
-
-    uint16_t i = 0;
-
-    char tmp[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-    char index_name[512] = { 0 };
-
-    /* Get what the current index should be */
-
-    Elasticsearch_Get_Index(index_name, sizeof(index_name), event_type);
-
-    /* Continue building the batch */
-
-    snprintf(tmp, sizeof(tmp), "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
-    strlcat(big_batch, tmp, sizeof(big_batch) );
-    elasticsearch_batch_count++;
-
-    /* Once we hit the batch size,  submit it. */
-
-    if ( elasticsearch_batch_count == MeerOutput->elasticsearch_batch )
-        {
-
-
-            if ( MeerOutput->elasticsearch_debug == true )
-                {
-                    Meer_Log(DEBUG, "[%s, line %d] Writing Batch!", __FILE__, __LINE__);
-                }
-
-            curl_easy_setopt(curl, CURLOPT_URL, MeerOutput->elasticsearch_url);
-            curl_easy_setopt(curl, CURLOPT_POSTFIELDS, big_batch);
-
-            /* Loop until we get a successful connection to the Elastic backend */
-
-            res = curl_easy_perform(curl);
-
-            while (res != CURLE_OK && res != CURLE_WRITE_ERROR )
-                {
-
-                    Meer_Log(WARN, "[%s, line %d] Couldn't connect to the Elasticsearch server [%s]. Sleeping for 5 seconds.....", __FILE__, __LINE__, curl_easy_strerror(res));
-
-                    sleep(5);
-
-                    res = curl_easy_perform(curl);
-
-                }
-
-            if ( response != NULL )
-                {
-
-                    if ( MeerOutput->elasticsearch_debug == true )
-                        {
-                            Meer_Log(DEBUG, "[%s, line %d] Response from Elasticsearch: %s", __FILE__, __LINE__, response);
-                        }
-
-                }
-            /*
-                        if ( response != NULL )
-                            {
-                                printf("%s\n", response);
-                            }
-            */
-
-            elasticsearch_batch_count = 0;
-            big_batch[0] = '\0';		/* Null out the batch */
         }
 
 }
@@ -284,9 +225,163 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
 
     snprintf(str, size, "%s", index);
 
-
 }
 
+/*************************************/
+/* Elasticsearch threaded operation! */
+/*************************************/
+
+void Elasticsearch( void )
+{
+
+    char big_batch_LOCAL[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+
+    uint16_t i = 0;
+
+    char tmp[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+    char index_name[512] = { 0 };
+
+    struct MemoryStruct chunk;    /* Global for large JSON returns from Elastic */
+
+    CURL *curl_LOCAL;
+    CURLcode res;
+
+    struct curl_slist *headers = NULL;
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    curl_LOCAL = curl_easy_init();
+
+    if ( curl_LOCAL )
+        {
+
+            curl_LOCAL = curl_easy_init();
+
+            if ( MeerOutput->elasticsearch_insecure == true )
+                {
+
+                    curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYPEER, false);  /* Need to be an option */
+                    curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYHOST, false);
+                    curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYSTATUS, false);
+
+                }
+
+            if ( MeerOutput->elasticsearch_username[0] != '\0' && MeerOutput->elasticsearch_password[0] != '\0' )
+                {
+
+                    curl_easy_setopt(curl_LOCAL, CURLOPT_USERNAME, MeerOutput->elasticsearch_username);
+                    curl_easy_setopt(curl_LOCAL, CURLOPT_PASSWORD, MeerOutput->elasticsearch_password);
+
+                }
+
+            /* Put libcurl in "debug" it we're in "debug" mode! */
+
+            if ( MeerOutput->elasticsearch_debug == true )
+                {
+                    curl_easy_setopt(curl_LOCAL, CURLOPT_VERBOSE, 1);
+                }
+
+            curl_easy_setopt(curl_LOCAL, CURLOPT_NOSIGNAL, 1);    /* Will send SIGALRM if not set */
+
+            headers = curl_slist_append(headers, "Content-Type: application/x-ndjson");
+            headers = curl_slist_append (headers, MEER_USER_AGENT);
+
+            curl_easy_setopt(curl_LOCAL, CURLOPT_HTTPHEADER, headers);
+
+            curl_easy_setopt(curl_LOCAL, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+            curl_easy_setopt(curl_LOCAL, CURLOPT_WRITEDATA, (void *)&chunk);
+
+            curl_easy_setopt(curl_LOCAL, CURLOPT_URL, MeerOutput->elasticsearch_url);
+
+
+        }
+    else
+        {
+
+            Meer_Log(ERROR, "[%s, line %d] Failed to initialize libcurl.", __FILE__, __LINE__ );
+
+        }
+
+
+    while ( elasticsearch_death == false )
+        {
+
+            pthread_mutex_lock(&MeerElasticMutex);
+
+            while ( elastic_proc_msgslot == 0 ) pthread_cond_wait(&MeerElasticWork, &MeerElasticMutex);
+
+            /* Copy the latest batch! */
+
+            elastic_proc_msgslot--;
+            strlcpy(big_batch_LOCAL, big_batch_THREAD, sizeof(big_batch_LOCAL));
+
+            pthread_mutex_unlock(&MeerElasticMutex);
+
+            struct json_object *json_obj = NULL;
+            struct json_object *json_tmp = NULL;
+
+            chunk.memory = malloc(1);   /* will be grown as needed by the realloc above */
+            chunk.size = 0;             /* no data at this point */
+
+            curl_easy_setopt(curl_LOCAL, CURLOPT_POSTFIELDS, big_batch_LOCAL);
+
+            res = curl_easy_perform(curl_LOCAL);
+
+            while (res != CURLE_OK && res != CURLE_WRITE_ERROR )
+                {
+
+                    Meer_Log(WARN, "[%s, line %d] Couldn't connect to the Elasticsearch server [%s]. Sleeping for 5 seconds.....", __FILE__, __LINE__, curl_easy_strerror(res));
+
+                    sleep(5);
+                    res = curl_easy_perform(curl_LOCAL);
+
+                }
+
+            /* If we got data back from Elasticsearch,  let's parse if for errors */
+
+            if ( chunk.memory != NULL )
+                {
+
+                    if ( MeerOutput->elasticsearch_debug == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] Response from Elasticsearch: %s", __FILE__, __LINE__, chunk.memory);
+                        }
+
+                    json_obj = json_tokener_parse(chunk.memory);
+
+                    if (json_object_object_get_ex(json_obj, "errors", &json_tmp))
+                        {
+
+                            if ( strcmp((char *)json_object_get_string(json_tmp), "false" ) )
+                                {
+
+                                    Meer_Log(WARN, "[%s, line %d] Failure inserting into Elasticsearch! Result codes: %s", __FILE__, __LINE__, chunk.memory);
+                                }
+
+                        }
+
+                }
+            else
+                {
+
+                    Meer_Log(WARN, "[%s, line %d] Got NULL back from Elasticsearch.  Failed to insert batch.", __FILE__, __LINE__, chunk.memory);
+
+                }
+
+
+            json_object_put(json_obj);
+            free(chunk.memory);
+
+            __atomic_sub_fetch(&elastic_proc_running, 1, __ATOMIC_SEQ_CST);
+
+        }
+
+    /* Clean up thread! */
+
+    curl_easy_cleanup(curl_LOCAL);
+
+    pthread_exit(NULL);
+
+}
 
 
 #endif

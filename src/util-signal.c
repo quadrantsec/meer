@@ -47,9 +47,11 @@
 #endif
 
 #ifdef WITH_ELASTICSEARCH
+#include <output-plugins/elasticsearch.h>
 #include <curl/curl.h>
-CURL *curl;
-char *response;
+
+extern bool elasticsearch_death;
+extern uint_fast16_t elastic_proc_running;
 #endif
 
 struct _MeerWaldo *MeerWaldo;
@@ -137,10 +139,15 @@ void Signal_Handler(int sig_num)
             if ( MeerOutput->elasticsearch_flag == true )
                 {
 
-                    free(response);
+                    elasticsearch_death = true;
 
-                    curl_easy_cleanup(curl);
-                    curl_global_cleanup();
+                    while ( elastic_proc_running != 0 )
+                        {
+                            Meer_Log(NORMAL, "Waiting on %d Elasticseach thread to shutdown.", elastic_proc_running);
+                            sleep(1);
+
+                            curl_global_cleanup();
+                        }
 
                 }
 

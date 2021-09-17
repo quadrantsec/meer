@@ -56,6 +56,13 @@ libjson-c is required for Meer to function!
 #include "fingerprint-to-json.h"
 #endif
 
+//#ifdef WITH_ELASTICSEARCH
+///#include <pthread.h>
+//pthread_cond_t MeerElasticWork=PTHREAD_COND_INITIALIZER;
+//pthread_mutex_t MeerElasticMutex=PTHREAD_MUTEX_INITIALIZER;
+//#endif
+
+
 struct _Classifications *MeerClass;
 struct _MeerOutput *MeerOutput;
 struct _MeerCounters *MeerCounters;
@@ -189,7 +196,8 @@ bool Decode_JSON( char *json_string )
 
                     if ( MeerOutput->elasticsearch_flag == true )
                         {
-                            Output_HTTP( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                            // pthread do work here
+                            Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
                         }
 
 #endif

@@ -147,6 +147,14 @@ void Load_YAML_Config( char *yaml_file )
 
 #endif
 
+#ifdef WITH_ELASTICSEARCH
+
+    MeerOutput->elasticsearch_batch = 10;
+    MeerOutput->elasticsearch_threads = 5;
+
+#endif
+
+
     MeerConfig->client_stats = false;
     MeerConfig->oui = false;
 
@@ -1210,7 +1218,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                     if ( value[0] == '\0' )
                                         {
-                                            Meer_Log(ERROR, "Invalid configuration.  'http' url is invalid");
+                                            Meer_Log(ERROR, "Invalid configuration.  'elasticsearch' url is invalid");
                                         }
 
                                     strlcpy(MeerOutput->elasticsearch_url, value, sizeof(MeerOutput->elasticsearch_url));
@@ -1221,7 +1229,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                     if ( value[0] == '\0' )
                                         {
-                                            Meer_Log(ERROR, "Invalid configuration.  'http' index is invalid");
+                                            Meer_Log(ERROR, "Invalid configuration.  'elasticsearch' index is invalid");
                                         }
 
                                     strlcpy(MeerOutput->elasticsearch_index, value, sizeof(MeerOutput->elasticsearch_index));
@@ -1232,7 +1240,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                     if ( value[0] == '\0' )
                                         {
-                                            Meer_Log(ERROR, "Invalid configuration.  'http' username is invalid");
+                                            Meer_Log(ERROR, "Invalid configuration.  'elasticsearch' username is invalid");
                                         }
 
                                     strlcpy(MeerOutput->elasticsearch_username, value, sizeof(MeerOutput->elasticsearch_username));
@@ -1243,7 +1251,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                     if ( value[0] == '\0' )
                                         {
-                                            Meer_Log(ERROR, "Invalid configuration.  'http' password is invalid");
+                                            Meer_Log(ERROR, "Invalid configuration.  'elasticsearch' password is invalid");
                                         }
 
                                     strlcpy(MeerOutput->elasticsearch_password, value, sizeof(MeerOutput->elasticsearch_password));
@@ -1256,46 +1264,57 @@ void Load_YAML_Config( char *yaml_file )
 
                                     if ( MeerOutput->elasticsearch_batch == 0 )
                                         {
-                                            Meer_Log(ERROR, "Invalid configuration.  'http' batch is invalid");
+                                            Meer_Log(ERROR, "Invalid configuration.  'elasticsearch' batch is invalid");
+                                        }
+                                }
+
+                            if ( MeerOutput->elasticsearch_flag == true && !strcmp(last_pass, "threads") )
+                                {
+
+                                    MeerOutput->elasticsearch_threads = atoi(value);
+
+                                    if ( MeerOutput->elasticsearch_threads == 0 )
+                                        {
+                                            Meer_Log(ERROR, "Invalid configuration.  'elasticsearch' threads is invalid");
                                         }
                                 }
 
                             /*
-                                                        if ( MeerOutput->http_flag == true && !strcmp(last_pass, "authtype") )
-                                                            {
+                                                         if ( MeerOutput->http_flag == true && !strcmp(last_pass, "authtype") )
+                                                             {
 
-                                                                if ( value[0] == '\0' )
-                                                                    {
-                                                                        Meer_Log(ERROR, "Invalid configuration.  'http' authtype  is invalid");
-                                                                    }
+                                                                 if ( value[0] == '\0' )
+                                                                     {
+                                                                         Meer_Log(ERROR, "Invalid configuration.  'http' authtype  is invalid");
+                                                                     }
 
-                            				if ( !strcmp(value, "auto" ) )
-                            					{
-                            					MeerOutput->http_authtype = MEER_AUTO_AUTH;
-                            					}
+                             				if ( !strcmp(value, "auto" ) )
+                             					{
+                             					MeerOutput->http_authtype = MEER_AUTO_AUTH;
+                             					}
 
-                            				else if ( !strcmp(value, "basic" ) )
-                            					{
-                            					MeerOutput->http_authtype = MEER_BASIC_AUTH;
-                            					}
+                             				else if ( !strcmp(value, "basic" ) )
+                             					{
+                             					MeerOutput->http_authtype = MEER_BASIC_AUTH;
+                             					}
 
-                            				else if ( !strcmp(value, "digest" ) )
-                            					{
-                            					MeerOutput->http_authtype = MEER_DIGEST_AUTH;
-                            					}
+                             				else if ( !strcmp(value, "digest" ) )
+                             					{
+                             					MeerOutput->http_authtype = MEER_DIGEST_AUTH;
+                             					}
 
-                            				else if ( !strcmp(value, "ntlm" ) )
-                            					{
-                            					MeerOutput->http_authtype = MEER_NTLM_AUTH;
-                            					}
+                             				else if ( !strcmp(value, "ntlm" ) )
+                             					{
+                             					MeerOutput->http_authtype = MEER_NTLM_AUTH;
+                             					}
 
-                            				else if ( !strcmp(value, "negotiate" ) )
-                            					{
-                            					MeerOutput->http_authtype = MEER_NEGOTIATE_AUTH;
-                            					}
+                             				else if ( !strcmp(value, "negotiate" ) )
+                             					{
+                             					MeerOutput->http_authtype = MEER_NEGOTIATE_AUTH;
+                             					}
 
-                                                            }
-                            				*/
+                                                             }
+                             				*/
 
                         }
 

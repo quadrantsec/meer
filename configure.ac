@@ -322,6 +322,8 @@ if test "$ELASTICSEARCH" = "yes"; then
         AC_CHECK_LIB(curl, main,,AC_MSG_ERROR(The libcurl library cannot be found.
 This library is used for Meer's Elasticsearch output support. To disable this feature use the --disable-http flag. ))
         AC_CHECK_HEADER([curl/curl.h])
+	AC_CHECK_HEADERS([pthread.h])
+	AC_CHECK_LIB(pthread, main,,AC_MSG_ERROR(For Elasticsearch support the PThread library is needed. ))
 	AC_DEFINE(WITH_ELASTICSEARCH, 1, With Elasticseach)
         fi
 
