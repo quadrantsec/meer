@@ -256,7 +256,7 @@ void Elasticsearch( void )
             if ( MeerOutput->elasticsearch_insecure == true )
                 {
 
-                    curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYPEER, false); 
+                    curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYPEER, false);
                     curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYHOST, false);
                     curl_easy_setopt(curl_LOCAL, CURLOPT_SSL_VERIFYSTATUS, false);
 

@@ -180,9 +180,22 @@ struct _MeerOutput
     char elasticsearch_index[512];
     char elasticsearch_username[64];
     char elasticsearch_password[128];
-//    uint8_t elasticsearch_authtype;
     uint16_t elasticsearch_batch;
     uint8_t elasticsearch_threads;
+    bool elasticsearch_alert;
+    bool elasticsearch_flow;
+    bool elasticsearch_http;
+    bool elasticsearch_tls;
+    bool elasticsearch_ssh;
+    bool elasticsearch_smtp;
+    bool elasticsearch_email;
+    //bool elasticsearch_metadata;
+    //bool elasticsearch_json;
+    bool elasticsearch_stats;
+    bool elasticsearch_bluedot;
+    bool elasticsearch_fileinfo;
+    bool elasticsearch_dhcp;
+
 
 #endif
 

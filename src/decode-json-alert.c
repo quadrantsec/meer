@@ -98,24 +98,10 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
     Alert_Return_Struct->event_type = "alert";
     Alert_Return_Struct->ip_version = 4;
 
-    Alert_Return_Struct->timestamp = NULL;
-    Alert_Return_Struct->src_ip = NULL;
-    Alert_Return_Struct->dest_ip = NULL;
-    Alert_Return_Struct->flowid = NULL;
-    Alert_Return_Struct->proto = NULL;
-    Alert_Return_Struct->host = NULL;
-
-    Alert_Return_Struct->facility = NULL;
-    Alert_Return_Struct->priority = NULL;
-    Alert_Return_Struct->level = NULL;
-    Alert_Return_Struct->program = NULL;
-
     Alert_Return_Struct->converted_timestamp[0] = '\0';
     Alert_Return_Struct->app_proto[0] = '\0';
 
     /* Extra data */
-
-    Alert_Return_Struct->xff = NULL;
 
     Alert_Return_Struct->payload[0] = '\0';
     Alert_Return_Struct->src_dns[0] = '\0';
@@ -221,7 +207,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
     if (json_object_object_get_ex(json_obj, "src_ip", &tmp))
         {
-            Alert_Return_Struct->src_ip = (char *)json_object_get_string(tmp);
+            strlcpy(Alert_Return_Struct->src_ip, json_object_get_string(tmp), sizeof( Alert_Return_Struct->src_ip ));
         }
 
     if (json_object_object_get_ex(json_obj, "src_port", &tmp))
@@ -231,7 +217,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
     if (json_object_object_get_ex(json_obj, "dest_ip", &tmp))
         {
-            Alert_Return_Struct->dest_ip = (char *)json_object_get_string(tmp);
+            strlcpy(Alert_Return_Struct->dest_ip, json_object_get_string(tmp), sizeof( Alert_Return_Struct->dest_ip ));
         }
 
     if (json_object_object_get_ex(json_obj, "dest_port", &tmp))
@@ -729,12 +715,12 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
             Alert_Return_Struct->flowid = "0";
         }
 
-    if ( Alert_Return_Struct->src_ip == NULL )
+    if ( Alert_Return_Struct->src_ip[0] == '\0' )
         {
             Meer_Log(ERROR, "JSON: \"%s\" : No src_ip found in flowid %s. Abort.", json_string, Alert_Return_Struct->flowid);
         }
 
-    if ( Alert_Return_Struct->dest_ip == NULL )
+    if ( Alert_Return_Struct->dest_ip[0] == '\0' )
         {
             Meer_Log(ERROR, "JSON: \"%s\" : No dest_ip found in flowid %s. Abort.", json_string, Alert_Return_Struct->flowid);
         }
@@ -750,7 +736,21 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
             else
                 {
                     Meer_Log(WARN, "Unable to find a usable source IP address for flowid %s. Using %s (BAD_IP) instead.", Alert_Return_Struct->flowid, BAD_IP);
+
+                    /* Store the "orignal" IP address as original_src_ip (the bad IP) */
+
+                    json_object *jsrc_ip_orig = json_object_new_string(Alert_Return_Struct->src_ip);
+                    json_object_object_add(json_obj,"original_src_ip", jsrc_ip_orig);
+
+                    /* Over write the src_ip with the BAD_IP value */
+
+                    json_object *jsrc_ip = json_object_new_string(BAD_IP);
+                    json_object_object_add(json_obj,"src_ip", jsrc_ip);
+
+                    /* For the internal struct */
+
                     strlcpy(Alert_Return_Struct->src_ip, BAD_IP, sizeof( Alert_Return_Struct->src_ip ));
+
                 }
 
         }
@@ -762,12 +762,27 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
             if ( Try_And_Fix_IP( Alert_Return_Struct->dest_ip, new_ip, sizeof( new_ip )) == true )
                 {
                     strlcpy(Alert_Return_Struct->dest_ip, new_ip, sizeof( new_ip ));
+
                 }
             else
                 {
 
                     Meer_Log(WARN, "Unable to find a usable destination IP address for flowid %s. Using %s (BAD_IP) instead.", Alert_Return_Struct->flowid, BAD_IP);
+
+                    /* Store the "orignal" IP address as original_dest_ip (the bad IP) */
+
+                    json_object *jdest_ip_orig = json_object_new_string(Alert_Return_Struct->dest_ip);
+                    json_object_object_add(json_obj,"original_dest_ip", jdest_ip_orig);
+
+                    /* Over write the dest_ip with the BAD_IP value */
+
+                    json_object *jdest_ip = json_object_new_string(BAD_IP);
+                    json_object_object_add(json_obj,"dest_ip", jdest_ip);
+
+                    /* For the internal struct */
+
                     strlcpy(Alert_Return_Struct->dest_ip, BAD_IP, sizeof( Alert_Return_Struct->dest_ip ));
+
 
                 }
 
@@ -857,8 +872,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
         {
             Alert_Return_Struct->ip_version = 6;
         }
-
-    // Fingerprint enabled?
 
     /* Decode the JSON (we might have added some fields like DNS, etc */
 

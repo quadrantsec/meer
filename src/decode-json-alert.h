@@ -41,15 +41,15 @@ char *flowid;
 char *in_iface;
 char *event_type;
 
-char *src_ip;
-char *src_port;
-char src_dns[256];
+char src_ip[64];
+    char *src_port;
+    char src_dns[256];
 
     char converted_timestamp[64];
 
     char new_json_string[PACKET_BUFFER_SIZE_DEFAULT];
 
-    char *dest_ip;
+    char dest_ip[64];
     char *dest_port;
     char dest_dns[256];
 
