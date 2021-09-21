@@ -308,6 +308,20 @@ void Init_Output( void )
                     Meer_Log(NORMAL, "Authentication          : disabled");
                 }
 
+            Meer_Log(NORMAL, "");
+            Meer_Log(NORMAL, "Record 'alert'          : %s", MeerOutput->elasticsearch_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'flow'           : %s", MeerOutput->elasticsearch_flow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'http'           : %s", MeerOutput->elasticsearch_http ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'tls'            : %s", MeerOutput->elasticsearch_tls ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'ssh'            : %s", MeerOutput->elasticsearch_ssh ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'smtp'           : %s", MeerOutput->elasticsearch_smtp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'email'          : %s", MeerOutput->elasticsearch_email ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'stats'          : %s", MeerOutput->elasticsearch_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'bluedot'        : %s", MeerOutput->elasticsearch_bluedot ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'fileinfo'       : %s", MeerOutput->elasticsearch_fileinfo ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'dhcp'           : %s", MeerOutput->elasticsearch_dhcp ? "enabled" : "disabled" );
+
+
             Elasticsearch_Init();
 
             Meer_Log(NORMAL, "");
@@ -776,7 +790,6 @@ bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
 
         }
 
-
     json_object_put(json_obj);
 
 }
@@ -828,7 +841,6 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type )
             big_batch[0] = '\0';
 
         }
-
 
 }
 

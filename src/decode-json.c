@@ -56,13 +56,6 @@ libjson-c is required for Meer to function!
 #include "fingerprint-to-json.h"
 #endif
 
-//#ifdef WITH_ELASTICSEARCH
-///#include <pthread.h>
-//pthread_cond_t MeerElasticWork=PTHREAD_COND_INITIALIZER;
-//pthread_mutex_t MeerElasticMutex=PTHREAD_MUTEX_INITIALIZER;
-//#endif
-
-
 struct _Classifications *MeerClass;
 struct _MeerOutput *MeerOutput;
 struct _MeerCounters *MeerCounters;
@@ -196,8 +189,47 @@ bool Decode_JSON( char *json_string )
 
                     if ( MeerOutput->elasticsearch_flag == true )
                         {
-                            // pthread do work here
-                            Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
+
+                            if ( !strcmp(DecodeAlert->event_type, "alert" ) && MeerOutput->elasticsearch_alert == true )
+                                {
+                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                                }
+
+                            else if ( !strcmp(DecodeAlert->event_type, "flow" ) && MeerOutput->elasticsearch_flow == true )
+                                {
+                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                                }
+
+                            else if ( !strcmp(DecodeAlert->event_type, "http" ) && MeerOutput->elasticsearch_http == true )
+                                {
+                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                                }
+
+                            else if ( !strcmp(DecodeAlert->event_type, "tls" ) && MeerOutput->elasticsearch_tls == true )
+                                {
+                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                                }
+
+                            else if ( !strcmp(DecodeAlert->event_type, "ssh" ) && MeerOutput->elasticsearch_ssh == true )
+                                {
+                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                                }
+
+                            else if ( !strcmp(DecodeAlert->event_type, "smtp" ) && MeerOutput->elasticsearch_smtp == true )
+                                {
+                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                                }
+
+                            else if ( !strcmp(DecodeAlert->event_type, "email" ) && MeerOutput->elasticsearch_email == true )
+                                {
+                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                                }
+
+                            else if ( !strcmp(DecodeAlert->event_type, "stats" ) && MeerOutput->elasticsearch_stats == true )
+                                {
+                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
+                                }
+
                         }
 
 #endif

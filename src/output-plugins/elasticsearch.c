@@ -380,7 +380,6 @@ void Elasticsearch( void )
 
 }
 
-
 #endif
 
 
