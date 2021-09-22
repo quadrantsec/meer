@@ -360,6 +360,26 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
+#ifdef HAVE_LIBMAXMINDDB
+
+                            else if ( !strcmp(last_pass, "geoip" ))
+                                {
+
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerConfig->geoip = true;
+                                        }
+
+                                }
+
+                            else if ( !strcmp(last_pass, "geoip_database" ) && MeerConfig->geoip == true )
+                                {
+                                    strlcpy(MeerConfig->geoip_database, value, sizeof(MeerConfig->geoip_database));
+                                }
+
+
+#endif
+
                             else if ( !strcmp(last_pass, "oui_lookup" ))
                                 {
 
@@ -549,8 +569,6 @@ void Load_YAML_Config( char *yaml_file )
                                         }
 
                                 }
-
-
 
 #if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
 

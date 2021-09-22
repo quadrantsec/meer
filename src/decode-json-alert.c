@@ -43,6 +43,10 @@ libjson-c is required for Meer to function!
 #include "meer.h"
 #include "meer-def.h"
 
+#ifdef HAVE_LIBMAXMINDDB
+#include "geoip.h"
+#endif
+
 #include "decode-json-alert.h"
 
 struct _MeerCounters *MeerCounters;
@@ -80,8 +84,15 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
     struct json_object *json_obj_ssh_client = NULL;
 
     bool has_alert = false;
-
     char new_ip[64];
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    char geoip_src_json[1024] = { 0 };
+    char geoip_dest_json[1024] = { 0 };
+    char tmp_geoip[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+
+#endif
 
     Alert_Return_Struct = (struct _DecodeAlert *) malloc(sizeof(_DecodeAlert));
 
@@ -788,6 +799,13 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
+    /* Is this IPv4 or IPv6 */
+
+    if ( Is_IP(Alert_Return_Struct->src_ip, IPv6) != 0 )
+        {
+            Alert_Return_Struct->ip_version = 6;
+        }
+
     if ( Alert_Return_Struct->proto == NULL )
         {
             Meer_Log(WARN, "JSON: \"%s\" : No proto found in flowid %s.  Setting to Unknown.", json_string, Alert_Return_Struct->flowid);
@@ -868,14 +886,181 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
-    if ( Is_IP(Alert_Return_Struct->src_ip, IPv6) != 0 )
+#ifdef HAVE_LIBMAXMINDDB
+
+    /*************************************************/
+    /* Add any GeoIP data for the source/destination */
+    /*************************************************/
+
+    if ( MeerConfig->geoip == true )
         {
-            Alert_Return_Struct->ip_version = 6;
+
+            struct _GeoIP *GeoIP;
+
+            struct json_object *jobj_geoip;
+            jobj_geoip = json_object_new_object();
+
+            GeoIP = malloc(sizeof(_GeoIP));
+
+            if ( GeoIP == NULL )
+                {
+                    Meer_Log(ERROR, "[%s, line %d] Failed to allocate memory for _GeoIP. Abort!", __FILE__, __LINE__);
+                }
+
+            memset(GeoIP, 0, sizeof(_GeoIP));
+
+            /*******************/
+            /* Get src_ip data */
+            /*******************/
+
+            GeoIP_Lookup( Alert_Return_Struct->src_ip,  GeoIP );
+
+            if ( GeoIP->country[0] != '\0' )
+                {
+
+                    json_object *jgeoip_country = json_object_new_string( GeoIP->country );
+                    json_object_object_add(jobj_geoip,"country", jgeoip_country);
+
+                    if ( GeoIP->city[0] != '\0' )
+                        {
+                            json_object *jgeoip_city = json_object_new_string( GeoIP->city );
+                            json_object_object_add(jobj_geoip,"city", jgeoip_city);
+                        }
+
+                    if ( GeoIP->subdivision[0] != '\0' )
+                        {
+                            json_object *jgeoip_subdivision = json_object_new_string( GeoIP->subdivision );
+                            json_object_object_add(jobj_geoip,"subdivision", jgeoip_subdivision);
+                        }
+
+                    if ( GeoIP->postal[0] != '\0' )
+                        {
+                            json_object *jgeoip_postal = json_object_new_string( GeoIP->postal );
+                            json_object_object_add(jobj_geoip,"postal", jgeoip_postal);
+                        }
+
+                    if ( GeoIP->timezone[0] != '\0' )
+                        {
+                            json_object *jgeoip_timezone = json_object_new_string( GeoIP->timezone );
+                            json_object_object_add(jobj_geoip,"timezone", jgeoip_timezone);
+                        }
+
+                    if ( GeoIP->longitude[0] != '\0' )
+                        {
+                            json_object *jgeoip_longitude = json_object_new_string( GeoIP->longitude );
+                            json_object_object_add(jobj_geoip,"longitude", jgeoip_longitude);
+                        }
+
+                    if ( GeoIP->latitude[0] != '\0' )
+                        {
+                            json_object *jgeoip_latitude = json_object_new_string( GeoIP->latitude );
+                            json_object_object_add(jobj_geoip,"latitude", jgeoip_latitude);
+                        }
+
+                    snprintf(geoip_src_json, sizeof(geoip_src_json), "%s", json_object_to_json_string(jobj_geoip));
+                    geoip_src_json[ sizeof(geoip_src_json) - 1 ] = '\0';
+
+                }
+
+            /*****************************************/
+            /* Get dest_ip GeoIP information (reset) */
+            /*****************************************/
+
+            memset(GeoIP, 0, sizeof(_GeoIP));
+
+            GeoIP_Lookup( Alert_Return_Struct->dest_ip,  GeoIP );
+
+            if ( GeoIP->country[0] != '\0' )
+                {
+
+                    json_object *jgeoip_country = json_object_new_string( GeoIP->country );
+                    json_object_object_add(jobj_geoip,"country", jgeoip_country);
+
+                    if ( GeoIP->city[0] != '\0' )
+                        {
+                            json_object *jgeoip_city = json_object_new_string( GeoIP->city );
+                            json_object_object_add(jobj_geoip,"city", jgeoip_city);
+                        }
+
+                    if ( GeoIP->subdivision[0] != '\0' )
+                        {
+                            json_object *jgeoip_subdivision = json_object_new_string( GeoIP->subdivision );
+                            json_object_object_add(jobj_geoip,"subdivision", jgeoip_subdivision);
+                        }
+
+                    if ( GeoIP->postal[0] != '\0' )
+                        {
+                            json_object *jgeoip_postal = json_object_new_string( GeoIP->postal );
+                            json_object_object_add(jobj_geoip,"postal", jgeoip_postal);
+                        }
+
+                    if ( GeoIP->timezone[0] != '\0' )
+                        {
+                            json_object *jgeoip_timezone = json_object_new_string( GeoIP->timezone );
+                            json_object_object_add(jobj_geoip,"timezone", jgeoip_timezone);
+                        }
+
+                    if ( GeoIP->longitude[0] != '\0' )
+                        {
+                            json_object *jgeoip_longitude = json_object_new_string( GeoIP->longitude );
+                            json_object_object_add(jobj_geoip,"longitude", jgeoip_longitude);
+                        }
+
+                    if ( GeoIP->latitude[0] != '\0' )
+                        {
+                            json_object *jgeoip_latitude = json_object_new_string( GeoIP->latitude );
+                            json_object_object_add(jobj_geoip,"latitude", jgeoip_latitude);
+                        }
+
+                    snprintf(geoip_dest_json, sizeof(geoip_dest_json), "%s", json_object_to_json_string(jobj_geoip));
+                    geoip_dest_json[ sizeof(geoip_dest_json) - 1 ] = '\0';
+                }
+
+
+            json_object_put(jobj_geoip);
+            free(GeoIP);
         }
 
-    /* Decode the JSON (we might have added some fields like DNS, etc */
+#endif
+
+    /************************************************************************************/
+    /* We make the "final" copy now.  This might be modified if we need to add anything */
+    /************************************************************************************/
 
     strlcpy(Alert_Return_Struct->new_json_string, json_object_to_json_string(json_obj), sizeof(Alert_Return_Struct->new_json_string));
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    /***************************************************************************************/
+    /* If we have GeoIP data,  we modify the final JSON to include that.  This is a bit of */
+    /* a "hack" as we don't know if JSON_C_TO_STRING_NOSLASHESCAPE is avaliable.           */
+    /***************************************************************************************/
+
+    if ( geoip_src_json[0] != '\0' )
+        {
+
+            Alert_Return_Struct->new_json_string[ strlen(Alert_Return_Struct->new_json_string) -2 ] = '\0';
+
+            snprintf(tmp_geoip, sizeof(tmp_geoip), "%s, \"geoip_src\": %s", Alert_Return_Struct->new_json_string, geoip_src_json);
+
+            strlcpy(Alert_Return_Struct->new_json_string, tmp_geoip, PACKET_BUFFER_SIZE_DEFAULT);
+            strlcat(Alert_Return_Struct->new_json_string, " }", PACKET_BUFFER_SIZE_DEFAULT);
+
+        }
+
+    if ( geoip_dest_json[0] != '\0' )
+        {
+
+            Alert_Return_Struct->new_json_string[ strlen(Alert_Return_Struct->new_json_string) -2 ] = '\0';
+
+            snprintf(tmp_geoip, sizeof(tmp_geoip), "%s, \"geoip_dest\": %s", Alert_Return_Struct->new_json_string, geoip_dest_json);
+
+            strlcpy(Alert_Return_Struct->new_json_string, tmp_geoip, PACKET_BUFFER_SIZE_DEFAULT);
+            strlcat(Alert_Return_Struct->new_json_string, " }", PACKET_BUFFER_SIZE_DEFAULT);
+
+        }
+
+#endif
 
     return(Alert_Return_Struct);
 }

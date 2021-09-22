@@ -44,6 +44,10 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
+//#ifdef HAVE_LIBMAXMINDDB
+//#include <maxminddb.h>
+//#endif
+
 #include "meer.h"
 #include "meer-def.h"
 #include "decode-json-alert.h"
@@ -59,6 +63,11 @@
 #include "sid-map.h"
 #include "usage.h"
 #include "oui.h"
+
+#ifdef HAVE_LIBMAXMINDDB
+#include "geoip.h"
+#endif
+
 
 struct _MeerConfig *MeerConfig;
 struct _MeerOutput *MeerOutput;
@@ -219,6 +228,25 @@ int main (int argc, char *argv[])
     Meer_Log(NORMAL, "Fingerprint support    : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );
     Meer_Log(NORMAL, "Health updates         : %s", MeerConfig->health ? "enabled" : "disabled" );
     Meer_Log(NORMAL, "");
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    Meer_Log(NORMAL, "GeoIP support          : %s", MeerConfig->geoip ? "enabled" : "disabled" );
+
+    if ( MeerConfig->geoip == true )
+        {
+            Meer_Log(NORMAL, "GeoIP database         : %s", MeerConfig->geoip_database );
+
+            Open_GeoIP_Database();
+
+
+        }
+
+    Meer_Log(NORMAL, "");
+
+
+
+#endif
 
     Init_Waldo();
 

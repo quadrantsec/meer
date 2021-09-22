@@ -104,6 +104,12 @@ AC_ARG_ENABLE(bluedot,
   [ BLUEDOT="no" ]
 )
 
+AC_ARG_ENABLE(geoip,
+  [  --enable-geoip          Enable Maxmind GeoIP support.],
+  [ GEOIP="$enableval"],
+  [ GEOIP="no" ]
+)
+
 AC_ARG_WITH(libmysql_includes,
         [  --with-mysql-includes=DIR    MySQL include directory],
         [with_mysql_includes="$withval"],[with_mysql_includes="no"])
@@ -302,6 +308,13 @@ if test "$BLUEDOT" = "yes"; then
         AC_MSG_RESULT([------- Bluedot Support is enabled -------])
 	AC_DEFINE(WITH_BLUEDOT, 1, With Bluedot)
         fi
+
+if test "$GEOIP" = "yes"; then
+       AC_MSG_RESULT([------- Maxmind GeoIP support is enabled -------])
+       AC_CHECK_HEADER([maxminddb.h])
+       AC_CHECK_LIB(maxminddb, main,,AC_MSG_ERROR(The Maxmind GeoIP library cannot be found.
+If you're not interested in GeoIP support use the --disable-geoip flag.))
+       fi
 
 if test "$POSTGRES" = "yes"; then
        AC_MSG_RESULT([------- PostgreSQL support is enabled -------])

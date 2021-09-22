@@ -60,6 +60,9 @@
 /* Define to 1 if you have the `json-c' library (-ljson-c). */
 #undef HAVE_LIBJSON_C
 
+/* Define to 1 if you have the `maxminddb' library (-lmaxminddb). */
+#undef HAVE_LIBMAXMINDDB
+
 /* Define to 1 if you have the `mysqlclient' library (-lmysqlclient). */
 #undef HAVE_LIBMYSQLCLIENT
 

@@ -73,10 +73,17 @@ struct _MeerConfig
     FILE *meer_log_fd;
     bool meer_log_on;
 
-
     int waldo_fd;
 
     bool endian;
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    bool geoip;
+    char geoip_database[256];
+
+#endif
+
 
     bool dns;
     uint32_t dns_cache;

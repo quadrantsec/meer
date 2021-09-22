@@ -23,6 +23,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      sid-map.c \
 							      usage.c \
 							      oui.c \
+							      geoip.c \
 							      fingerprint.c \
 							      fingerprint-to-json.c \
 							      decode-json.c \
