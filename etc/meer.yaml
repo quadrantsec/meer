@@ -102,8 +102,11 @@ meer-core:
 output-plugins:
 
   ###########################################################################
-  # MySQL/MariaDB output - Stores data from Suricata or Sagan into a semi-
-  # traditional "Barnyard2/Snort" like database. 
+  # sql
+  #
+  # This enabled MySQL/MariaDB or PostgreSQL output support.  This writes 
+  # Suricata & Sagan data into a "Barnyard2" like database schema.  This
+  # will likely go away in Meer 2.0
   ###########################################################################
 
   sql:
@@ -150,7 +153,8 @@ output-plugins:
     # disabled. The legacy reference system isn't very efficient and there's
     # better ways to keep track of this data.  This is also a memory hog and
     # performance killer.  See tools/reference_handler/reference_handler.pl to
-    # build a centralized reference table.
+    # build a centralized reference table.  This will go away in Meer version
+    # 2.0.
 
     reference_system: disabled
     sid_file: "/etc/suricata/rules/sid-msg.map"	  # Created with "create-sidmap"
@@ -160,9 +164,11 @@ output-plugins:
     #reference: "/usr/local/etc/sagan-rules/reference.config"
 
   ###########################################################################
-  # The "pipe" output module - This allows Meer to send a copy of an event
-  # to a named pipe (FIFO) in its raw,  JSON form.  This allows for 
-  # third party tools, like Sagan, to do further analysis on the event. 
+  # pipe
+  # 
+  # This allows Meer to send a copy of an event to a named pipe (FIFO) in 
+  # its raw,  JSON form.  This allows for third party tools, like Sagan, 
+  # to do further analysis on the event. 
   ###########################################################################
   
   pipe:
@@ -252,7 +258,9 @@ output-plugins:
 
 
   ###########################################################################
-  # "redis" allows you to send Suricata/Sagan EVE data to a Redis database. 
+  # redis
+  # 
+  # This allows you to send Suricata/Sagan EVE data to a Redis database. 
   # This will mimic the way Suricata writes EVE data to Redis with the 
   # exception of "client_stats" which is a Sagan specific processor. 
   ###########################################################################
@@ -307,4 +315,37 @@ output-plugins:
     # on Suricata systems. 
  
     client_stats: disabled
+
+  ###########################################################################
+  # elasticsearch
+  #
+  # This section allows you to route data to Elasticsearch.  This module 
+  # supports authentication and TLS support.
+  ###########################################################################
+
+  elasticsearch:
+
+    enabled: yes
+    debug: no
+    url: "http://127.0.0.1:9200/_bulk"
+    index: "suricata_$EVENTTYPE_$YEAR$MONTH$DAY"
+    insecure: true                                      # Only applied when https is used.
+    batch: 100						# Batch size per/writes.
+    threads: 10						# Number of "writer" threads.
+#    username: "myusername"
+#    password: "mypassword"
+
+    alert: enabled
+    files: disabled
+    flow: disabled
+    dns: disabled
+    http: disabled
+    tls: disabled
+    ssh: disabled
+    smtp: disabled
+    email: disabled
+    fileinfo: disabled
+    dhcp: disabled
+    stats: disabled
+
 
