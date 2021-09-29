@@ -23,15 +23,15 @@ Meer is meant to be modular and simple. This project does not aim to replicate a
 
 * PostreSQL - Works exactly the same as the MySQL/MariaDB output but for PostgreSQL
 
-* Redis - This works the same as Suricata + Redis output support. 
+* Redis - Meer can write store data to a Redis database similar to Suricata (list/lpush, rpush, channel/publish or set).
 
 * "external" support - This allows you to call your own program.  When an event happens and if the signature specifies the option,  Meer will 'call' your program.  The EVE/JSON is handed to your program via stdin.  This can be useful to build custom firewall routines, customer reactions to events,  custom ways to store data, etc. 
 
 * "pipe" support - This allows Meer to write EVE/JSON data to a Unix "named pipe" or FIFO.  Meer acts as a pipe "writer" and you can have a consumer (reader) on the other side of the "pipe".  For example,  you might use a program like "Sagan" (https://sagan.io) to analyze the data received via a named pipe.
 
+* "elasticsearch" support - This allows Meer to write Sagan & Suricata EVE (JSON) data to Elasticseach search. 
 
 # Current Features:
-
 
 * Meer is written in C and has a very small memory footprint (only several meg of RAM).  It also CPU efficient. 
 * Fast startup times (under one second).  
@@ -46,11 +46,10 @@ Meer is meant to be modular and simple. This project does not aim to replicate a
 # Future "output" support: 
 
 Meer is under development.  This is our brief "road-map" of what we would like to see Meer do.  If
-you have any ideas or requests,  please let us know via our "issues" page (https://github.com/beave/meer/issues).
+you have any ideas or requests,  please let us know via our "issues" page (https://github.com/quadrantsec/meer/issues).
 
 * Syslog support (JSON, decoded, etc). 
-* Elasticsearch
-* Unified2 <b> ** THIS IS A JOKE. ** </b>
+* PCAP support? 
 
 # Support:
 
@@ -58,5 +57,5 @@ you have any ideas or requests,  please let us know via our "issues" page (https
 
 * Have a question or comment about Meer?  Please post to the Meer mailing at https://groups.google.com/forum/#!forum/meer-users. You can also visit the Sagan/Meer "chat" channel (Mattermost) by going to https://m.telephreak.org/sagan/channels/town-square.
 
-* If you need to report a bug,  please post that in our Github "issues" page.  That is at https://github.com/beave/meer/issues
+* If you need to report a bug,  please post that in our Github "issues" page.  That is at https://github.com/quadrantsec/meer/issues
 
