@@ -161,6 +161,8 @@ void GeoIP_Lookup( const char *ip_address, struct _GeoIP *GeoIP )
 
     /* Longitude */
 
+    MMDB_get_value(&result.entry, &entry_data, "location", "longitude", NULL);
+
     if ( entry_data.has_data )
         {
             snprintf(GeoIP->longitude, sizeof(GeoIP->longitude), "%f", entry_data.double_value);
