@@ -81,6 +81,18 @@ Common configure options
 
 .. option:: --enable-redis
 
-   This option enables redis output support.  It requires "hiredis" to be installed on the target.
+   This option enables Redis output support.  It requires "hiredis" to be installedt.
 
+.. option:: --enable-elastcisearch
+
+   This option enables Elastcisearch support.  It requires "libcurl" to be installed. 
+
+.. option:: --enable-geoip
+
+   This option enables Maxmind's GeoIP support.  It requires "libmaxminddb" Maxmind library to be install.
+
+.. option:: --enable-bluedot
+
+   This optino allows Meer to write to a Bluedot "threat intel" database alert data via HTTP.  This 
+   requres that "libcurl" be installed.  You probably don't want this. 
 
