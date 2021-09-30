@@ -244,7 +244,7 @@ output-plugins:
 
   external:
 
-    enabled: yes
+    enabled: no
     debug: no
 
     # Execution of an external program based on metadata "policy".  When Meer
