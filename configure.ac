@@ -132,6 +132,12 @@ AC_ARG_ENABLE(redis,
   [ REDIS="yes" ]
 )
 
+AC_ARG_ENABLE(tcmalloc,
+  [  --enable-tcmalloc       Enable TCMalloc support.],
+  [ TCMALLOC="$enableval"],
+  [ TCMALLOC="no" ]
+)
+
 #AC_ARG_ENABLE(libfastjson,
 #  [  --disable-libfastjson         Disable libfastjson support.],
 #  [ FASTJSON="$enableval"],
@@ -296,6 +302,11 @@ if test "$LIBYAML" = "no"; then
     echo
     exit 1
 fi
+
+if test "$TCMALLOC" = "yes"; then
+       AC_MSG_RESULT([------- TCMalloc support is enabled -------])
+       AC_CHECK_LIB(tcmalloc_minimal,main,,AC_MSG_ERROR(The libtcmalloc_minimal library cannot be found.))
+       fi
 
 if test "$MYSQL" = "yes"; then
         AC_MSG_RESULT([------- MySQL Support is enabled -------])

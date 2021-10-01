@@ -72,6 +72,10 @@
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
+/* Define to 1 if you have the `tcmalloc_minimal' library
+   (-ltcmalloc_minimal). */
+#undef HAVE_LIBTCMALLOC_MINIMAL
+
 /* Define to 1 if you have the `yaml' library (-lyaml). */
 #undef HAVE_LIBYAML
 

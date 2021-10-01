@@ -96,3 +96,8 @@ Common configure options
    This optino allows Meer to write to a Bluedot "threat intel" database alert data via HTTP.  This 
    requres that "libcurl" be installed.  You probably don't want this. 
 
+.. option:: --enable-tcmalloc
+
+   This options enables support for Google's TCMalloc.  For more information, see https://github.com/google/tcmalloc
+
+
