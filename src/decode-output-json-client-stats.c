@@ -95,7 +95,7 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
 
     if ( cs_sensor_name == NULL )
         {
-            Meer_Log(WARN, "[%s, line %d] 'sensor_name' appears incomplete or invalid. Abort", __FILE__, __LINE__);
+            Meer_Log(WARN, "[%s, line %d] 'sensor_name' appears incomplete or invalid. Skipping...", __FILE__, __LINE__);
             json_object_put(encode_json);
             return;
         }
@@ -109,10 +109,17 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
 
     if ( cs_ipaddr == NULL )
         {
-            Meer_Log(WARN, "[%s, line %d] 'ip_address' appears incomplete or invalid. Abort", __FILE__, __LINE__);
+            Meer_Log(WARN, "[%s, line %d] 'ip_address' appears incomplete or invalid. Skipping...", __FILE__, __LINE__);
             json_object_put(encode_json);
             return;
         }
+
+    if ( !Is_IP(cs_ipaddr, IPv4) && !Is_IP(cs_ipaddr, IPv6 ) )
+    	{
+	    Meer_Log(WARN, "[%s, line %d] 'ip_address' is invalid. Skipping...", __FILE__, __LINE__);
+	    json_object_put(encode_json);
+	    return;
+	}
 
     /* Program */
 
