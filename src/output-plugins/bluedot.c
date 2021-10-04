@@ -52,9 +52,9 @@
 
 #include "output-plugins/bluedot.h"
 
-struct _MeerOutput *MeerOutput;
-struct _MeerCounters *MeerCounters;
-struct _Bluedot_Skip *Bluedot_Skip;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerCounters *MeerCounters;
+extern struct _Bluedot_Skip *Bluedot_Skip;
 
 extern char rfc3986[256];
 extern char html5[256];

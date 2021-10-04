@@ -50,13 +50,13 @@
 #include <output-plugins/elasticsearch.h>
 #include <curl/curl.h>
 
-extern bool elasticsearch_death;
+bool elasticsearch_death = false;
 extern uint_fast16_t elastic_proc_running;
 #endif
 
-struct _MeerWaldo *MeerWaldo;
-struct _MeerConfig *MeerConfig;
-struct _MeerOutput *MeerOutput;
+extern struct _MeerWaldo *MeerWaldo;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerOutput *MeerOutput;
 
 void Signal_Handler(int sig_num)
 {

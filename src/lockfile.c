@@ -37,7 +37,7 @@
 #include "meer-def.h"
 #include "lockfile.h"
 
-struct _MeerConfig *MeerConfig;
+extern struct _MeerConfig *MeerConfig;
 
 void CheckLockFile ( void )
 {

@@ -36,8 +36,8 @@
 #include "meer.h"
 #include "meer-def.h"
 
-struct _MeerWaldo *MeerWaldo;
-struct _MeerConfig *MeerConfig;
+extern struct _MeerWaldo *MeerWaldo;
+extern struct _MeerConfig *MeerConfig;
 
 void Init_Waldo( void )
 {

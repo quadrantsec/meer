@@ -77,23 +77,21 @@ MYSQL    *mysql;
 pthread_cond_t MeerElasticWork=PTHREAD_COND_INITIALIZER;
 pthread_mutex_t MeerElasticMutex=PTHREAD_MUTEX_INITIALIZER;
 
-//pthread_cond_t MeerElasticWork;
-//pthread_mutex_t MeerElasticMutex;
-
 uint_fast16_t elastic_proc_msgslot = 0;
 uint_fast16_t elastic_proc_running = 0;
 
 char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
 char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
-uint16_t elasticsearch_batch_count;
+
+extern uint16_t elasticsearch_batch_count;
 
 #endif
 
-struct _MeerOutput *MeerOutput;
-struct _MeerConfig *MeerConfig;
-struct _MeerCounters *MeerCounters;
-struct _MeerHealth *MeerHealth;
-struct _Classifications *MeerClass;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerHealth *MeerHealth;
+extern struct _Classifications *MeerClass;
 
 /****************************************************************************
  * Init_Output - Init output pluggins (if needed)
@@ -180,7 +178,7 @@ void Init_Output( void )
             fd_results = fcntl(MeerOutput->pipe_fd, F_SETPIPE_SZ, MeerOutput->pipe_size);
             fcntl(MeerOutput->pipe_fd, F_SETFL, O_NONBLOCK);
 
-            Meer_Log(NORMAL, "The %s pipe (FIFO) was %d bytes. It is now set to %d bytes.", MeerOutput->pipe_location, current_pipe_size, MeerOutput->pipe_size);
+            Meer_Log(NORMAL, "The %s pipe (FIFO) was %d bytes. It is now set to %d bytes.", MeerOutput->pipe_location, current_pipe_size, fd_results);
 
             Meer_Log(NORMAL, "");
 
@@ -268,7 +266,6 @@ void Init_Output( void )
             int i = 0;
 
             url_encoder_rfc_tables_init();
-            char tmp[65];
 
             i = DNS_Lookup_Forward( MeerOutput->bluedot_host, MeerOutput->bluedot_ip, sizeof(MeerOutput->bluedot_ip) );
 
@@ -581,8 +578,6 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
                     */
 
 
-                    SQL_DB_Quadrant( DecodeAlert, signature_id );
-
                     /* Convert timestamp from event to epoch */
 
                     strptime(DecodeAlert->timestamp,"%FT%T",&tm_);
@@ -716,7 +711,6 @@ void Output_Stats ( char *json_string )
     struct json_object *tmp = NULL;
 
     char *timestamp = NULL;
-    char *hostname = NULL;
 
     json_obj = json_tokener_parse(json_string);
 
@@ -733,11 +727,6 @@ void Output_Stats ( char *json_string )
             timestamp =  (char *)json_object_get_string(tmp);
         }
 
-    if ( json_object_object_get_ex(json_obj, "hostname", &tmp))
-        {
-            hostname =  (char *)json_object_get_string(tmp);
-        }
-
     if ( timestamp == NULL )
         {
             MeerCounters->InvalidJSONCount++;
@@ -746,6 +735,13 @@ void Output_Stats ( char *json_string )
         }
 
 #if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
+
+    char *hostname = NULL;
+
+    if ( json_object_object_get_ex(json_obj, "hostname", &tmp))
+        {
+            hostname =  (char *)json_object_get_string(tmp);
+        }
 
     if ( MeerOutput->sql_stats == true )
         {
@@ -783,14 +779,14 @@ bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
                             Bluedot( DecodeAlert );
 
                             json_object_put(json_obj);
-                            return(0);
+                            return;
                         }
 
                 }
 
         }
 
-    json_object_put(json_obj);
+    json_object_put(json_obj); 
 
 }
 

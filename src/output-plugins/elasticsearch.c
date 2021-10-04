@@ -47,19 +47,19 @@
 
 #include "output-plugins/elasticsearch.h"
 
-struct _MeerConfig *MeerConfig;
-struct _MeerOutput *MeerOutput;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerOutput *MeerOutput;
 
-bool elasticsearch_death = false;
+extern bool elasticsearch_death;
 
 CURL *curl;
 
 uint16_t elasticsearch_batch_count = 0;
-char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000];
-char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000];
+extern char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000];
+extern char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000];
 
-pthread_cond_t MeerElasticWork;
-pthread_mutex_t MeerElasticMutex;
+extern pthread_cond_t MeerElasticWork;
+extern pthread_mutex_t MeerElasticMutex;
 
 extern uint_fast16_t elastic_proc_msgslot;
 extern uint_fast16_t elastic_proc_running;
@@ -232,11 +232,6 @@ void Elasticsearch( void )
 {
 
     char big_batch_LOCAL[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-
-    uint16_t i = 0;
-
-    char tmp[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-    char index_name[512] = { 0 };
 
     struct MemoryStruct chunk;    /* Large JSON returns from Elastic */
 

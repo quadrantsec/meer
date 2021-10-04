@@ -69,13 +69,12 @@
 #endif
 
 
-struct _MeerConfig *MeerConfig;
-struct _MeerOutput *MeerOutput;
-struct _MeerWaldo *MeerWaldo;
-struct _MeerCounters *MeerCounters;
-struct _Classifications *MeerClass;
-struct _References *MeerReferences;
-
+struct _MeerConfig *MeerConfig = NULL;
+struct _MeerOutput *MeerOutput = NULL;
+struct _MeerWaldo *MeerWaldo = NULL;
+struct _MeerCounters *MeerCounters = NULL;
+struct _Classifications *MeerClass = NULL;
+struct _References *MeerReferences = NULL;
 
 
 int main (int argc, char *argv[])

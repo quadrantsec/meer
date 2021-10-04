@@ -40,11 +40,11 @@
 #include "decode-output-json-client-stats.h"
 #include "decode-json-alert.h"
 
-struct _MeerOutput *MeerOutput;
-struct _MeerConfig *MeerConfig;
-struct _MeerWaldo *MeerWaldo;
-struct _MeerCounters *MeerCounters;
-struct _MeerHealth *MeerHealth;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerWaldo *MeerWaldo;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerHealth *MeerHealth;
 
 
 uint16_t redis_batch_count = 0;
@@ -141,7 +141,7 @@ void Redis_Reader ( char *redis_command, char *str, size_t size )
             /* strlcpy doesn't like to pass str as a \0.  This
                "works" around that issue (causes segfault otherwise) */
 
-            if ( reply->str != '\0' )
+            if ( *reply->str != '\0' )
                 {
                     strlcpy(str, reply->str, size);
                 }

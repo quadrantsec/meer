@@ -39,8 +39,8 @@
 #include "meer-def.h"
 #include "util.h"
 
-struct _MeerOutput *MeerOutput;
-struct _MeerCounters *MeerCounters;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerCounters *MeerCounters;
 
 bool External( struct _DecodeAlert *DecodeAlert )
 {

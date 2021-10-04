@@ -45,8 +45,8 @@ libjson-c is required for Meer to function!
 
 #include "decode-json-dhcp.h"
 
-struct _MeerCounters *MeerCounters;
-struct _MeerConfig *MeerConfig;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerConfig *MeerConfig;
 
 void Decode_JSON_DHCP( struct json_object *json_obj, char *json_string, struct _DecodeDHCP *DecodeDHCP )
 {

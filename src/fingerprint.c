@@ -26,7 +26,7 @@
 #include "oui.h"
 #include "config-yaml.h"
 
-struct _MeerConfig *MeerConfig;
+extern struct _MeerConfig *MeerConfig;
 
 #ifdef HAVE_LIBHIREDIS
 

@@ -40,8 +40,8 @@
 #include "output-plugins/sql.h"
 #include "output-plugins/mysql.h"
 
-struct _MeerConfig *MeerConfig;
-struct _MeerOutput *MeerOutput;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerOutput *MeerOutput;
 
 void MySQL_Connect( void )
 {

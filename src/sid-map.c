@@ -32,11 +32,11 @@
 #include "sid-map.h"
 #include "references.h"
 
-struct _SID_Map *SID_Map;
-struct _MeerCounters *MeerCounters;
-struct _MeerOutput *MeerOutput;
-struct _References *MeerReferences;
+struct _SID_Map *SID_Map = NULL;
 
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerOutput *MeerOutput;
+extern struct _References *MeerReferences;
 
 void Load_SID_Map ( void )
 {

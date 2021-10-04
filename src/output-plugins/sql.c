@@ -57,12 +57,11 @@
 
 #if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
 
-struct _MeerConfig *MeerConfig;
-struct _MeerOutput *MeerOutput;
-struct _MeerCounters *MeerCounters;
-struct _Classifications *MeerClass;
-
-struct _SID_Map *SID_Map;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerCounters *MeerCounters;
+extern struct _Classifications *MeerClass;
+extern struct _SID_Map *SID_Map;
 
 struct _SignatureCache *SignatureCache;
 uint32_t SignatureCacheCount = 0;
@@ -901,8 +900,6 @@ void SQL_Insert_Normalize ( struct _DecodeAlert *DecodeAlert )
 }
 
 
-#ifdef BLUEDOT
-
 void SQL_Insert_Bluedot ( struct _DecodeAlert *DecodeAlert )
 {
 
@@ -923,8 +920,6 @@ void SQL_Insert_Bluedot ( struct _DecodeAlert *DecodeAlert )
     MeerCounters->INSERTCount++;
 
 }
-
-#endif
 
 
 void SQL_Insert_SMTP ( struct _DecodeAlert *DecodeAlert )

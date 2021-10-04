@@ -35,8 +35,8 @@
 #include "meer-def.h"
 #include "pipe.h"
 
-struct _MeerOutput *MeerOutput;
-struct _MeerCounters *MeerCounters;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerCounters *MeerCounters;
 
 void Pipe_Write ( char *json_string )
 {

@@ -33,9 +33,9 @@
 #include "util.h"
 #include "classifications.h"
 
-struct _MeerCounters *MeerCounters;
-struct _MeerConfig *MeerConfig;
-struct _Classifications *MeerClass;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerConfig *MeerConfig;
+extern struct _Classifications *MeerClass;
 
 void Load_Classifications( void )
 {

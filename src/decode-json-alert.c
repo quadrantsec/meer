@@ -49,8 +49,8 @@ libjson-c is required for Meer to function!
 
 #include "decode-json-alert.h"
 
-struct _MeerCounters *MeerCounters;
-struct _MeerConfig *MeerConfig;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerConfig *MeerConfig;
 
 struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json_string )
 {

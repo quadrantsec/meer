@@ -31,9 +31,9 @@
 #include "util.h"
 #include "references.h"
 
-struct _References *MeerReferences;
-struct _MeerCounters *MeerCounters;
-struct _MeerOutput *MeerOutput;
+extern struct _References *MeerReferences;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerOutput *MeerOutput;
 
 void Load_References( void )
 {

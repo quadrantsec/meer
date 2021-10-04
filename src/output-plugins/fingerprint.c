@@ -42,11 +42,10 @@
 #include "output-plugins/sql.h"
 #include "output-plugins/redis.h"
 
-struct _MeerOutput *MeerOutput;
-struct _MeerCounters *MeerCounters;
-struct _MeerConfig *MeerConfig;
-
-struct _Fingerprint_Networks *Fingerprint_Networks;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerConfig *MeerConfig;
+extern struct _Fingerprint_Networks *Fingerprint_Networks;
 
 void Output_Fingerprint_IP ( struct _DecodeAlert *DecodeAlert, char *fingerprint_IP_JSON )
 {

@@ -56,11 +56,11 @@ libjson-c is required for Meer to function!
 #include "fingerprint-to-json.h"
 #endif
 
-struct _Classifications *MeerClass;
-struct _MeerOutput *MeerOutput;
-struct _MeerCounters *MeerCounters;
-struct _MeerConfig *MeerConfig;
-struct _MeerHealth *MeerHealth;
+extern struct _Classifications *MeerClass;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerHealth *MeerHealth;
 
 bool Decode_JSON( char *json_string )
 {

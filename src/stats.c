@@ -32,10 +32,10 @@
 #include "util.h"
 
 
-struct _MeerCounters *MeerCounters;
-struct _MeerWaldo *MeerWaldo;
-struct _MeerConfig *MeerConfig;
-struct _MeerOutput *MeerOutput;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerWaldo *MeerWaldo;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerOutput *MeerOutput;
 
 void Statistics( void )
 {

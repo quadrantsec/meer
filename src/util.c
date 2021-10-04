@@ -46,8 +46,8 @@
 #include "stats.h"
 #include "util.h"
 
-struct _MeerConfig *MeerConfig;
-struct _MeerCounters *MeerCounters;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerCounters *MeerCounters;
 struct _DnsCache *DnsCache;
 
 uint32_t DnsCacheCount = 0;
@@ -325,7 +325,6 @@ void DNS_Lookup_Reverse( char *host, char *str, size_t size )
     struct tm *run;
     char utime_string[20] = { 0 };
     int i = 0;
-    int err = 0;
 
     t = time(NULL);
     run=localtime(&t);
@@ -364,7 +363,7 @@ void DNS_Lookup_Reverse( char *host, char *str, size_t size )
 
                             inet_pton(AF_INET, host, &ipaddr.sin_addr);
 
-                            err = getnameinfo((struct sockaddr *)&ipaddr, sizeof(struct sockaddr_in), host_r, sizeof(host_r), NULL, 0, NI_NAMEREQD);
+                            (void)getnameinfo((struct sockaddr *)&ipaddr, sizeof(struct sockaddr_in), host_r, sizeof(host_r), NULL, 0, NI_NAMEREQD);
 
                             strlcpy(DnsCache[i].reverse, host_r, sizeof(DnsCache[i].reverse));
                             DnsCache[i].lookup_time = utime;
@@ -386,7 +385,7 @@ void DNS_Lookup_Reverse( char *host, char *str, size_t size )
 
     inet_pton(AF_INET, host, &ipaddr.sin_addr);
 
-    err = getnameinfo((struct sockaddr *)&ipaddr, sizeof(struct sockaddr_in), host_r, sizeof(host_r), NULL, 0, NI_NAMEREQD);
+    (void)getnameinfo((struct sockaddr *)&ipaddr, sizeof(struct sockaddr_in), host_r, sizeof(host_r), NULL, 0, NI_NAMEREQD);
 
     /* Insert DNS into cache */
 

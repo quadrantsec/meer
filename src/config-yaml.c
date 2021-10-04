@@ -53,12 +53,12 @@ struct _Bluedot_Skip *Bluedot_Skip = NULL;
 #include "output-plugins/elasticsearch.h"
 #endif
 
-struct _MeerConfig *MeerConfig;
-struct _MeerOutput *MeerOutput;
-struct _MeerCounters *MeerCounters;
-struct _MeerHealth *MeerHealth = NULL;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerCounters *MeerCounters;
 
-struct _Fingerprint_Networks *Fingerprint_Networks;
+struct _MeerHealth *MeerHealth = NULL;
+struct _Fingerprint_Networks *Fingerprint_Networks = NULL;
 
 void Load_YAML_Config( char *yaml_file )
 {

@@ -42,11 +42,10 @@
 
 
 
-struct _Fingerprint_Networks *Fingerprint_Networks;
-
-struct _MeerConfig *MeerConfig;
-struct _MeerOutput *MeerOutput;
-struct _MeerCounters *MeerCounters;
+extern struct _Fingerprint_Networks *Fingerprint_Networks;
+extern struct _MeerConfig *MeerConfig;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerCounters *MeerCounters;
 
 
 void Add_Fingerprint_To_JSON( struct json_object *json_obj, _DecodeAlert *DecodeAlert )

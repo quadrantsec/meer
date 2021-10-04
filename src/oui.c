@@ -35,8 +35,8 @@
 #include "util.h"
 #include "oui.h"
 
-struct _MeerCounters *MeerCounters;
-struct _MeerConfig *MeerConfig;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerConfig *MeerConfig;
 struct _Manfact_Struct *MF_Struct;
 
 /*****************************************************************************/
@@ -187,7 +187,7 @@ void OUI_Lookup ( char *mac, char *str, size_t size )
 
     /* Unknown / not found */
 
-    snprintf(str, size, "");
+    str[0] = '\0';
 
 }
 

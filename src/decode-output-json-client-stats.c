@@ -49,9 +49,9 @@ libjson-c is required for Meer to function!
 #include "output-plugins/redis.h"
 #include "decode-output-json-client-stats.h"
 
-struct _MeerCounters *MeerCounters;
-struct _MeerOutput *MeerOutput;
-struct _MeerConfig *MeerConfig;
+extern struct _MeerCounters *MeerCounters;
+extern struct _MeerOutput *MeerOutput;
+extern struct _MeerConfig *MeerConfig;
 
 void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *json_string )
 {
