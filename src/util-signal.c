@@ -153,6 +153,12 @@ void Signal_Handler(int sig_num)
 
 #endif
 
+            if ( MeerOutput->file_enabled == true )
+                {
+                    fflush(MeerOutput->file_fd);
+                    fclose(MeerOutput->file_fd);
+                }
+
 
             Remove_Lock_File();
 

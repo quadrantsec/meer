@@ -52,6 +52,7 @@
 #include "output-plugins/external.h"
 #include "output-plugins/fingerprint.h"
 #include "output-plugins/pipe.h"
+#include "output-plugins/file.h"
 
 #ifdef WITH_ELASTICSEARCH
 #include <output-plugins/elasticsearch.h>
@@ -154,6 +155,9 @@ void Init_Output( void )
             Meer_Log(NORMAL, "");
             Meer_Log(NORMAL, "File Location: %s", MeerOutput->file_location);
             Meer_Log(NORMAL, "");
+            Meer_Log(NORMAL, "Write 'alert'   : %s", MeerOutput->file_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'stats'   : %s", MeerOutput->file_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'email'   : %s", MeerOutput->file_email ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'dns'     : %s", MeerOutput->file_dns ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'flow'    : %s", MeerOutput->file_flow ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'http'    : %s", MeerOutput->file_http ? "enabled" : "disabled" );
@@ -167,12 +171,11 @@ void Init_Output( void )
 
             Meer_Log(NORMAL, "");
 
-            /* Do a quick test to validate we have "append" access to the file.  If not,
-               abort now */
+            /* Open the new spool file for output */
 
-            if (( testopen_fd = fopen(MeerOutput->file_location, "a" )) == NULL )
+            if (( MeerOutput->file_fd = fopen(MeerOutput->file_location, "a" )) == NULL )
                 {
-                    Meer_Log(ERROR, "[%s, line %d] Cannot open '%s' for append.", __FILE__,  __LINE__, MeerOutput->file_location);
+                    Meer_Log(ERROR, "[%s, line %d] Cannot open '%s' for append. %s", __FILE__,  __LINE__, MeerOutput->file_location, strerror(errno) );
                 }
 
         }
@@ -370,66 +373,60 @@ void Init_Output( void )
  * Output_Pipe - Determines what data/JSON should be sent to the named pipe
  ****************************************************************************/
 
-bool Output_Pipe ( char *type, char *json_string )
+bool Output_Pipe ( const char *json_string, const char *event_type )
 {
 
-    if ( !strcmp(type, "flow" ) )
+    if ( !strcmp(event_type, "flow" ) && MeerOutput->pipe_flow == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(type, "http" ) )
+    else if ( !strcmp(event_type, "http" ) && MeerOutput->pipe_http == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(type, "smtp" ) )
+    else if ( !strcmp(event_type, "smtp" ) && MeerOutput->pipe_smtp == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(type, "ssh" ) )
+    else if ( !strcmp(event_type, "ssh" ) && MeerOutput->pipe_ssh == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(type, "tls" ) )
+    else if ( !strcmp(event_type, "tls" ) && MeerOutput->pipe_tls == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(type, "dns" ) )
+    else if ( !strcmp(event_type, "dns" ) && MeerOutput->pipe_dns == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(type, "alert" ) )
+    else if ( !strcmp(event_type, "fileinfo" ) && MeerOutput->pipe_fileinfo == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(type, "fileinfo" ) )
+    else if ( !strcmp(event_type, "dhcp" ) && MeerOutput->pipe_dhcp == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(type, "dhcp" ) )
-        {
-            Pipe_Write( json_string );
-            return(true);
-        }
-
-    Meer_Log(WARN, "Unknown JSON type '%s'. JSON String: %s", type, json_string);
+    Meer_Log(WARN, "Unknown JSON type '%s'. JSON String: %s", event_type, json_string);
     MeerCounters->JSONPipeMisses++;
-    return(false);;
+    return(false);
 
 }
 
@@ -827,43 +824,43 @@ bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
 bool Output_Elasticsearch ( const char *json_string, const char *event_type )
 {
 
-    if ( !strcmp(event_type, "flow" ) )
+    if ( !strcmp(event_type, "flow" ) && MeerOutput->elasticsearch_flow == true )
         {
             Output_Do_Elasticsearch( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp(event_type, "http" ) )
+    else if ( !strcmp(event_type, "http" ) && MeerOutput->elasticsearch_http == true )
         {
             Output_Do_Elasticsearch( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp(event_type, "tls" ) )
+    else if ( !strcmp(event_type, "tls" ) && MeerOutput->elasticsearch_tls == true )
         {
             Output_Do_Elasticsearch( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp(event_type, "ssh" ) )
+    else if ( !strcmp(event_type, "ssh" ) && MeerOutput->elasticsearch_ssh == true )
         {
             Output_Do_Elasticsearch( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp(event_type, "smtp" ) )
+    else if ( !strcmp(event_type, "smtp" ) && MeerOutput->elasticsearch_smtp == true )
         {
             Output_Do_Elasticsearch( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp(event_type, "email" ) )
+    else if ( !strcmp(event_type, "email" ) && MeerOutput->elasticsearch_email == true )
         {
             Output_Do_Elasticsearch( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp(event_type, "stats" ) )
+    else if ( !strcmp(event_type, "stats" ) && MeerOutput->elasticsearch_stats == true )
         {
             Output_Do_Elasticsearch( json_string, event_type );
             return(true);
@@ -928,6 +925,57 @@ bool Output_File ( const char *json_string, const char *event_type )
 {
 
 
+    if ( !strcmp(event_type, "flow" ) && MeerOutput->file_flow == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "email" ) && MeerOutput->file_email == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "http" ) && MeerOutput->file_http == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "tls" ) && MeerOutput->file_tls == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ssh" ) && MeerOutput->file_ssh == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "smtp" ) && MeerOutput->file_smtp == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "email" ) && MeerOutput->file_email == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "stats" ) && MeerOutput->file_stats == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    Meer_Log(WARN, "Unknown JSON type '%s'. JSON String: %s", event_type, json_string);
+    return(false);
+
 
 }
 
@@ -935,61 +983,61 @@ bool Output_Redis( const char *json_string, const char *event_type )
 {
 
 
-    if ( !strcmp( event_type, "flow") )
+    if ( !strcmp( event_type, "flow") && MeerOutput->redis_flow == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "dns") )
+    else if ( !strcmp( event_type, "dns") && MeerOutput->redis_dns == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "http") )
+    else if ( !strcmp( event_type, "http") && MeerOutput->redis_http == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "files" ) )
+    else if ( !strcmp( event_type, "files" ) && MeerOutput->redis_files == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "tls" ) )
+    else if ( !strcmp( event_type, "tls" ) && MeerOutput->redis_tls == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "ssh" ) )
+    else if ( !strcmp( event_type, "ssh" ) && MeerOutput->redis_ssh == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type,  "smtp" ) )
+    else if ( !strcmp( event_type,  "smtp" ) && MeerOutput->redis_smtp == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "fileinfo" ) )
+    else if ( !strcmp( event_type, "fileinfo" ) && MeerOutput->redis_fileinfo == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "dhcp" ) )
+    else if ( !strcmp( event_type, "dhcp" ) && MeerOutput->redis_dhcp == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "stats" ) )
+    else if ( !strcmp( event_type, "stats" ) && MeerOutput->redis_stats == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);

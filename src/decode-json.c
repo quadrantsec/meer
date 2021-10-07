@@ -47,6 +47,7 @@ libjson-c is required for Meer to function!
 #include "decode-output-json-client-stats.h"
 
 #include "output-plugins/pipe.h"
+#include "output-plugins/file.h"
 
 #include "meer.h"
 #include "meer-def.h"
@@ -105,190 +106,203 @@ bool Decode_JSON( char *json_string )
         }
     else
         {
-            bad_json = true;
+            MeerCounters->InvalidJSONCount++;
+            return(false);
+//            bad_json = true;
         }
 
-    if ( bad_json == false )
+//    if ( bad_json == false )
+//        {
+
+    if ( !strcmp(event_type, "alert") )
         {
 
-            if ( !strcmp(event_type, "alert") )
-                {
-
-                    struct _DecodeAlert *DecodeAlert;   /* event_type: alert */
-                    DecodeAlert = Decode_JSON_Alert( json_obj, json_string );
+            struct _DecodeAlert *DecodeAlert;   /* event_type: alert */
+            DecodeAlert = Decode_JSON_Alert( json_obj, json_string );
 
 #ifdef HAVE_LIBHIREDIS
 
-                    /* Add fingerprint */
+            /* Add fingerprint */
 
-                    if (MeerConfig->fingerprint == true && MeerOutput->redis_flag == true )
+            if (MeerConfig->fingerprint == true && MeerOutput->redis_flag == true )
+                {
+                    Add_Fingerprint_To_JSON( json_obj, DecodeAlert );
+
+                    /* Is this a "fingerprint" signature? */
+
+                    struct _FingerprintData *FingerprintData;
+                    FingerprintData = (struct _FingerprintData *) malloc(sizeof(_FingerprintData));
+
+                    if ( FingerprintData == NULL )
                         {
-                            Add_Fingerprint_To_JSON( json_obj, DecodeAlert );
+                            Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _FingerprintData.  Abort!", __FILE__, __LINE__, json_string);
+                        }
 
-                            /* Is this a "fingerprint" signature? */
+                    memset(FingerprintData, 0, sizeof(_FingerprintData));
+                    Parse_Fingerprint( DecodeAlert, FingerprintData);
 
-                            struct _FingerprintData *FingerprintData;
-                            FingerprintData = (struct _FingerprintData *) malloc(sizeof(_FingerprintData));
+                    fingerprint_return = false;
 
-                            if ( FingerprintData == NULL )
-                                {
-                                    Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _FingerprintData.  Abort!", __FILE__, __LINE__, json_string);
-                                }
+                    if ( FingerprintData->ret == true )
+                        {
 
-                            memset(FingerprintData, 0, sizeof(_FingerprintData));
-                            Parse_Fingerprint( DecodeAlert, FingerprintData);
+                            fingerprint_return = FingerprintData->ret;
 
-                            fingerprint_return = false;
+                            Fingerprint_IP_JSON( DecodeAlert, fingerprint_IP_JSON, sizeof(fingerprint_IP_JSON));
+                            Output_Fingerprint_IP( DecodeAlert, fingerprint_IP_JSON);
 
-                            if ( FingerprintData->ret == true )
-                                {
-
-                                    fingerprint_return = FingerprintData->ret;
-
-                                    Fingerprint_IP_JSON( DecodeAlert, fingerprint_IP_JSON, sizeof(fingerprint_IP_JSON));
-                                    Output_Fingerprint_IP( DecodeAlert, fingerprint_IP_JSON);
-
-                                    Fingerprint_EVENT_JSON( DecodeAlert, FingerprintData, fingerprint_EVENT_JSON, sizeof(fingerprint_EVENT_JSON));
-                                    Output_Fingerprint_EVENT( DecodeAlert, FingerprintData, fingerprint_EVENT_JSON );
-
-                                }
-
-                            free(FingerprintData);
+                            Fingerprint_EVENT_JSON( DecodeAlert, FingerprintData, fingerprint_EVENT_JSON, sizeof(fingerprint_EVENT_JSON));
+                            Output_Fingerprint_EVENT( DecodeAlert, FingerprintData, fingerprint_EVENT_JSON );
 
                         }
+
+                    free(FingerprintData);
+
+                }
 
 #endif
 
 #if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
 
-                    if ( MeerOutput->sql_enabled == true && fingerprint_return == false )
-                        {
-                            Output_Alert_SQL( DecodeAlert );
-                        }
+            if ( MeerOutput->sql_enabled == true && fingerprint_return == false && MeerOutput->sql_alert == true ))
+                {
+                    Output_Alert_SQL( DecodeAlert );
+                }
 #endif
 
 #ifdef HAVE_LIBHIREDIS
 
-                    if ( fingerprint_return == false && MeerOutput->redis_flag == true )
-                        {
-                            JSON_To_Redis( DecodeAlert->new_json_string, "alert" );
-                        }
+            if ( fingerprint_return == false && MeerOutput->redis_flag == true && MeerOutput->redis_alert == true )
+            {
+                JSON_To_Redis( DecodeAlert->new_json_string, "alert" );
+                }
 #endif
 
-                    if ( MeerOutput->external_enabled == true )
-                        {
-                            Output_External( DecodeAlert );
-                        }
+            if ( MeerOutput->external_enabled == true )		// NEEDS ROUTING
+            {
+                Output_External( DecodeAlert );
+                }
 
 #ifdef WITH_BLUEDOT
 
-                    if ( MeerOutput->bluedot_flag == true )
-                        {
-                            Output_Bluedot( DecodeAlert );
-                        }
+            if ( MeerOutput->bluedot_flag == true )
+            {
+                Output_Bluedot( DecodeAlert );
+                }
 #endif
 
 #ifdef WITH_ELASTICSEARCH
 
-                    if ( MeerOutput->elasticsearch_flag == true )
-                        {
-                            Output_Do_Elasticsearch( DecodeAlert->new_json_string, "alert" );
-                        }
+            if ( MeerOutput->elasticsearch_flag == true && MeerOutput->elasticsearch_alert == true )
+            {
+                Output_Do_Elasticsearch( DecodeAlert->new_json_string, "alert" );
+                }
 #endif
 
-                    if ( MeerOutput->pipe_enabled == true )
-                        {
-                            Pipe_Write( DecodeAlert->new_json_string );
-                        }
+            if ( MeerOutput->pipe_enabled == true && MeerOutput->pipe_alert == true )
+            {
+                Pipe_Write( DecodeAlert->new_json_string );
+                }
 
 
-                    /* We are done with "alert" events,  we can short circuit here */
+            /* We are done with "alert" events,  we can short circuit here */
 
-                    free(DecodeAlert);
-                    json_object_put(json_obj);
+            if ( MeerOutput->file_enabled == true && MeerOutput->file_alert == true  )
+            {
+                Output_Do_File( DecodeAlert->new_json_string );
+                }
 
-                    return 0;
+            free(DecodeAlert);
+            json_object_put(json_obj);
 
-                }  /* if ( !strcmp(json_object_get_string(tmp), "alert") ) */
+            return 0;
+
+        }  /* if ( !strcmp(json_object_get_string(tmp), "alert") ) */
 
 
 #ifdef HAVE_LIBHIREDIS
 
-            if ( MeerOutput->redis_flag == true )
-                {
-
-                    if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true )
-                        {
-
-                            struct _DecodeDHCP *DecodeDHCP;   /* event_type: dhcp */
-                            DecodeDHCP = (struct _DecodeDHCP *) malloc(sizeof(_DecodeDHCP));
-
-                            if ( DecodeDHCP == NULL )
-                                {
-                                    Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _DecodeDHCP.  Abort!", __FILE__, __LINE__, json_string);
-                                }
-
-                            memset(DecodeDHCP, 0, sizeof(_DecodeDHCP));
-
-                            Decode_JSON_DHCP( json_obj, json_string, DecodeDHCP );
-
-                            Fingerprint_DHCP_JSON( DecodeDHCP, fingerprint_DHCP_JSON, sizeof(fingerprint_DHCP_JSON));
-                            Output_Fingerprint_DHCP ( DecodeDHCP, fingerprint_DHCP_JSON );
-
-                            free(DecodeDHCP);
-                        }
-
-                }
-
-#endif
-
-            /* Process Suricata / Sagan stats */
-
-            if ( !strcmp(event_type, "stats" ) )
-                {
-                    Output_Stats( json_string );
-                }
-
-            /* Process client stats data from Sagan */
-
-#ifdef HAVE_LIBHIREDIS
-
-            if ( !strcmp(event_type, "client_stats") && MeerConfig->client_stats == true )
-                {
-                    Decode_Output_JSON_Client_Stats( json_obj, json_string );
-                }
-
-#endif
-
-            if ( MeerOutput->pipe_enabled == true )
-                {
-                    Output_Pipe(event_type, json_string );
-                }
-
-#ifdef HAVE_LIBHIREDIS
-
-            if ( MeerOutput->redis_flag == true )
-                {
-                    Output_Redis( json_string, event_type );
-                }
-
-#endif
-
-
-#ifdef WITH_ELASTICSEARCH
-
-            if ( MeerOutput->elasticsearch_flag == true )
-                {
-                    Output_Elasticsearch( json_string, event_type );
-                }
-#endif
-
-
-        }
-    else
+    if ( MeerOutput->redis_flag == true )
         {
-            MeerCounters->InvalidJSONCount++;
+
+            if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true )
+                {
+
+                    struct _DecodeDHCP *DecodeDHCP;   /* event_type: dhcp */
+                    DecodeDHCP = (struct _DecodeDHCP *) malloc(sizeof(_DecodeDHCP));
+
+                    if ( DecodeDHCP == NULL )
+                        {
+                            Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _DecodeDHCP.  Abort!", __FILE__, __LINE__, json_string);
+                        }
+
+                    memset(DecodeDHCP, 0, sizeof(_DecodeDHCP));
+
+                    Decode_JSON_DHCP( json_obj, json_string, DecodeDHCP );
+
+                    Fingerprint_DHCP_JSON( DecodeDHCP, fingerprint_DHCP_JSON, sizeof(fingerprint_DHCP_JSON));
+                    Output_Fingerprint_DHCP ( DecodeDHCP, fingerprint_DHCP_JSON );
+
+                    free(DecodeDHCP);
+                }
+
         }
+
+#endif
+
+    /* Process Suricata / Sagan stats */
+
+    if ( !strcmp(event_type, "stats" ) )
+        {
+            Output_Stats( json_string );
+        }
+
+    /* Process client stats data from Sagan */
+
+#ifdef HAVE_LIBHIREDIS
+
+    if ( !strcmp(event_type, "client_stats") && MeerConfig->client_stats == true )
+        {
+            Decode_Output_JSON_Client_Stats( json_obj, json_string );
+        }
+
+#endif
+
+    if ( MeerOutput->pipe_enabled == true )
+        {
+            Output_Pipe( json_string, event_type );
+        }
+
+    if ( MeerOutput->file_enabled == true )
+        {
+            Output_File( json_string, event_type );
+        }
+
+
+#ifdef HAVE_LIBHIREDIS
+
+    if ( MeerOutput->redis_flag == true )
+        {
+            Output_Redis( json_string, event_type );
+        }
+
+#endif
+
+
+#ifdef WITH_ELASTICSEARCH
+
+    if ( MeerOutput->elasticsearch_flag == true )
+        {
+            Output_Elasticsearch( json_string, event_type );
+        }
+#endif
+
+
+//        }
+//    else
+//        {
+//            MeerCounters->InvalidJSONCount++;
+// 	}
 
 
     /* Delete json-c _root_ objects */

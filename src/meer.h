@@ -248,10 +248,13 @@ struct _MeerOutput
     char external_program[256];
 
     bool file_enabled;
+    FILE *file_fd;
     char file_location[256];
     bool file_alert;
+    bool file_email;
     bool file_files;
     bool file_flow;
+    bool file_stats;
     bool file_http;
     bool file_smtp;
     bool file_ssh;

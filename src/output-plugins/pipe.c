@@ -38,7 +38,7 @@
 extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
 
-void Pipe_Write ( char *json_string )
+void Pipe_Write ( const char *json_string )
 {
     uint32_t ret = 0;
 

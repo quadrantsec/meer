@@ -1559,11 +1559,27 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
+                            if ( !strcmp(last_pass, "stats" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_stats = true;
+                                        }
+                                }
+
                             if ( !strcmp(last_pass, "files" ) &&  MeerOutput->file_enabled == true )
                                 {
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
                                         {
                                             MeerOutput->file_files = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "email" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_email = true;
                                         }
                                 }
 

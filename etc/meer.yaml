@@ -196,6 +196,30 @@ output-plugins:
     #reference: "/usr/local/etc/sagan-rules/reference.config"
 
   ###########################################################################
+  # file
+  # 
+  # The 'file' output writes post processed EVE data to a file.  For example,
+  # if Meer is adding GeoIP and DNS information,  the new JSON data will 
+  # written to the 'file_location'.
+  ###########################################################################
+
+  file:
+
+    enabled: no
+    file_location: "/path/to/output/filer"
+    alert: enabled
+    files: disabled
+    flow: disabled
+    dns: disabled
+    http: disabled
+    tls: disabled
+    ssh: disabled
+    smtp: disabled
+    fileinfo: disabled
+    dhcp: disabled
+    stats: disabled
+
+  ###########################################################################
   # pipe
   # 
   # This allows Meer to send a copy of an event to a named pipe (FIFO) in 
