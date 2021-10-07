@@ -25,3 +25,6 @@ bool Output_External ( struct _DecodeAlert *DecodeAlert );
 void Output_Stats ( char *json_string );
 bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert );
 bool Output_Elasticsearch ( const char *json_string, const char *event_type );
+bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type );
+bool Output_File ( const char *json_string, const char *event_type );
+bool Output_Redis( const char *json_string, const char *event_type );

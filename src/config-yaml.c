@@ -276,6 +276,11 @@ void Load_YAML_Config( char *yaml_file )
                                     sub_type = YAML_MEER_REDIS;
                                 }
 
+                            if ( !strcmp(value, "file") )
+                                {
+                                    sub_type = YAML_MEER_FILE;
+                                }
+
 #ifdef WITH_BLUEDOT
                             if ( !strcmp(value, "bluedot") )
                                 {
@@ -1529,6 +1534,115 @@ void Load_YAML_Config( char *yaml_file )
 
 #endif
 
+                    if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_FILE )
+                        {
+
+                            if ( !strcmp(last_pass, "enabled" ) )
+                                {
+
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_enabled = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "file_location") && MeerOutput->file_enabled == true )
+                                {
+                                    strlcpy(MeerOutput->file_location, value, sizeof(MeerOutput->file_location));
+                                }
+
+                            if ( !strcmp(last_pass, "alert" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_alert = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "files" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_files = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "flow" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_flow = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "http" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_http = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "smtp" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_smtp = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "ssh" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_ssh = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "tls" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_tls = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "dns" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_dns = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "fileinfo" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_fileinfo = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "dhcp" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_dhcp = true;
+                                        }
+                                }
+
+                            if ( !strcmp(last_pass, "bluedot" ) &&  MeerOutput->file_enabled == true )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->file_bluedot = true;
+                                        }
+                                }
+
+
+                        }
+
+
                     if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_PIPE )
                         {
 
@@ -1571,7 +1685,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            if ( !strcmp(last_pass, "alert" ))
+                            if ( !strcmp(last_pass, "alert" ) && MeerOutput->pipe_enabled == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -1581,7 +1695,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            if ( !strcmp(last_pass, "dns" ))
+                            if ( !strcmp(last_pass, "dns" ) && MeerOutput->pipe_enabled == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -1592,7 +1706,7 @@ void Load_YAML_Config( char *yaml_file )
                                 }
 
 
-                            if ( !strcmp(last_pass, "smtp" ))
+                            if ( !strcmp(last_pass, "smtp" ) && MeerOutput->pipe_enabled == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -1603,7 +1717,7 @@ void Load_YAML_Config( char *yaml_file )
                                 }
 
 
-                            if ( !strcmp(last_pass, "flow" ))
+                            if ( !strcmp(last_pass, "flow" ) && MeerOutput->pipe_enabled == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -1613,7 +1727,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            if ( !strcmp(last_pass, "http" ))
+                            if ( !strcmp(last_pass, "http" ) && MeerOutput->pipe_enabled == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -1623,7 +1737,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            if ( !strcmp(last_pass, "ssh" ))
+                            if ( !strcmp(last_pass, "ssh" ) && MeerOutput->pipe_enabled == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -1633,7 +1747,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            if ( !strcmp(last_pass, "tls" ))
+                            if ( !strcmp(last_pass, "tls" ) && MeerOutput->pipe_enabled == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -1643,7 +1757,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            if ( !strcmp(last_pass, "fileinfo" ))
+                            if ( !strcmp(last_pass, "fileinfo" ) && MeerOutput->pipe_enabled == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -1653,7 +1767,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            if ( !strcmp(last_pass, "dhcp" ))
+                            if ( !strcmp(last_pass, "dhcp" ) && MeerOutput->pipe_enabled == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))

@@ -38,7 +38,8 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      output-plugins/redis.c \
 							      output-plugins/bluedot.c \
 							      output-plugins/fingerprint.c \
-							      output-plugins/elasticsearch.c
+							      output-plugins/elasticsearch.c \
+							      output-plugins/file.c
 
 
                                                        install-data-local:

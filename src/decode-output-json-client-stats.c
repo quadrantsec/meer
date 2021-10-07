@@ -115,11 +115,11 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
         }
 
     if ( !Is_IP(cs_ipaddr, IPv4) && !Is_IP(cs_ipaddr, IPv6 ) )
-    	{
-	    Meer_Log(WARN, "[%s, line %d] 'ip_address' (%s) is invalid. Skipping...", __FILE__, __LINE__, cs_ipaddr);
-	    json_object_put(encode_json);
-	    return;
-	}
+        {
+            Meer_Log(WARN, "[%s, line %d] 'ip_address' (%s) is invalid. Skipping...", __FILE__, __LINE__, cs_ipaddr);
+            json_object_put(encode_json);
+            return;
+        }
 
     /* Program */
 

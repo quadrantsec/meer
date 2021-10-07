@@ -46,6 +46,8 @@ libjson-c is required for Meer to function!
 #include "fingerprints.h"
 #include "decode-output-json-client-stats.h"
 
+#include "output-plugins/pipe.h"
+
 #include "meer.h"
 #include "meer-def.h"
 #include "output.h"
@@ -72,6 +74,8 @@ bool Decode_JSON( char *json_string )
     bool bad_json = false;
     bool fingerprint_return = false;
 
+    char *event_type = NULL;
+
 #ifdef HAVE_LIBHIREDIS
 
     char fingerprint_IP_JSON[1024] = { 0 };
@@ -95,12 +99,11 @@ bool Decode_JSON( char *json_string )
             return 1;
         }
 
-    if (!json_object_object_get_ex(json_obj, "event_type", &tmp))
+    if (json_object_object_get_ex(json_obj, "event_type", &tmp))
         {
-            bad_json = true;
+            event_type = (char *)json_object_get_string(tmp);
         }
-
-    if ( tmp == NULL )
+    else
         {
             bad_json = true;
         }
@@ -108,7 +111,7 @@ bool Decode_JSON( char *json_string )
     if ( bad_json == false )
         {
 
-            if ( !strcmp(json_object_get_string(tmp), "alert") )
+            if ( !strcmp(event_type, "alert") )
                 {
 
                     struct _DecodeAlert *DecodeAlert;   /* event_type: alert */
@@ -189,61 +192,32 @@ bool Decode_JSON( char *json_string )
 
                     if ( MeerOutput->elasticsearch_flag == true )
                         {
-
-                            if ( !strcmp(DecodeAlert->event_type, "alert" ) && MeerOutput->elasticsearch_alert == true )
-                                {
-                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
-                                }
-
-                            else if ( !strcmp(DecodeAlert->event_type, "flow" ) && MeerOutput->elasticsearch_flow == true )
-                                {
-                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
-                                }
-
-                            else if ( !strcmp(DecodeAlert->event_type, "http" ) && MeerOutput->elasticsearch_http == true )
-                                {
-                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
-                                }
-
-                            else if ( !strcmp(DecodeAlert->event_type, "tls" ) && MeerOutput->elasticsearch_tls == true )
-                                {
-                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
-                                }
-
-                            else if ( !strcmp(DecodeAlert->event_type, "ssh" ) && MeerOutput->elasticsearch_ssh == true )
-                                {
-                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
-                                }
-
-                            else if ( !strcmp(DecodeAlert->event_type, "smtp" ) && MeerOutput->elasticsearch_smtp == true )
-                                {
-                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
-                                }
-
-                            else if ( !strcmp(DecodeAlert->event_type, "email" ) && MeerOutput->elasticsearch_email == true )
-                                {
-                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
-                                }
-
-                            else if ( !strcmp(DecodeAlert->event_type, "stats" ) && MeerOutput->elasticsearch_stats == true )
-                                {
-                                    Output_Elasticsearch( DecodeAlert->new_json_string, DecodeAlert->event_type );
-                                }
-
+                            Output_Do_Elasticsearch( DecodeAlert->new_json_string, "alert" );
                         }
-
 #endif
 
-                    free(DecodeAlert);
+                    if ( MeerOutput->pipe_enabled == true )
+                        {
+                            Pipe_Write( DecodeAlert->new_json_string );
+                        }
 
-                }
+
+                    /* We are done with "alert" events,  we can short circuit here */
+
+                    free(DecodeAlert);
+                    json_object_put(json_obj);
+
+                    return 0;
+
+                }  /* if ( !strcmp(json_object_get_string(tmp), "alert") ) */
+
 
 #ifdef HAVE_LIBHIREDIS
 
             if ( MeerOutput->redis_flag == true )
                 {
 
-                    if ( !strcmp(json_object_get_string(tmp), "dhcp") && MeerConfig->fingerprint == true )
+                    if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true )
                         {
 
                             struct _DecodeDHCP *DecodeDHCP;   /* event_type: dhcp */
@@ -270,7 +244,7 @@ bool Decode_JSON( char *json_string )
 
             /* Process Suricata / Sagan stats */
 
-            if ( !strcmp(json_object_get_string(tmp), "stats" ) )
+            if ( !strcmp(event_type, "stats" ) )
                 {
                     Output_Stats( json_string );
                 }
@@ -279,78 +253,36 @@ bool Decode_JSON( char *json_string )
 
 #ifdef HAVE_LIBHIREDIS
 
-            if ( !strcmp(json_object_get_string(tmp), "client_stats") && MeerConfig->client_stats == true )
+            if ( !strcmp(event_type, "client_stats") && MeerConfig->client_stats == true )
                 {
                     Decode_Output_JSON_Client_Stats( json_obj, json_string );
                 }
 
 #endif
 
-
             if ( MeerOutput->pipe_enabled == true )
                 {
-                    strlcpy(tmp_type, json_object_get_string(tmp), sizeof(tmp_type));
-                    Output_Pipe(tmp_type, json_string );
+                    Output_Pipe(event_type, json_string );
                 }
 
 #ifdef HAVE_LIBHIREDIS
 
             if ( MeerOutput->redis_flag == true )
                 {
-
-                    if ( !strcmp(json_object_get_string(tmp), "flow") && MeerOutput->redis_flow == true )
-                        {
-                            JSON_To_Redis( json_string, "flow" );
-                        }
-
-                    else if ( !strcmp(json_object_get_string(tmp), "dns") && MeerOutput->redis_dns == true )
-                        {
-                            JSON_To_Redis( json_string, "dns" );
-                        }
-
-                    else if ( !strcmp(json_object_get_string(tmp), "http") && MeerOutput->redis_http == true)
-                        {
-                            JSON_To_Redis( json_string, "http" );
-                        }
-
-                    else if ( !strcmp(json_object_get_string(tmp), "files" ) && MeerOutput->redis_files == true )
-                        {
-                            JSON_To_Redis( json_string, "files" );
-                        }
-
-                    else if ( !strcmp(json_object_get_string(tmp), "tls" ) && MeerOutput->redis_tls == true)
-                        {
-                            JSON_To_Redis( json_string, "tls" );
-                        }
-
-                    else if ( !strcmp(json_object_get_string(tmp), "ssh" ) && MeerOutput->redis_ssh == true)
-                        {
-                            JSON_To_Redis( json_string, "ssh" );
-                        }
-
-                    else if ( !strcmp(json_object_get_string(tmp), "smtp" ) && MeerOutput->redis_smtp == true)
-                        {
-                            JSON_To_Redis( json_string, "smtp" );
-                        }
-
-                    else if ( !strcmp(json_object_get_string(tmp), "fileinfo" ) && MeerOutput->redis_fileinfo == true)
-                        {
-                            JSON_To_Redis( json_string, "fileinfo" );
-                        }
-
-                    else if ( !strcmp(json_object_get_string(tmp), "dhcp" ) && MeerOutput->redis_dhcp == true)
-                        {
-                            JSON_To_Redis( json_string, "dhcp" );
-                        }
-
-                    else if ( !strcmp(json_object_get_string(tmp), "stats" ) && MeerOutput->redis_stats == true)
-                        {
-                            JSON_To_Redis( json_string, "stats" );
-                        }
-
+                    Output_Redis( json_string, event_type );
                 }
 
 #endif
+
+
+#ifdef WITH_ELASTICSEARCH
+
+            if ( MeerOutput->elasticsearch_flag == true )
+                {
+                    Output_Elasticsearch( json_string, event_type );
+                }
+#endif
+
 
         }
     else

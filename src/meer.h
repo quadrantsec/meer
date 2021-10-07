@@ -247,6 +247,21 @@ struct _MeerOutput
     bool external_execute_on_all;
     char external_program[256];
 
+    bool file_enabled;
+    char file_location[256];
+    bool file_alert;
+    bool file_files;
+    bool file_flow;
+    bool file_http;
+    bool file_smtp;
+    bool file_ssh;
+    bool file_tls;
+    bool file_dns;
+    bool file_fileinfo;
+    bool file_dhcp;
+    bool file_bluedot;
+
+
     bool pipe_enabled;
     char pipe_location[256];
     int  pipe_fd;
