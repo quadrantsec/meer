@@ -42,6 +42,7 @@ libjson-c is required for Meer to function!
 #include <string.h>
 
 #include "util.h"
+#include "util-dns.h"
 #include "meer.h"
 #include "meer-def.h"
 

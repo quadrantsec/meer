@@ -20,6 +20,7 @@
 #include "meer.h"
 #include "meer-def.h"
 #include "util.h"
+#include "util-dns.h"
 #include "output.h"
 #include "references.h"
 #include "sid-map.h"

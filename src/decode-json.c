@@ -52,6 +52,7 @@ libjson-c is required for Meer to function!
 #include "meer.h"
 #include "meer-def.h"
 #include "output.h"
+#include "get-dns.h"
 
 #ifdef HAVE_LIBHIREDIS
 #include "output-plugins/redis.h"
@@ -69,6 +70,7 @@ bool Decode_JSON( char *json_string )
 {
 
     struct json_object *json_obj = NULL;
+
     struct json_object *tmp = NULL;
 
     char tmp_type[32] = { 0 };
@@ -108,11 +110,13 @@ bool Decode_JSON( char *json_string )
         {
             MeerCounters->InvalidJSONCount++;
             return(false);
-//            bad_json = true;
         }
 
-//    if ( bad_json == false )
-//        {
+
+    if ( MeerConfig->dns == true )
+        {
+            json_string = Get_DNS( json_obj );
+        }
 
     if ( !strcmp(event_type, "alert") )
         {
@@ -217,7 +221,17 @@ bool Decode_JSON( char *json_string )
 
             return 0;
 
-        }  /* if ( !strcmp(json_object_get_string(tmp), "alert") ) */
+        }  /* if ( !strcmp(event_type, "alert") ) */
+
+
+    else if ( !strcmp( event_type, "http") )
+        {
+
+            printf("Got HTTP\n");
+
+
+
+        }
 
 
 #ifdef HAVE_LIBHIREDIS
@@ -296,14 +310,6 @@ bool Decode_JSON( char *json_string )
             Output_Elasticsearch( json_string, event_type );
         }
 #endif
-
-
-//        }
-//    else
-//        {
-//            MeerCounters->InvalidJSONCount++;
-// 	}
-
 
     /* Delete json-c _root_ objects */
 

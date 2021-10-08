@@ -14,6 +14,8 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      util-signal.c \
 							      util-base64.c \
 							      util-http.c \
+							      util-dns.c \
+							      get-dns.c \
 							      lockfile.c \
 							      stats.c \
 							      waldo.c \

@@ -21,15 +21,6 @@
 #include <stdbool.h>
 #include "meer-def.h"
 
-typedef struct _DnsCache _DnsCache;
-struct _DnsCache
-{
-    char ipaddress[48];
-    char reverse[256];
-    uint64_t lookup_time;
-
-};
-
 typedef struct _Fingerprint_Networks _Fingerprint_Networks;
 struct _Fingerprint_Networks
 {
@@ -46,8 +37,6 @@ struct _Fingerprint_Networks
 void Drop_Priv(void);
 bool Check_Endian(void);
 char *Hexify(char *xdata, int length);
-void DNS_Lookup_Reverse( char *host, char *str, size_t size );
-int DNS_Lookup_Forward( const char *host, char *str, size_t size );
 bool Validate_JSON_String( const char *buf );
 bool IP2Bit(char *ipaddr, unsigned char *out);
 bool Mask2Bit(int mask, unsigned char *out);

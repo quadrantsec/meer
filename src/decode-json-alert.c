@@ -864,28 +864,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
             strlcpy(Alert_Return_Struct->alert_severity, "0", sizeof(Alert_Return_Struct->alert_severity));
         }
 
-    if ( MeerConfig->dns == true )
-        {
-
-            DNS_Lookup_Reverse(Alert_Return_Struct->src_ip, Alert_Return_Struct->src_dns, sizeof(Alert_Return_Struct->src_dns));
-
-            if ( Alert_Return_Struct->src_dns[0] != '\0' )
-                {
-                    json_object *jsrc_dns = json_object_new_string(Alert_Return_Struct->src_dns);
-                    json_object_object_add(json_obj,"src_dns", jsrc_dns);
-                }
-
-
-            DNS_Lookup_Reverse(Alert_Return_Struct->dest_ip, Alert_Return_Struct->dest_dns, sizeof(Alert_Return_Struct->dest_dns));
-
-            if ( Alert_Return_Struct->dest_dns[0] != '\0' )
-                {
-                    json_object *jdest_dns = json_object_new_string(Alert_Return_Struct->dest_dns);
-                    json_object_object_add(json_obj,"dest_dns", jdest_dns);
-                }
-
-        }
-
 #ifdef HAVE_LIBMAXMINDDB
 
     /*************************************************/

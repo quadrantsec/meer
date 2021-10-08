@@ -18,6 +18,8 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+//PIPE DOESNT HAVE OUTPUT ROUTING!;
+
 /* Output routines for decoded EVE/JSON */
 
 #ifdef HAVE_CONFIG_H
@@ -148,8 +150,6 @@ void Init_Output( void )
 
     if ( MeerOutput->file_enabled )
         {
-
-            FILE *testopen_fd;
 
             Meer_Log(NORMAL, "--[ File information ]--------------------------------------------");
             Meer_Log(NORMAL, "");
@@ -424,7 +424,7 @@ bool Output_Pipe ( const char *json_string, const char *event_type )
             return(true);
         }
 
-    Meer_Log(WARN, "Unknown JSON type '%s'. JSON String: %s", event_type, json_string);
+//    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     MeerCounters->JSONPipeMisses++;
     return(false);
 
@@ -866,7 +866,7 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type )
             return(true);
         }
 
-    Meer_Log(WARN, "Unknown JSON type '%s'. JSON String: %s", event_type, json_string);
+//    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     return(false);
 
 }
@@ -973,9 +973,8 @@ bool Output_File ( const char *json_string, const char *event_type )
             return(true);
         }
 
-    Meer_Log(WARN, "Unknown JSON type '%s'. JSON String: %s", event_type, json_string);
+//    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     return(false);
-
 
 }
 
@@ -1043,7 +1042,7 @@ bool Output_Redis( const char *json_string, const char *event_type )
             return(true);
         }
 
-    Meer_Log(WARN, "Unknown JSON type '%s'. JSON String: %s", event_type, json_string);
+//    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     return(false);
 
 }
