@@ -227,10 +227,6 @@ bool Decode_JSON( char *json_string )
     else if ( !strcmp( event_type, "http") )
         {
 
-            printf("Got HTTP\n");
-
-
-
         }
 
 
