@@ -129,12 +129,12 @@ void Add_Fingerprint_To_JSON( struct json_object *json_obj, _DecodeAlert *Decode
 
                             event_changed = true;
 
-                            strlcpy(tmp_new_alert, DecodeAlert->new_json_string, sizeof(tmp_new_alert));
+                            strlcpy(tmp_new_alert, DecodeAlert->json_string, sizeof(tmp_new_alert));
                             tmp_new_alert[ strlen(tmp_new_alert) - 2 ] = '\0';
 
                             snprintf(tmp_new_new_alert, sizeof(tmp_new_new_alert), "%s, \"fingerprint_dhcp_%s\": %s", tmp_new_alert, tmp_type, tmp_dhcp);
 
-                            snprintf(DecodeAlert->new_json_string, sizeof(DecodeAlert->new_json_string), "%s }", tmp_new_new_alert);
+                            snprintf(DecodeAlert->json_string, sizeof(DecodeAlert->json_string), "%s }", tmp_new_new_alert);
                         }
                 }
         }
@@ -189,7 +189,7 @@ void Add_Fingerprint_To_JSON( struct json_object *json_obj, _DecodeAlert *Decode
                     if ( key_count > 0 )
                         {
                             event_changed = true;
-                            strlcpy(tmp_new_alert, DecodeAlert->new_json_string, sizeof(tmp_new_alert));
+                            strlcpy(tmp_new_alert, DecodeAlert->json_string, sizeof(tmp_new_alert));
                             tmp_new_alert[ strlen(tmp_new_alert) - 2 ] = '\0';
                         }
 
@@ -224,7 +224,7 @@ void Add_Fingerprint_To_JSON( struct json_object *json_obj, _DecodeAlert *Decode
         {
             /* Append final } */
 
-            snprintf(DecodeAlert->new_json_string, sizeof(DecodeAlert->new_json_string), "%s }", tmp_new_alert);
+            snprintf(DecodeAlert->json_string, sizeof(DecodeAlert->json_string), "%s }", tmp_new_alert);
         }
 
     json_object_put(json_obj_fingerprint);

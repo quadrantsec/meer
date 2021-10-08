@@ -18,13 +18,6 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-void Init_Output( void );
-bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert );
-bool Output_Pipe ( const char *json_string, const char *event_type );
-bool Output_External ( const char *json_string, char *alert_metadata );
-void Output_Stats ( char *json_string );
-bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert );
-bool Output_Elasticsearch ( const char *json_string, const char *event_type );
-bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type );
-bool Output_File ( const char *json_string, const char *event_type );
-bool Output_Redis( const char *json_string, const char *event_type );
+char *Get_DNS( struct json_object *json_obj );
+
+

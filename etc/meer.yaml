@@ -328,21 +328,20 @@ output-plugins:
     server: 127.0.0.1
     #password: "mypassword"
     port: 6379
-    batch: 1                 # Batching (pipelining) data.  When set to 1 then
+    batch: 1                 # Batching (pipelining) data.  When set to 1, 
                              # no batching is performed and data is immediately 
                              # sent to Redis.  If increase,  data is batched 
                              # and sent in bulk to increase performance.  The max
                              # is 100.
     key: "suricata"	     # Default 'channel' to use.  If none is specified, the 
-                             # channel name will become the "event_type"  type 
-                             # (ie - alert, # dhcp, dns, flow, etc). If set, Meer
-                             # will send data to Redis similar to Suricata. 
-    mode: list               # How to publish data to Redis.  Valid types are 
+                             # channel name will become the "event_type".
+                             # (ie - alert, dhcp, dns, flow, etc). 
+    mode: lpush              # How to publish data to Redis.  Valid types are 
                              # "list" ("lpush"), "rpush", "channel" ("publish"), 
                              # "set".
     append_id: disabled      # If enabled, this will append the "hostname" and
                              # waldo position to the key.  For example,  the 
-                             # Redis object can become "alert:hostname:1". This
+                             # Redis object can become "alert|hostname|1". This
                              # is good when you are using the "set" mode. 
 
     # This controls event_types to send to Redis. 

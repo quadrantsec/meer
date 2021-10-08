@@ -47,7 +47,7 @@ char src_ip[64];
 
     char converted_timestamp[64];
 
-    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT];
+    char json_string[PACKET_BUFFER_SIZE_DEFAULT];
 
     char dest_ip[64];
     char *dest_port;
@@ -55,7 +55,7 @@ char src_ip[64];
 
     char *proto;
     char app_proto[16];
-    char payload[131072];
+    char payload[131072];			// <- THIS SHOULDNT BE HARDCODED 
     char *stream;
     char *packet;
     char *host;

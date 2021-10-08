@@ -42,7 +42,7 @@
 extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
 
-bool External( struct _DecodeAlert *DecodeAlert )
+bool External( const char *json_string )
 {
 
     int in[2];
@@ -109,7 +109,7 @@ bool External( struct _DecodeAlert *DecodeAlert )
 
     /* Write to child input */
 
-    n = write(in[1], DecodeAlert->new_json_string, strlen(DecodeAlert->new_json_string));
+    n = write(in[1], json_string, strlen(json_string));
     close(in[1]);
 
     n = read(out[0], buf, sizeof(buf));

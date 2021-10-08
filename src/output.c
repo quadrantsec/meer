@@ -655,7 +655,7 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
  * the signature triggered.
  ****************************************************************************/
 
-bool Output_External ( struct _DecodeAlert *DecodeAlert )
+bool Output_External ( const char *json_string, char *alert_metadata )
 {
 
     struct json_object *json_obj = NULL;
@@ -668,14 +668,14 @@ bool Output_External ( struct _DecodeAlert *DecodeAlert )
 
     if ( MeerOutput->external_execute_on_all == true )
         {
-            External( DecodeAlert );
+            External( json_string );
             json_object_put(json_obj);
             return(0);
         }
 
-    if ( DecodeAlert->alert_metadata[0] != '\0' )
+    if ( alert_metadata[0] != '\0' )
         {
-            json_obj = json_tokener_parse(DecodeAlert->alert_metadata);
+            json_obj = json_tokener_parse(alert_metadata);
 
             if (json_object_object_get_ex(json_obj, "meer", &tmp))
                 {
@@ -684,7 +684,7 @@ bool Output_External ( struct _DecodeAlert *DecodeAlert )
 
                     if ( strstr( meer, "external" ) )
                         {
-                            External( DecodeAlert );
+                            External( json_string );
                             json_object_put(json_obj);
 
 
@@ -712,7 +712,7 @@ bool Output_External ( struct _DecodeAlert *DecodeAlert )
                                     ( strstr( policy, "balanced-ips drop" ) && MeerOutput->external_metadata_balanced_ips == true ) ||
                                     ( strstr( policy, "connectivity-ips" ) && MeerOutput->external_metadata_connectivity_ips == true ) )
                                 {
-                                    External( DecodeAlert );
+                                    External( json_string );
                                 }
 
                         }

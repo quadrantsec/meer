@@ -54,6 +54,10 @@ libjson-c is required for Meer to function!
 #include "output.h"
 #include "get-dns.h"
 
+#ifdef HAVE_LIBMAXMINDDB
+#include "get-geoip.h"
+#endif
+
 #ifdef HAVE_LIBHIREDIS
 #include "output-plugins/redis.h"
 #include "output-plugins/fingerprint.h"
@@ -112,11 +116,21 @@ bool Decode_JSON( char *json_string )
             return(false);
         }
 
-
     if ( MeerConfig->dns == true )
         {
             json_string = Get_DNS( json_obj );
         }
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    if ( MeerConfig->geoip == true )
+    {
+            char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+    	    Get_GeoIP( json_obj, json_string, new_json_string, PACKET_BUFFER_SIZE_DEFAULT );
+	    json_string = new_json_string;
+    }
+
+#endif 
 
     if ( !strcmp(event_type, "alert") )
         {
@@ -178,13 +192,13 @@ bool Decode_JSON( char *json_string )
 
             if ( fingerprint_return == false && MeerOutput->redis_flag == true && MeerOutput->redis_alert == true )
             {
-                JSON_To_Redis( DecodeAlert->new_json_string, "alert" );
+                JSON_To_Redis( json_string, "alert" );
                 }
 #endif
 
             if ( MeerOutput->external_enabled == true )		// NEEDS ROUTING
             {
-                Output_External( DecodeAlert );
+                Output_External( json_string, DecodeAlert->alert_metadata );
                 }
 
 #ifdef WITH_BLUEDOT
@@ -199,13 +213,13 @@ bool Decode_JSON( char *json_string )
 
             if ( MeerOutput->elasticsearch_flag == true && MeerOutput->elasticsearch_alert == true )
             {
-                Output_Do_Elasticsearch( DecodeAlert->new_json_string, "alert" );
+                Output_Do_Elasticsearch( json_string, "alert" );
                 }
 #endif
 
             if ( MeerOutput->pipe_enabled == true && MeerOutput->pipe_alert == true )
             {
-                Pipe_Write( DecodeAlert->new_json_string );
+                Pipe_Write( json_string );
                 }
 
 
@@ -213,7 +227,7 @@ bool Decode_JSON( char *json_string )
 
             if ( MeerOutput->file_enabled == true && MeerOutput->file_alert == true  )
             {
-                Output_Do_File( DecodeAlert->new_json_string );
+                Output_Do_File( json_string );
                 }
 
             free(DecodeAlert);
@@ -224,10 +238,10 @@ bool Decode_JSON( char *json_string )
         }  /* if ( !strcmp(event_type, "alert") ) */
 
 
-    else if ( !strcmp( event_type, "http") )
-        {
-
-        }
+//    else if ( !strcmp( event_type, "http") )
+//        {
+//
+//       }
 
 
 #ifdef HAVE_LIBHIREDIS
