@@ -55,7 +55,7 @@ char src_ip[64];
 
     char *proto;
     char app_proto[16];
-    char payload[131072];			// <- THIS SHOULDNT BE HARDCODED 
+    char payload[131072];			// <- THIS SHOULDNT BE HARDCODED
     char *stream;
     char *packet;
     char *host;

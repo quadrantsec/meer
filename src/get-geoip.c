@@ -37,7 +37,7 @@ extern struct _MeerConfig *MeerConfig;
 
 #ifdef HAVE_LIBMAXMINDDB
 
-void Get_GeoIP( struct json_object *json_obj, char *json_string, char *str, size_t size )
+void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str, size_t size )
 {
 
     struct json_object *tmp = NULL;
@@ -63,14 +63,14 @@ void Get_GeoIP( struct json_object *json_obj, char *json_string, char *str, size
         }
 
 
-	strlcpy( new_json_string, json_string, PACKET_BUFFER_SIZE_DEFAULT);
+    strlcpy( new_json_string, json_string, PACKET_BUFFER_SIZE_DEFAULT);
 
     /*************************************************/
     /* Add any GeoIP data for the source/destination */
     /*************************************************/
 
-	if ( src_ip[0] != '\0' && dest_ip[0] != '\0' )
-		{
+    if ( src_ip[0] != '\0' && dest_ip[0] != '\0' )
+        {
 
             struct _GeoIP *GeoIP;
 
@@ -221,7 +221,7 @@ void Get_GeoIP( struct json_object *json_obj, char *json_string, char *str, size
         }
 
 
- snprintf(str, size, "%s", new_json_string);
+    snprintf(str, size, "%s", new_json_string);
 
 }
 

@@ -213,15 +213,6 @@ int main (int argc, char *argv[])
     Load_Classifications();
 
     Meer_Log(NORMAL, "");
-    Meer_Log(NORMAL, "Decode 'json'          : %s", MeerConfig->json ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "Decode 'metadata'      : %s", MeerConfig->metadata ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "Decode 'flow'          : %s", MeerConfig->flow ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "Decode 'http'          : %s", MeerConfig->http ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "Decode 'tls'           : %s", MeerConfig->tls ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "Decode 'ssh'           : %s", MeerConfig->ssh ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "Decode 'smtp'          : %s", MeerConfig->smtp ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "Decode 'email'         : %s", MeerConfig->email ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "Decode 'bluedot'       : %s", MeerConfig->bluedot ? "enabled" : "disabled" );
 
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, "Fingerprint support    : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );

@@ -101,15 +101,15 @@ struct _MeerConfig
 
     /* What ever to record */
 
-    bool flow;
-    bool http;
-    bool tls;
-    bool ssh;
-    bool smtp;
-    bool email;
-    bool dns_meta;	/* NOT DONE */
-    bool metadata;
-    bool json;
+//    bool flow;
+//    bool http;
+//    bool tls;
+//    bool ssh;
+//    bool smtp;
+//    bool email;
+//    bool dns_meta;	/* NOT DONE */
+//    bool metadata;
+//    bool json;
     bool bluedot;
 
 };
@@ -149,21 +149,37 @@ struct _MeerOutput
     bool redis_error;
     char redis_key[128];
     char redis_command[16];
+    bool redis_append_id;
+
     redisContext *c_redis;
 
     bool redis_alert;
     bool redis_files;
     bool redis_flow;
-    bool redis_http;
-    bool redis_smtp;
-    bool redis_ssh;
-    bool redis_tls;
     bool redis_dns;
+    bool redis_http;
+    bool redis_tls;
+    bool redis_ssh;
+    bool redis_smtp;
+    bool redis_email;
     bool redis_fileinfo;
     bool redis_dhcp;
-    bool redis_client_stats;
     bool redis_stats;
-    bool redis_append_id;
+    bool redis_rdp;
+    bool redis_sip;
+    bool redis_ftp;
+    bool redis_ikev2;
+    bool redis_nfs;
+    bool redis_tftp;
+    bool redis_smb;
+    bool redis_mqtt;
+    bool redis_dcerpc;
+    bool redis_netflow;
+    bool redis_metadata;
+    bool redis_dnp3;
+    bool redis_anomaly;
+    bool redis_bluedot;
+    bool redis_client_stats;
 
 #endif
 
@@ -189,19 +205,34 @@ struct _MeerOutput
     char elasticsearch_password[128];
     uint16_t elasticsearch_batch;
     uint8_t elasticsearch_threads;
+
     bool elasticsearch_alert;
+    bool elasticsearch_files;
     bool elasticsearch_flow;
+    bool elasticsearch_dns;
     bool elasticsearch_http;
     bool elasticsearch_tls;
     bool elasticsearch_ssh;
     bool elasticsearch_smtp;
     bool elasticsearch_email;
-    //bool elasticsearch_metadata;
-    //bool elasticsearch_json;
-    bool elasticsearch_stats;
-    bool elasticsearch_bluedot;
     bool elasticsearch_fileinfo;
     bool elasticsearch_dhcp;
+    bool elasticsearch_stats;
+    bool elasticsearch_rdp;
+    bool elasticsearch_sip;
+    bool elasticsearch_ftp;
+    bool elasticsearch_ikev2;
+    bool elasticsearch_nfs;
+    bool elasticsearch_tftp;
+    bool elasticsearch_smb;
+    bool elasticsearch_mqtt;
+    bool elasticsearch_dcerpc;
+    bool elasticsearch_netflow;
+    bool elasticsearch_metadata;
+    bool elasticsearch_dnp3;
+    bool elasticsearch_anomaly;
+    bool elasticsearch_bluedot;
+    //bool elasticsearch_fingerprint;
 
 
 #endif
@@ -221,16 +252,18 @@ struct _MeerOutput
     bool sql_reconnect;
     uint32_t sql_reconnect_time;
 
-    bool sql_flow;
-    bool sql_http;
-    bool sql_tls;
-    bool sql_ssh;
-    bool sql_smtp;
-    bool sql_email;
-    bool sql_metadata;
-    bool sql_json;
-    bool sql_stats;
-    bool sql_bluedot;
+    /*
+        bool sql_flow;
+        bool sql_http;
+        bool sql_tls;
+        bool sql_ssh;
+        bool sql_smtp;
+        bool sql_email;
+        bool sql_metadata;
+        bool sql_json;
+        bool sql_stats;
+        bool sql_bluedot;
+        */
 
     char sql_driver;
 
@@ -250,6 +283,7 @@ struct _MeerOutput
     bool file_enabled;
     FILE *file_fd;
     char file_location[256];
+
     bool file_alert;
     bool file_email;
     bool file_files;
@@ -263,23 +297,67 @@ struct _MeerOutput
     bool file_fileinfo;
     bool file_dhcp;
     bool file_bluedot;
+    bool file_rdp;
+    bool file_sip;
+    bool file_ftp;
+    bool file_ikev2;
+    bool file_nfs;
+    bool file_tftp;
+    bool file_smb;
+    bool file_dcerpc;
+    bool file_mqtt;
+    bool file_netflow;
+    bool file_metadata;
+    bool file_dnp3;
+    bool file_anomaly;
 
 
     bool pipe_enabled;
     char pipe_location[256];
     int  pipe_fd;
     uint32_t pipe_size;
+
+
     bool pipe_alert;
     bool pipe_files;
     bool pipe_flow;
-    bool pipe_http;
-    bool pipe_smtp;
-    bool pipe_ssh;
-    bool pipe_tls;
     bool pipe_dns;
+    bool pipe_http;
+    bool pipe_tls;
+    bool pipe_ssh;
+    bool pipe_smtp;
+    bool pipe_email;
     bool pipe_fileinfo;
     bool pipe_dhcp;
+    bool pipe_stats;
+    bool pipe_rdp;
+    bool pipe_sip;
+    bool pipe_ftp;
+    bool pipe_ikev2;
+    bool pipe_nfs;
+    bool pipe_tftp;
+    bool pipe_smb;
+    bool pipe_dcerpc;
+    bool pipe_mqtt;
+    bool pipe_netflow;
+    bool pipe_metadata;
+    bool pipe_dnp3;
+    bool pipe_anomaly;
     bool pipe_bluedot;
+
+    /*
+        bool pipe_alert;
+        bool pipe_files;
+        bool pipe_flow;
+        bool pipe_http;
+        bool pipe_smtp;
+        bool pipe_ssh;
+        bool pipe_tls;
+        bool pipe_dns;
+        bool pipe_fileinfo;
+        bool pipe_dhcp;
+        bool pipe_bluedot;
+    */
 
 
 };
@@ -328,15 +406,35 @@ struct _MeerCounters
     uint64_t ExternalHitCount;
     uint64_t ExternalMissCount;
 
-    uint64_t InvalidJSONCount;
-    uint64_t FlowCount;
-    uint64_t HTTPCount;
-    uint64_t TLSCount;
-    uint64_t SMTPCount;
-    uint64_t EmailCount;
-    uint64_t MetadataCount;
-    uint64_t SSHCount;
-    uint64_t JSONCount;
+    uint_fast64_t total;
+
+    uint_fast64_t alert;
+    uint_fast64_t files;
+    uint_fast64_t flow;
+    uint_fast64_t dns;
+    uint_fast64_t http;
+    uint_fast64_t tls;
+    uint_fast64_t ssh;
+    uint_fast64_t smtp;
+    uint_fast64_t email;
+    uint_fast64_t fileinfo;
+    uint_fast64_t dhcp;
+    uint_fast64_t stats;
+    uint_fast64_t rdp;
+    uint_fast64_t sip;
+    uint_fast64_t ftp;
+    uint_fast64_t ikev2;
+    uint_fast64_t nfs;
+    uint_fast64_t tftp;
+    uint_fast64_t smb;
+    uint_fast64_t dcerpc;
+    uint_fast64_t mqtt;
+    uint_fast64_t netflow;
+    uint_fast64_t metadata;
+    uint_fast64_t dnp3;
+    uint_fast64_t anomaly;
+    uint_fast64_t unknown;
+    uint_fast64_t bad;
 
     uint64_t DNSCount;
     uint64_t DNSCacheCount;

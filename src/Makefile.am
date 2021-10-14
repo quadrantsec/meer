@@ -18,6 +18,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      get-dns.c \
 							      get-geoip.c \
 							      lockfile.c \
+							      counters.c \
 							      stats.c \
 							      waldo.c \
 							      output.c \

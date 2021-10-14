@@ -854,7 +854,7 @@ void SQL_Insert_JSON ( struct _DecodeAlert *DecodeAlert )
 
     (void)SQL_DB_Query(tmp);
 
-    MeerCounters->JSONCount++;
+//    MeerCounters->JSONCount++;
     MeerCounters->INSERTCount++;
 
 }
@@ -873,7 +873,7 @@ void SQL_Insert_Stats ( char *json_stats, const char *timestamp, const char *hos
 
     (void)SQL_DB_Query(tmp);
 
-    MeerCounters->JSONCount++;
+//    MeerCounters->JSONCount++;
     MeerCounters->INSERTCount++;
 
 }
@@ -894,7 +894,7 @@ void SQL_Insert_Normalize ( struct _DecodeAlert *DecodeAlert )
 
     (void)SQL_DB_Query(tmp);
 
-    MeerCounters->JSONCount++;
+//    MeerCounters->JSONCount++;
     MeerCounters->INSERTCount++;
 
 }

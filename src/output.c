@@ -144,6 +144,35 @@ void Init_Output( void )
                 }
 
             Meer_Log(NORMAL, "");
+            Meer_Log(NORMAL, "Write 'alert'        : %s", MeerOutput->redis_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'stats'        : %s", MeerOutput->redis_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'email'        : %s", MeerOutput->redis_email ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dns'          : %s", MeerOutput->redis_dns ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'flow'         : %s", MeerOutput->redis_flow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'http'         : %s", MeerOutput->redis_http ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tls'          : %s", MeerOutput->redis_tls ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ssh'          : %s", MeerOutput->redis_ssh ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smtp'         : %s", MeerOutput->redis_smtp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'files'        : %s", MeerOutput->redis_files ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fileinfo'     : %s", MeerOutput->redis_fileinfo ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dhcp'         : %s", MeerOutput->redis_dhcp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'bluedot'      : %s", MeerOutput->redis_bluedot ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'rdp'          : %s", MeerOutput->redis_rdp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'sip'          : %s", MeerOutput->redis_sip ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ftp'          : %s", MeerOutput->redis_ftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ikev2'        : %s", MeerOutput->redis_ikev2 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'nfs'          : %s", MeerOutput->redis_nfs ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tftp'         : %s", MeerOutput->redis_tftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smb'          : %s", MeerOutput->redis_smb ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dcerpc'       : %s", MeerOutput->redis_dcerpc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'mqtt'         : %s", MeerOutput->redis_mqtt ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'netflow'      : %s", MeerOutput->redis_netflow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'metadata'     : %s", MeerOutput->redis_metadata ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dnp3'         : %s", MeerOutput->redis_dnp3 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'anomaly'      : %s", MeerOutput->redis_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'client_stats' : %s", MeerOutput->redis_client_stats ? "enabled" : "disabled" );
+
+
         }
 
 #endif
@@ -168,6 +197,19 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Write 'fileinfo': %s", MeerOutput->file_fileinfo ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'dhcp'    : %s", MeerOutput->file_dhcp ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'bluedot' : %s", MeerOutput->file_bluedot ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'rdp'     : %s", MeerOutput->file_rdp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'sip'     : %s", MeerOutput->file_sip ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ftp'     : %s", MeerOutput->file_ftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ikev2'   : %s", MeerOutput->file_ikev2 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'nfs'     : %s", MeerOutput->file_nfs ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tftp'    : %s", MeerOutput->file_tftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smb'     : %s", MeerOutput->file_smb ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dcerpc'  : %s", MeerOutput->file_dcerpc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'mqtt'    : %s", MeerOutput->file_mqtt ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'netflow' : %s", MeerOutput->file_netflow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'metadata': %s", MeerOutput->file_metadata ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dnp3'    : %s", MeerOutput->file_dnp3 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'anomaly' : %s", MeerOutput->file_anomaly ? "enabled" : "disabled" );
 
             Meer_Log(NORMAL, "");
 
@@ -191,6 +233,10 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Pipe Location: %s", MeerOutput->pipe_location);
             Meer_Log(NORMAL, "Pipe Size: %d bytes", MeerOutput->pipe_size);
             Meer_Log(NORMAL, "");
+
+            Meer_Log(NORMAL, "Write 'alert'   : %s", MeerOutput->pipe_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'stats'   : %s", MeerOutput->pipe_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'email'   : %s", MeerOutput->pipe_email ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'dns'     : %s", MeerOutput->pipe_dns ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'flow'    : %s", MeerOutput->pipe_flow ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'http'    : %s", MeerOutput->pipe_http ? "enabled" : "disabled" );
@@ -201,6 +247,19 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Write 'fileinfo': %s", MeerOutput->pipe_fileinfo ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'dhcp'    : %s", MeerOutput->pipe_dhcp ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'bluedot' : %s", MeerOutput->pipe_bluedot ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'rdp'     : %s", MeerOutput->pipe_rdp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'sip'     : %s", MeerOutput->pipe_sip ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ftp'     : %s", MeerOutput->pipe_ftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ikev2'   : %s", MeerOutput->pipe_ikev2 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'nfs'     : %s", MeerOutput->pipe_nfs ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tftp'    : %s", MeerOutput->pipe_tftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smb'     : %s", MeerOutput->pipe_smb ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dcerpc'  : %s", MeerOutput->pipe_dcerpc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'mqtt'    : %s", MeerOutput->pipe_mqtt ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'netflow' : %s", MeerOutput->pipe_netflow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'metadata': %s", MeerOutput->pipe_metadata ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dnp3'    : %s", MeerOutput->pipe_dnp3 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'anomaly' : %s", MeerOutput->pipe_anomaly ? "enabled" : "disabled" );
 
             Meer_Log(NORMAL, "");
 
@@ -208,7 +267,7 @@ void Init_Output( void )
 
             if ( MeerOutput->pipe_fd < 0 )
                 {
-                    Meer_Log(ERROR, "Cannot open %s. Abort!", MeerOutput->pipe_location);
+                    Meer_Log(ERROR, "[%s, line %d] Cannot open %s. %s.", __FILE__, __LINE__, MeerOutput->pipe_location, strerror(errno) );
                 }
 
             current_pipe_size = fcntl(MeerOutput->pipe_fd, F_GETPIPE_SZ);
@@ -343,17 +402,31 @@ void Init_Output( void )
                 }
 
             Meer_Log(NORMAL, "");
-            Meer_Log(NORMAL, "Record 'alert'          : %s", MeerOutput->elasticsearch_alert ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'flow'           : %s", MeerOutput->elasticsearch_flow ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'http'           : %s", MeerOutput->elasticsearch_http ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'tls'            : %s", MeerOutput->elasticsearch_tls ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'ssh'            : %s", MeerOutput->elasticsearch_ssh ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'smtp'           : %s", MeerOutput->elasticsearch_smtp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'email'          : %s", MeerOutput->elasticsearch_email ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'stats'          : %s", MeerOutput->elasticsearch_stats ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'bluedot'        : %s", MeerOutput->elasticsearch_bluedot ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'fileinfo'       : %s", MeerOutput->elasticsearch_fileinfo ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'dhcp'           : %s", MeerOutput->elasticsearch_dhcp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'alert'    : %s", MeerOutput->elasticsearch_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'files'    : %s", MeerOutput->elasticsearch_files ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'flow'     : %s", MeerOutput->elasticsearch_flow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'dns'      : %s", MeerOutput->elasticsearch_dns ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'http'     : %s", MeerOutput->elasticsearch_http ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'tls'      : %s", MeerOutput->elasticsearch_tls ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'ssh'      : %s", MeerOutput->elasticsearch_ssh ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'smtp'     : %s", MeerOutput->elasticsearch_smtp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'email'    : %s", MeerOutput->elasticsearch_email ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'fileinfo' : %s", MeerOutput->elasticsearch_fileinfo ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'dhcp'     : %s", MeerOutput->elasticsearch_dhcp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'stats'    : %s", MeerOutput->elasticsearch_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'rdp'      : %s", MeerOutput->elasticsearch_rdp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'sip'      : %s", MeerOutput->elasticsearch_sip ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'ftp'      : %s", MeerOutput->elasticsearch_ftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'nfs'      : %s", MeerOutput->elasticsearch_nfs ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'tftp'     : %s", MeerOutput->elasticsearch_tftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'smb'      : %s", MeerOutput->elasticsearch_smb ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'mqtt'     : %s", MeerOutput->elasticsearch_mqtt ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'dcerpc'   : %s", MeerOutput->elasticsearch_dcerpc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'netflow'  : %s", MeerOutput->elasticsearch_netflow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'metadata' : %s", MeerOutput->elasticsearch_metadata ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'dnp3'     : %s", MeerOutput->elasticsearch_dnp3 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'anomaly'  : %s", MeerOutput->elasticsearch_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'bluedot'  : %s", MeerOutput->elasticsearch_bluedot ? "enabled" : "disabled" );
 
             Elasticsearch_Init();
 
@@ -376,7 +449,25 @@ void Init_Output( void )
 bool Output_Pipe ( const char *json_string, const char *event_type )
 {
 
-    if ( !strcmp(event_type, "flow" ) && MeerOutput->pipe_flow == true )
+    if ( !strcmp(event_type, "alert" ) && MeerOutput->pipe_alert == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "files" ) && MeerOutput->pipe_files == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "flow" ) && MeerOutput->pipe_flow == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dns" ) && MeerOutput->pipe_dns == true )
         {
             Pipe_Write( json_string );
             return(true);
@@ -388,25 +479,19 @@ bool Output_Pipe ( const char *json_string, const char *event_type )
             return(true);
         }
 
-    else if ( !strcmp(event_type, "smtp" ) && MeerOutput->pipe_smtp == true )
-        {
-            Pipe_Write( json_string );
-            return(true);
-        }
-
     else if ( !strcmp(event_type, "ssh" ) && MeerOutput->pipe_ssh == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(event_type, "tls" ) && MeerOutput->pipe_tls == true )
+    else if ( !strcmp(event_type, "smtp" ) && MeerOutput->pipe_smtp == true )
         {
             Pipe_Write( json_string );
             return(true);
         }
 
-    else if ( !strcmp(event_type, "dns" ) && MeerOutput->pipe_dns == true )
+    else if ( !strcmp(event_type, "email" ) && MeerOutput->pipe_email == true )
         {
             Pipe_Write( json_string );
             return(true);
@@ -424,7 +509,97 @@ bool Output_Pipe ( const char *json_string, const char *event_type )
             return(true);
         }
 
-//    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
+    else if ( !strcmp(event_type, "stats" ) && MeerOutput->pipe_stats == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "rdp" ) && MeerOutput->pipe_rdp == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "sip" ) && MeerOutput->pipe_sip == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ftp" ) && MeerOutput->pipe_ftp == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ikev2" ) && MeerOutput->pipe_ikev2 == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "nfs" ) && MeerOutput->pipe_nfs == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "tftp" ) && MeerOutput->pipe_tftp == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "smb" ) && MeerOutput->pipe_smb == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dcerpc" ) && MeerOutput->pipe_dcerpc == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "mqtt" ) && MeerOutput->pipe_mqtt == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "netflow" ) && MeerOutput->pipe_netflow == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "metadata" ) && MeerOutput->pipe_metadata == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dnp3" ) && MeerOutput->pipe_dnp3 == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "anomaly" ) && MeerOutput->pipe_anomaly == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->pipe_bluedot == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
+
+
     MeerCounters->JSONPipeMisses++;
     return(false);
 
@@ -534,47 +709,47 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
                             SQL_Insert_Normalize ( DecodeAlert );
                         }
 
-                    if ( DecodeAlert->has_flow == true && MeerOutput->sql_flow == true )
+                    if ( DecodeAlert->has_flow == true ) //&& MeerOutput->sql_flow == true )
                         {
                             SQL_Insert_Flow ( DecodeAlert );
                         }
 
-                    if ( DecodeAlert->has_http == true && MeerOutput->sql_http == true )
+                    if ( DecodeAlert->has_http == true ) // && MeerOutput->sql_http == true )
                         {
                             SQL_Insert_HTTP ( DecodeAlert );
                         }
 
-                    if ( DecodeAlert->has_tls == true && MeerOutput->sql_tls == true )
+                    if ( DecodeAlert->has_tls == true ) // && MeerOutput->sql_tls == true )
                         {
                             SQL_Insert_TLS ( DecodeAlert );
                         }
 
-                    if ( DecodeAlert->has_ssh_server == true && MeerOutput->sql_ssh == true )
+                    if ( DecodeAlert->has_ssh_server == true ) // && MeerOutput->sql_ssh == true )
                         {
                             SQL_Insert_SSH ( DecodeAlert, SSH_SERVER );
                         }
 
-                    if ( DecodeAlert->has_ssh_client == true && MeerOutput->sql_ssh == true )
+                    if ( DecodeAlert->has_ssh_client == true ) // && MeerOutput->sql_ssh == true )
                         {
                             SQL_Insert_SSH ( DecodeAlert, SSH_CLIENT );
                         }
 
-                    if ( DecodeAlert->alert_has_metadata == true && MeerOutput->sql_metadata == true )
+                    if ( DecodeAlert->alert_has_metadata == true ) // && MeerOutput->sql_metadata == true )
                         {
                             SQL_Insert_Metadata ( DecodeAlert );
                         }
 
-                    if ( DecodeAlert->has_smtp == true && MeerOutput->sql_smtp == true )
+                    if ( DecodeAlert->has_smtp == true ) // && MeerOutput->sql_smtp == true )
                         {
                             SQL_Insert_SMTP ( DecodeAlert );
                         }
 
-                    if ( DecodeAlert->has_email == true && MeerOutput->sql_email == true )
+                    if ( DecodeAlert->has_email == true ) //  && MeerOutput->sql_email == true )
                         {
                             SQL_Insert_Email ( DecodeAlert );
                         }
 
-                    if ( DecodeAlert->has_bluedot == true && MeerConfig->bluedot == true )
+                    if ( DecodeAlert->has_bluedot == true ) // && MeerConfig->bluedot == true )
                         {
                             SQL_Insert_Bluedot ( DecodeAlert );
                         }
@@ -593,17 +768,6 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
 
                     (void)SQL_DB_Query(tmp);
                     MeerCounters->UPDATECount++;
-
-                    /*
-                    #ifdef HAVE_LIBHIREDIS
-
-                                        if ( MeerOutput->redis_flag == true )
-                                            {
-                                                Redis_Quadrant ( DecodeAlert, signature_id, class_id );
-                                            }
-                    #endif
-                    */
-
 
                     /* Convert timestamp from event to epoch */
 
@@ -743,7 +907,7 @@ void Output_Stats ( char *json_string )
 
     if ( json_string == NULL )
         {
-            MeerCounters->InvalidJSONCount++;
+            MeerCounters->bad++;
             Meer_Log(WARN, "Got invalid 'stats' JSON string: %s", json_string);
             json_object_put(json_obj);
             return;
@@ -756,7 +920,7 @@ void Output_Stats ( char *json_string )
 
     if ( timestamp == NULL )
         {
-            MeerCounters->InvalidJSONCount++;
+            MeerCounters->bad++;
             Meer_Log(WARN, "Warning.  Stats line lacked any 'timestamp'. Skipping. JSON: %s", json_string);
             return;
         }
@@ -824,7 +988,25 @@ bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
 bool Output_Elasticsearch ( const char *json_string, const char *event_type )
 {
 
-    if ( !strcmp(event_type, "flow" ) && MeerOutput->elasticsearch_flow == true )
+    if ( !strcmp(event_type, "alert" ) && MeerOutput->elasticsearch_alert == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "files" ) && MeerOutput->elasticsearch_files == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "flow" ) && MeerOutput->elasticsearch_flow == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dns" ) && MeerOutput->elasticsearch_dns == true )
         {
             Output_Do_Elasticsearch( json_string, event_type );
             return(true);
@@ -860,11 +1042,109 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type )
             return(true);
         }
 
+    else if ( !strcmp(event_type, "fileinfo" ) && MeerOutput->elasticsearch_fileinfo == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dhcp" ) && MeerOutput->elasticsearch_dhcp == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
     else if ( !strcmp(event_type, "stats" ) && MeerOutput->elasticsearch_stats == true )
         {
             Output_Do_Elasticsearch( json_string, event_type );
             return(true);
         }
+
+    else if ( !strcmp(event_type, "rdp" ) && MeerOutput->elasticsearch_rdp == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "sip" ) && MeerOutput->elasticsearch_sip == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ftp" ) && MeerOutput->elasticsearch_ftp == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ikev2" ) && MeerOutput->elasticsearch_ikev2 == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "nfs" ) && MeerOutput->elasticsearch_nfs == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "tftp" ) && MeerOutput->elasticsearch_tftp == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "smb" ) && MeerOutput->elasticsearch_smb == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "mqtt" ) && MeerOutput->elasticsearch_mqtt == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dcerpc" ) && MeerOutput->elasticsearch_dcerpc == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "netflow" ) && MeerOutput->elasticsearch_netflow == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "metadata" ) && MeerOutput->elasticsearch_metadata == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dnp3" ) && MeerOutput->elasticsearch_dnp3 == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+
+    else if ( !strcmp(event_type, "anomaly" ) && MeerOutput->elasticsearch_anomaly == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->elasticsearch_bluedot == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
+
 
 //    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     return(false);
@@ -924,14 +1204,25 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
 bool Output_File ( const char *json_string, const char *event_type )
 {
 
-
-    if ( !strcmp(event_type, "flow" ) && MeerOutput->file_flow == true )
+    if ( !strcmp(event_type, "alert" ) && MeerOutput->file_alert == true )
         {
             Output_Do_File( json_string );
             return(true);
         }
 
-    else if ( !strcmp(event_type, "email" ) && MeerOutput->file_email == true )
+    else if ( !strcmp(event_type, "files" ) && MeerOutput->file_files == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "flow" ) && MeerOutput->file_flow == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dns" ) && MeerOutput->file_dns == true )
         {
             Output_Do_File( json_string );
             return(true);
@@ -967,7 +1258,103 @@ bool Output_File ( const char *json_string, const char *event_type )
             return(true);
         }
 
+    else if ( !strcmp(event_type, "fileinfo" ) && MeerOutput->file_fileinfo == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dhcp" ) && MeerOutput->file_dhcp == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
     else if ( !strcmp(event_type, "stats" ) && MeerOutput->file_stats == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "rdp" ) && MeerOutput->file_rdp == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "sip" ) && MeerOutput->file_sip == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ftp" ) && MeerOutput->file_ftp == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ikev2" ) && MeerOutput->file_ikev2 == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "nfs" ) && MeerOutput->file_nfs == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "tftp" ) && MeerOutput->file_tftp == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "smb" ) && MeerOutput->file_smb == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dcerpc" ) && MeerOutput->file_dcerpc == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "mqtt" ) && MeerOutput->file_mqtt == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "netflow" ) && MeerOutput->file_netflow == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "metadata" ) && MeerOutput->file_metadata == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dnp3" ) && MeerOutput->file_dnp3 == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "anomaly" ) && MeerOutput->file_anomaly == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->file_bluedot == true )
         {
             Output_Do_File( json_string );
             return(true);
@@ -981,8 +1368,19 @@ bool Output_File ( const char *json_string, const char *event_type )
 bool Output_Redis( const char *json_string, const char *event_type )
 {
 
+    if ( !strcmp( event_type, "alert") && MeerOutput->redis_alert == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
 
-    if ( !strcmp( event_type, "flow") && MeerOutput->redis_flow == true )
+    else if ( !strcmp( event_type, "files") && MeerOutput->redis_files == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "flow") && MeerOutput->redis_flow == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
@@ -1000,43 +1398,127 @@ bool Output_Redis( const char *json_string, const char *event_type )
             return(true);
         }
 
-    else if ( !strcmp( event_type, "files" ) && MeerOutput->redis_files == true )
+    else if ( !strcmp( event_type, "tls") && MeerOutput->redis_tls == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "tls" ) && MeerOutput->redis_tls == true )
+    else if ( !strcmp( event_type, "ssh") && MeerOutput->redis_ssh == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "ssh" ) && MeerOutput->redis_ssh == true )
+    else if ( !strcmp( event_type, "smtp") && MeerOutput->redis_smtp == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type,  "smtp" ) && MeerOutput->redis_smtp == true )
+    else if ( !strcmp( event_type, "fileinfo") && MeerOutput->redis_fileinfo == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "fileinfo" ) && MeerOutput->redis_fileinfo == true )
+    else if ( !strcmp( event_type, "dhcp") && MeerOutput->redis_dhcp == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "dhcp" ) && MeerOutput->redis_dhcp == true )
+    else if ( !strcmp( event_type, "stats") && MeerOutput->redis_stats == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);
         }
 
-    else if ( !strcmp( event_type, "stats" ) && MeerOutput->redis_stats == true )
+    else if ( !strcmp( event_type, "rdp") && MeerOutput->redis_rdp == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "sip") && MeerOutput->redis_sip == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "ftp") && MeerOutput->redis_ftp == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "ikev2") && MeerOutput->redis_ikev2 == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "nfs") && MeerOutput->redis_nfs == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "tftp") && MeerOutput->redis_tftp == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "smb") && MeerOutput->redis_smb == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "mqtt") && MeerOutput->redis_mqtt == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "dcerpc") && MeerOutput->redis_dcerpc == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "netflow") && MeerOutput->redis_netflow == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "metadata") && MeerOutput->redis_metadata == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "dnp3") && MeerOutput->redis_dnp3 == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "anomaly") && MeerOutput->redis_anomaly == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "bluedot") && MeerOutput->redis_bluedot == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp( event_type, "client_stats") && MeerOutput->redis_client_stats == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);

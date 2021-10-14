@@ -18,11 +18,6 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-/* TODO */
-
-/* Add in routing for different "types" (flow, alert, etc) from the config.
-   */
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"             /* From autoconf */
 #endif

@@ -18,7 +18,7 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-/* Decode Sagan/Suricata "alerts" - Almost all of this is used for the 
+/* Decode Sagan/Suricata "alerts" - Almost all of this is used for the
    SQL "plugin".  This will be going away in Meer 2.0 */
 
 #ifdef HAVE_CONFIG_H
@@ -50,7 +50,7 @@ libjson-c is required for Meer to function!
 
 #include "decode-json-alert.h"
 
-extern struct _MeerCounters *MeerCounters;
+//extern struct _MeerCounters *MeerCounters;
 extern struct _MeerConfig *MeerConfig;
 
 struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json_string )
@@ -87,15 +87,15 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
     bool has_alert = false;
     char new_ip[64];
 
-/*
-#ifdef HAVE_LIBMAXMINDDB
+    /*
+    #ifdef HAVE_LIBMAXMINDDB
 
-    char geoip_src_json[1024] = { 0 };
-    char geoip_dest_json[1024] = { 0 };
-    char tmp_geoip[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+        char geoip_src_json[1024] = { 0 };
+        char geoip_dest_json[1024] = { 0 };
+        char tmp_geoip[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
-#endif
-*/
+    #endif
+    */
 
 
     Alert_Return_Struct = (struct _DecodeAlert *) malloc(sizeof(_DecodeAlert));
@@ -315,7 +315,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                     if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                         {
 
-                            MeerCounters->BluedotCount++;
+//                            MeerCounters->BluedotCount++;
 
                             Alert_Return_Struct->has_bluedot = true;
                             Alert_Return_Struct->bluedot = (char *)json_object_get_string(tmp);
@@ -376,7 +376,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
                     strlcpy(Alert_Return_Struct->alert_metadata, (char *)json_object_get_string(tmp_alert), sizeof(Alert_Return_Struct->alert_metadata));
                     Alert_Return_Struct->alert_has_metadata = true;
-                    MeerCounters->MetadataCount++;
+//                    MeerCounters->MetadataCount++;
 
                 }
 
@@ -386,55 +386,56 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
     /* Decode flow data */
 
-    if ( MeerConfig->flow == true )
+//    if ( MeerConfig->flow == true )
+//        {
+
+    if ( json_object_object_get_ex(json_obj, "flow", &tmp))
         {
+            Alert_Return_Struct->has_flow = true;
 
-            if ( json_object_object_get_ex(json_obj, "flow", &tmp))
+            if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                 {
-                    Alert_Return_Struct->has_flow = true;
 
-                    if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
+//                            MeerCounters->FlowCount++;
+
+                    json_obj_flow = json_tokener_parse(json_object_get_string(tmp));
+
+                    if (json_object_object_get_ex(json_obj_flow, "pkts_toserver", &tmp_flow))
                         {
-
-                            MeerCounters->FlowCount++;
-
-                            json_obj_flow = json_tokener_parse(json_object_get_string(tmp));
-
-                            if (json_object_object_get_ex(json_obj_flow, "pkts_toserver", &tmp_flow))
-                                {
-                                    Alert_Return_Struct->flow_pkts_toserver = atol((char *)json_object_get_string(tmp_flow));
-                                }
-
-                            if (json_object_object_get_ex(json_obj_flow, "pkts_toclient", &tmp_flow))
-                                {
-                                    Alert_Return_Struct->flow_pkts_toclient = atol((char *)json_object_get_string(tmp_flow));
-                                }
-
-                            if (json_object_object_get_ex(json_obj_flow, "bytes_toserver", &tmp_flow))
-                                {
-                                    Alert_Return_Struct->flow_bytes_toserver = atol((char *)json_object_get_string(tmp_flow));
-                                }
-
-                            if (json_object_object_get_ex(json_obj_flow, "bytes_toclient", &tmp_flow))
-                                {
-                                    Alert_Return_Struct->flow_bytes_toclient = atol((char *)json_object_get_string(tmp_flow));
-                                }
-
-                            if (json_object_object_get_ex(json_obj_flow, "start", &tmp_flow))
-                                {
-                                    strlcpy(Alert_Return_Struct->flow_start_timestamp, (char *)json_object_get_string(tmp_flow), sizeof(Alert_Return_Struct->flow_start_timestamp));
-
-                                    Convert_ISO8601_For_SQL( Alert_Return_Struct->flow_start_timestamp, Alert_Return_Struct->flow_start_timestamp_converted, sizeof( Alert_Return_Struct->flow_start_timestamp_converted) );
-                                }
-
-                            json_object_put(json_obj_flow);
-
+                            Alert_Return_Struct->flow_pkts_toserver = atol((char *)json_object_get_string(tmp_flow));
                         }
-                }
 
+                    if (json_object_object_get_ex(json_obj_flow, "pkts_toclient", &tmp_flow))
+                        {
+                            Alert_Return_Struct->flow_pkts_toclient = atol((char *)json_object_get_string(tmp_flow));
+                        }
+
+                    if (json_object_object_get_ex(json_obj_flow, "bytes_toserver", &tmp_flow))
+                        {
+                            Alert_Return_Struct->flow_bytes_toserver = atol((char *)json_object_get_string(tmp_flow));
+                        }
+
+                    if (json_object_object_get_ex(json_obj_flow, "bytes_toclient", &tmp_flow))
+                        {
+                            Alert_Return_Struct->flow_bytes_toclient = atol((char *)json_object_get_string(tmp_flow));
+                        }
+
+                    if (json_object_object_get_ex(json_obj_flow, "start", &tmp_flow))
+                        {
+                            strlcpy(Alert_Return_Struct->flow_start_timestamp, (char *)json_object_get_string(tmp_flow), sizeof(Alert_Return_Struct->flow_start_timestamp));
+
+                            Convert_ISO8601_For_SQL( Alert_Return_Struct->flow_start_timestamp, Alert_Return_Struct->flow_start_timestamp_converted, sizeof( Alert_Return_Struct->flow_start_timestamp_converted) );
+                        }
+
+                    json_object_put(json_obj_flow);
+
+                }
         }
 
-    if ( MeerConfig->http == true && !strcmp( Alert_Return_Struct->app_proto, "http" ))
+//        }
+
+//    if ( MeerConfig->http == true && !strcmp( Alert_Return_Struct->app_proto, "http" ))
+    if ( !strcmp( Alert_Return_Struct->app_proto, "http" ) )
         {
 
             if ( json_object_object_get_ex(json_obj, "http", &tmp))
@@ -445,7 +446,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                     if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                         {
 
-                            MeerCounters->HTTPCount++;
+//                            MeerCounters->HTTPCount++;
 
                             json_obj_http = json_tokener_parse(json_object_get_string(tmp));
 
@@ -507,7 +508,8 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
     /* Proto is still "smtp",  email is a secondary part */
 
-    if ( MeerConfig->email == true && !strcmp( Alert_Return_Struct->app_proto, "smtp" ))
+//    if ( MeerConfig->email == true && !strcmp( Alert_Return_Struct->app_proto, "smtp" ))
+    if ( !strcmp( Alert_Return_Struct->app_proto, "smtp" ) )
         {
 
             Alert_Return_Struct->has_email = true;
@@ -517,7 +519,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                 if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                     {
 
-                        MeerCounters->EmailCount++;
+//                        MeerCounters->EmailCount++;
 
                         json_obj_email = json_tokener_parse(json_object_get_string(tmp));
 
@@ -546,7 +548,8 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
-    if ( MeerConfig->smtp == true && !strcmp( Alert_Return_Struct->app_proto, "smtp" ))
+//    if ( MeerConfig->smtp == true && !strcmp( Alert_Return_Struct->app_proto, "smtp" ))
+    if ( !strcmp( Alert_Return_Struct->app_proto, "smtp" ))
         {
 
             Alert_Return_Struct->has_smtp = true;
@@ -556,7 +559,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                 if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                     {
 
-                        MeerCounters->SMTPCount++;
+//                        MeerCounters->SMTPCount++;
 
                         json_obj_smtp = json_tokener_parse(json_object_get_string(tmp));
 
@@ -581,7 +584,8 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
-    if ( MeerConfig->tls == true && !strcmp( Alert_Return_Struct->app_proto, "tls" ))
+//    if ( MeerConfig->tls == true && !strcmp( Alert_Return_Struct->app_proto, "tls" ))
+    if ( !strcmp( Alert_Return_Struct->app_proto, "tls" ))
         {
 
             Alert_Return_Struct->has_tls = true;
@@ -592,7 +596,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                     if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                         {
 
-                            MeerCounters->TLSCount++;
+//                            MeerCounters->TLSCount++;
 
                             json_obj_tls = json_tokener_parse(json_object_get_string(tmp));
 
@@ -648,7 +652,8 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
-    if ( MeerConfig->ssh == true && !strcmp( Alert_Return_Struct->app_proto, "ssh" ))
+//    if ( MeerConfig->ssh == true && !strcmp( Alert_Return_Struct->app_proto, "ssh" ))
+    if ( !strcmp( Alert_Return_Struct->app_proto, "ssh" ))
         {
 
             if ( json_object_object_get_ex(json_obj, "ssh", &tmp))
@@ -657,7 +662,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                     if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                         {
 
-                            MeerCounters->SSHCount++;
+//                            MeerCounters->SSHCount++;
 
                             json_obj_ssh_server = json_tokener_parse(json_object_get_string(tmp));
 

@@ -340,7 +340,7 @@ bool Validate_JSON_String( const char *validate_in_string )
  * CalcPct (Taken from Snort)
  *****************************/
 
-double CalcPct(uint64_t cnt, uint64_t total)
+double CalcPct_Down(uint64_t cnt, uint64_t total)
 {
 
     if ( total == 0 )
@@ -354,6 +354,42 @@ double CalcPct(uint64_t cnt, uint64_t total)
 
     return pct;
 }
+
+
+double CalcPct(uint64_t cnt, uint64_t total)
+{
+
+    if ( total == 0 )
+        {
+            return(0);
+        }
+
+    double pct = 0.0;
+
+    if ( cnt == 0 && total == 0 )
+        {
+            return (double)0.0;
+        }
+
+    if ( cnt == total )
+        {
+            return (double)100.0;
+        }
+
+    if ( cnt < total )
+        {
+            pct = (double)cnt / (double)total;
+            pct *= 100.0;
+        }
+    else
+        {
+            pct = 100 - ( (double)total / (double)cnt ) ;
+        }
+
+    return pct;
+}
+
+
 
 /**************************
  * Checks if a file exsists

@@ -138,10 +138,10 @@ void Redis_Reader ( char *redis_command, char *str, size_t size )
                     Meer_Log(DEBUG, "[%s, line %d] Redis Reply: \"%s\"", __FILE__, __LINE__, reply->str);
                 }
 
-            /* strlcpy doesn't like to pass str as a \0.  This
+            /* strlcpy doesn't like to pass str as a NULL.  This
                "works" around that issue (causes segfault otherwise) */
 
-            if ( *reply->str != '\0' )
+            if ( reply->len != 0 )
                 {
                     strlcpy(str, reply->str, size);
                 }
@@ -207,9 +207,9 @@ bool Redis_Writer ( char *command, char *key, char *value, int expire )
 //    else
 //        {
 
-            /* Returning null likely means we got disconnected.  We throw and error
-               and attempt to reconnect.  Once reconnected,  we redo out last Redis
-               write so we don't drop the event! */
+    /* Returning null likely means we got disconnected.  We throw and error
+       and attempt to reconnect.  Once reconnected,  we redo out last Redis
+       write so we don't drop the event! */
 
 //            MeerOutput->redis_error = true;
 //            Redis_Connect();

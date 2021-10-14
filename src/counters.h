@@ -18,4 +18,4 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-char *Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str, size_t size );
+void Counters ( const char *event_type );

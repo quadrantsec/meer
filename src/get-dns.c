@@ -76,6 +76,5 @@ char *Get_DNS( struct json_object *json_obj )
 
     return ( (char*)json_object_to_json_string(json_obj) );
 
-
 }
 

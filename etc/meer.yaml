@@ -38,19 +38,6 @@ meer-core:
     follow_eve: "/var/log/suricata/alert.json"  # The Suricata/Sagan file to monitor
     #follow-eve: "/var/log/sagan/alert.json"   
 
-    # Meer can decode various types of data with an alert (ie "event_type:
-    # alert").  This section enabled/disabled the JSON decoders for the 
-    # event type of "alert". 
-
-    metadata: enabled
-    flow: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    json: enabled
-
     #########################################################################
     # fingerprint
     #
@@ -63,6 +50,7 @@ meer-core:
   
     fingerprint: enabled
     fingerprint_log: "/tmp/fingerprint.eve"
+    fingerprint_networks: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
 
     #########################################################################
     # client_stats
@@ -206,18 +194,35 @@ output-plugins:
   file:
 
     enabled: no
-    file_location: "/path/to/output/filer"
+    file_location: "/path/to/output/file"
+
     alert: enabled
-    files: disabled
-    flow: disabled
-    dns: disabled
-    http: disabled
-    tls: disabled
-    ssh: disabled
-    smtp: disabled
-    fileinfo: disabled
-    dhcp: disabled
-    stats: disabled
+    files: enabled
+    flow: enabled
+    dns: enabled
+    http: enabled
+    tls: enabled
+    ssh: enabled
+    smtp: enabled
+    email: enabled
+    fileinfo: enabled
+    dhcp: enabled
+    stats: enabled
+    rdp: enabled
+    sip: disabled
+    ftp: enabled
+    ikev2: enabled
+    nfs: enabled
+    tftp: enabled
+    smb: enabled
+    dcerpc: enabled
+    mqtt: enabled
+    netflow: enabled
+    metadata: enabled
+    dnp3: enabled
+    anomaly: enabled
+    bluedot: enabled
+
 
   ###########################################################################
   # pipe
@@ -232,7 +237,6 @@ output-plugins:
     enabled: no
     pipe_location: /var/sagan/fifo/sagan.fifo
     pipe_size: 1048576                        # System must support F_GETPIPE_SZ/F_SETPIPE_SZ
-    metadata: enabled
 
     # Below are the "event_types" from Suricata/Sagan. This tells Meer what to send
     # to the named pipe/FIFO. 
@@ -245,9 +249,24 @@ output-plugins:
     tls: enabled
     ssh: enabled
     smtp: enabled
+    email: enabled
     fileinfo: enabled
     dhcp: enabled
     stats: enabled
+    rdp: enabled
+    sip: disabled
+    ftp: enabled
+    ikev2: enabled
+    nfs: enabled
+    tftp: enabled
+    smb: enabled
+    dcerpc: enabled
+    mqtt: enabled
+    netflow: enabled
+    metadata: enabled
+    dnp3: enabled
+    anomaly: enabled
+    bluedot: enabled
 
   ###########################################################################
   # external 
@@ -354,9 +373,24 @@ output-plugins:
     tls: enabled
     ssh: enabled
     smtp: enabled
+    email: enabled
     fileinfo: enabled
     dhcp: enabled
     stats: enabled
+    rdp: enabled
+    sip: enabled
+    ftp: enabled
+    ikev2: enabled
+    nfs: enabled
+    tftp: enabled
+    smb: enabled
+    dcerpc: enabled
+    mqtt: enabled
+    netflow: enabled
+    metadata: enabled
+    dnp3: enabled
+    anomaly: enabled
+    bluedot: enabled
 
     # Fingerprint data can be temporarily stored in a Redis database.  When an alert
     # fires, this information can be used to determine the targets operating system, 
@@ -391,16 +425,30 @@ output-plugins:
 #    password: "mypassword"
 
     alert: enabled
-    files: disabled
-    flow: disabled
-    dns: disabled
-    http: disabled
-    tls: disabled
-    ssh: disabled
-    smtp: disabled
-    email: disabled
-    fileinfo: disabled
-    dhcp: disabled
-    stats: disabled
+    files: enabled
+    flow: enabled
+    dns: enabled
+    http: enabled
+    tls: enabled
+    ssh: enabled
+    smtp: enabled
+    email: enabled
+    fileinfo: enabled
+    dhcp: enabled
+    stats: enabled
+    rdp: enabled
+    sip: enabled
+    ftp: enabled
+    ikev2: enabled
+    nfs: enabled
+    tftp: enabled
+    smb: enabled
+    dcerpc: enabled
+    mqtt: enabled
+    netflow: enabled
+    metadata: enabled
+    dnp3: enabled
+    anomaly: enabled
+    bluedot: enabled
 
 

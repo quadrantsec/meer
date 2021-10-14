@@ -40,24 +40,57 @@ extern struct _MeerOutput *MeerOutput;
 void Statistics( void )
 {
 
+    // DO JSON PER SEC!
+
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, "--[ Meer Statistics ]---------------------------------------");
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, " - Decoded Statistics:");
     Meer_Log(NORMAL, "");
-    Meer_Log(NORMAL, " Waldo Postion : %" PRIu64 "", MeerWaldo->position);
-    Meer_Log(NORMAL, " JSON          : %" PRIu64 "", MeerCounters->JSONCount);
-    Meer_Log(NORMAL, " Invalid JSON  : %" PRIu64 " (%.3f%%)", MeerCounters->InvalidJSONCount, CalcPct(MeerCounters->JSONCount,MeerCounters->InvalidJSONCount));
-    Meer_Log(NORMAL, " Flow          : %" PRIu64 "", MeerCounters->FlowCount);
-    Meer_Log(NORMAL, " HTTP          : %" PRIu64 "", MeerCounters->HTTPCount);
-    Meer_Log(NORMAL, " TLS           : %" PRIu64 "", MeerCounters->TLSCount);
-    Meer_Log(NORMAL, " SSH           : %" PRIu64 "", MeerCounters->SSHCount);
-    Meer_Log(NORMAL, " SMTP          : %" PRIu64 "", MeerCounters->SMTPCount);
-    Meer_Log(NORMAL, " Email         : %" PRIu64 "", MeerCounters->EmailCount);
-    Meer_Log(NORMAL, " Metadata      : %" PRIu64 "", MeerCounters->MetadataCount);
+    Meer_Log(NORMAL, " Total         : %" PRIu64 "", MeerCounters->total);
+    Meer_Log(NORMAL, " Bad           : %" PRIu64 " (%.3f%%)", MeerCounters->bad, CalcPct( MeerCounters->total, MeerCounters->bad ) );
+    Meer_Log(NORMAL, "");
+    Meer_Log(NORMAL, " alert         : %" PRIu64 " (%.3f%%)", MeerCounters->alert, CalcPct( MeerCounters->total, MeerCounters->alert ) );
+    Meer_Log(NORMAL, " files         : %" PRIu64 " (%.3f%%)", MeerCounters->files, CalcPct( MeerCounters->total, MeerCounters->files ) );
+    Meer_Log(NORMAL, " flow          : %" PRIu64 " (%.3f%%)", MeerCounters->flow, CalcPct( MeerCounters->total, MeerCounters->flow ) );
+    Meer_Log(NORMAL, " dns           : %" PRIu64 " (%.3f%%)", MeerCounters->dns, CalcPct( MeerCounters->total, MeerCounters->dns ) );
+    Meer_Log(NORMAL, " http          : %" PRIu64 " (%.3f%%)", MeerCounters->http, CalcPct( MeerCounters->total, MeerCounters->http ) );
+    Meer_Log(NORMAL, " tls           : %" PRIu64 " (%.3f%%)", MeerCounters->tls, CalcPct( MeerCounters->total, MeerCounters->tls ) );
+    Meer_Log(NORMAL, " ssh           : %" PRIu64 " (%.3f%%)", MeerCounters->ssh, CalcPct( MeerCounters->total, MeerCounters->ssh ) );
+    Meer_Log(NORMAL, " smtp          : %" PRIu64 " (%.3f%%)", MeerCounters->smtp, CalcPct( MeerCounters->total, MeerCounters->smtp ) );
+    Meer_Log(NORMAL, " email         : %" PRIu64 " (%.3f%%)", MeerCounters->email, CalcPct( MeerCounters->total, MeerCounters->email ) );
+    Meer_Log(NORMAL, " fileinfo      : %" PRIu64 " (%.3f%%)", MeerCounters->fileinfo, CalcPct( MeerCounters->total, MeerCounters->fileinfo ) );
+    Meer_Log(NORMAL, " dhcp          : %" PRIu64 " (%.3f%%)", MeerCounters->dhcp, CalcPct( MeerCounters->total, MeerCounters->dhcp ) );
+    Meer_Log(NORMAL, " stats         : %" PRIu64 " (%.3f%%)", MeerCounters->stats, CalcPct( MeerCounters->total, MeerCounters->stats ) );
+    Meer_Log(NORMAL, " rdp           : %" PRIu64 " (%.3f%%)", MeerCounters->rdp, CalcPct( MeerCounters->total, MeerCounters->rdp ) );
+    Meer_Log(NORMAL, " sip           : %" PRIu64 " (%.3f%%)", MeerCounters->sip, CalcPct( MeerCounters->total, MeerCounters->sip ) );
+    Meer_Log(NORMAL, " ftp           : %" PRIu64 " (%.3f%%)", MeerCounters->ftp, CalcPct( MeerCounters->total, MeerCounters->ftp ) );
+    Meer_Log(NORMAL, " ikev2         : %" PRIu64 " (%.3f%%)", MeerCounters->ikev2, CalcPct( MeerCounters->total, MeerCounters->ikev2 ) );
+    Meer_Log(NORMAL, " nfs           : %" PRIu64 " (%.3f%%)", MeerCounters->nfs, CalcPct( MeerCounters->total, MeerCounters->nfs ) );
+    Meer_Log(NORMAL, " tftp          : %" PRIu64 " (%.3f%%)", MeerCounters->tftp, CalcPct( MeerCounters->total, MeerCounters->tftp ) );
+    Meer_Log(NORMAL, " smb           : %" PRIu64 " (%.3f%%)", MeerCounters->smb, CalcPct( MeerCounters->total, MeerCounters->smb ) );
+    Meer_Log(NORMAL, " dcerpc        : %" PRIu64 " (%.3f%%)", MeerCounters->dcerpc, CalcPct( MeerCounters->total, MeerCounters->dcerpc ) );
+    Meer_Log(NORMAL, " mqtt          : %" PRIu64 " (%.3f%%)", MeerCounters->mqtt, CalcPct( MeerCounters->total, MeerCounters->mqtt ) );
+    Meer_Log(NORMAL, " netflow       : %" PRIu64 " (%.3f%%)", MeerCounters->netflow, CalcPct( MeerCounters->total, MeerCounters->netflow ) );
+    Meer_Log(NORMAL, " metadata      : %" PRIu64 " (%.3f%%)", MeerCounters->metadata, CalcPct( MeerCounters->total, MeerCounters->metadata ) );
+    Meer_Log(NORMAL, " dnp3          : %" PRIu64 " (%.3f%%)", MeerCounters->dnp3, CalcPct( MeerCounters->total, MeerCounters->dnp3 ) );
+    Meer_Log(NORMAL, " anomaly       : %" PRIu64 " (%.3f%%)", MeerCounters->anomaly, CalcPct( MeerCounters->total, MeerCounters->anomaly ) );
+
+
+
+    //Meer_Log(NORMAL, " Waldo Postion : %" PRIu64 "", MeerWaldo->position);
+    //Meer_Log(NORMAL, " JSON          : %" PRIu64 "", MeerCounters->JSONCount);
+    //Meer_Log(NORMAL, " Invalid JSON  : %" PRIu64 " (%.3f%%)", MeerCounters->InvalidJSONCount, CalcPct(MeerCounters->JSONCount,MeerCounters->InvalidJSONCount));
+    //Meer_Log(NORMAL, " Flow          : %" PRIu64 "", MeerCounters->FlowCount);
+    //Meer_Log(NORMAL, " HTTP          : %" PRIu64 "", MeerCounters->HTTPCount);
+    //Meer_Log(NORMAL, " TLS           : %" PRIu64 "", MeerCounters->TLSCount);
+    //Meer_Log(NORMAL, " SSH           : %" PRIu64 "", MeerCounters->SSHCount);
+    //Meer_Log(NORMAL, " SMTP          : %" PRIu64 "", MeerCounters->SMTPCount);
+    //Meer_Log(NORMAL, " Email         : %" PRIu64 "", MeerCounters->EmailCount);
+    //Meer_Log(NORMAL, " Metadata      : %" PRIu64 "", MeerCounters->MetadataCount);
 
 #ifdef BLUEDOT
-    Meer_Log(NORMAL, " Bluedot       : %" PRIu64 "", MeerCounters->BluedotCount);
+    Meer_Log(NORMAL, " Bluedot       : %" PRIu64 "", MeerCounters->bluedot);
 #endif
 
 
@@ -69,7 +102,7 @@ void Statistics( void )
             Meer_Log(NORMAL, " - DNS Statistics:");
             Meer_Log(NORMAL, "");
             Meer_Log(NORMAL, " DNS Lookups   : %"PRIu64 "", MeerCounters->DNSCount);
-            Meer_Log(NORMAL, " DNS Cache Hits: %"PRIu64 " (%.3f%%)", MeerCounters->DNSCacheCount, CalcPct(MeerCounters->DNSCacheCount,MeerCounters->DNSCount));
+            Meer_Log(NORMAL, " DNS Cache Hits: %"PRIu64 " (%.3f%%)", MeerCounters->DNSCacheCount, CalcPct_Down(MeerCounters->DNSCacheCount,MeerCounters->DNSCount));
             Meer_Log(NORMAL, "");
 
         }
