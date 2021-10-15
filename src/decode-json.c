@@ -252,6 +252,12 @@ bool Decode_JSON( char *json_string )
             Output_Pipe( json_string, event_type );
         }
 
+    if ( MeerOutput->external_enabled == true )
+        {
+            Output_External( json_string, json_obj, event_type );
+        }
+
+
     if ( MeerOutput->file_enabled == true )
         {
             Output_File( json_string, event_type );

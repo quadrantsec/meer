@@ -109,13 +109,66 @@ void Init_Output( void )
 
             Meer_Log(NORMAL, "--[ External information ]-----------------------------------------");
             Meer_Log(NORMAL, "");
+
             Meer_Log(NORMAL, "Default external program: %s", MeerOutput->external_program);
-            Meer_Log(NORMAL, "Execute on 'security-ips' policy: %s", MeerOutput->external_metadata_security_ips ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Execute on 'balanced-ips' policy: %s", MeerOutput->external_metadata_balanced_ips ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Execute on 'connectivity-ips' policy: %s", MeerOutput->external_metadata_connectivity_ips ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Execute on 'max-detect-ips' policy: %s", MeerOutput->external_metadata_max_detect_ips ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "");
+            Meer_Log(NORMAL, "Meer metadata : %s", MeerOutput->external_meer_metadata_flag ? "enabled" : "disabled" );
 
             Meer_Log(NORMAL, "");
+
+            if ( MeerOutput->external_metadata_cisco == true )
+                {
+
+                    Meer_Log(NORMAL, "Execute on Cisco 'security-ips' policy: %s", MeerOutput->external_metadata_security_ips ? "enabled" : "disabled" );
+                    Meer_Log(NORMAL, "Execute on Cisco 'balanced-ips' policy: %s", MeerOutput->external_metadata_balanced_ips ? "enabled" : "disabled" );
+                    Meer_Log(NORMAL, "Execute on Cisco 'connectivity-ips' policy: %s", MeerOutput->external_metadata_connectivity_ips ? "enabled" : "disabled" );
+                    Meer_Log(NORMAL, "Execute on Cisco 'max-detect-ips' policy: %s", MeerOutput->external_metadata_max_detect_ips ? "enabled" : "disabled" );
+
+                    Meer_Log(NORMAL, "");
+                }
+
+            if ( MeerOutput->external_metadata_et == true )
+                {
+
+                    Meer_Log(NORMAL, "Execute on Emerging Threats 'critical': %s", MeerOutput->external_metadata_et_critical ? "enabled" : "disabled" );
+                    Meer_Log(NORMAL, "Execute on Emerging Threats 'major': %s", MeerOutput->external_metadata_et_major ? "enabled" : "disabled" );
+                    Meer_Log(NORMAL, "Execute on Emerging Threats 'minor': %s", MeerOutput->external_metadata_et_minor ? "enabled" : "disabled" );
+                    Meer_Log(NORMAL, "Execute on Emerging Threats 'informational': %s", MeerOutput->external_metadata_et_informational ? "enabled" : "disabled" );
+                }
+
+
+            Meer_Log(NORMAL, "");
+            Meer_Log(NORMAL, "Write 'alert'        : %s", MeerOutput->external_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'stats'        : %s", MeerOutput->external_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'email'        : %s", MeerOutput->external_email ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dns'          : %s", MeerOutput->external_dns ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'flow'         : %s", MeerOutput->external_flow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'http'         : %s", MeerOutput->external_http ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tls'          : %s", MeerOutput->external_tls ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ssh'          : %s", MeerOutput->external_ssh ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smtp'         : %s", MeerOutput->external_smtp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'files'        : %s", MeerOutput->external_files ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fileinfo'     : %s", MeerOutput->external_fileinfo ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dhcp'         : %s", MeerOutput->external_dhcp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'bluedot'      : %s", MeerOutput->external_bluedot ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'rdp'          : %s", MeerOutput->external_rdp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'sip'          : %s", MeerOutput->external_sip ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ftp'          : %s", MeerOutput->external_ftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ikev2'        : %s", MeerOutput->external_ikev2 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'nfs'          : %s", MeerOutput->external_nfs ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tftp'         : %s", MeerOutput->external_tftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smb'          : %s", MeerOutput->external_smb ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dcerpc'       : %s", MeerOutput->external_dcerpc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'mqtt'         : %s", MeerOutput->external_mqtt ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'netflow'      : %s", MeerOutput->external_netflow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'metadata'     : %s", MeerOutput->external_metadata ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dnp3'         : %s", MeerOutput->external_dnp3 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'anomaly'      : %s", MeerOutput->external_anomaly ? "enabled" : "disabled" );
+
+//               }
+
+            Meer_Log(NORMAL, "");
+
         }
 
 #ifdef HAVE_LIBHIREDIS
@@ -819,74 +872,322 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
  * the signature triggered.
  ****************************************************************************/
 
-bool Output_External ( const char *json_string, char *alert_metadata )
+bool Output_External ( const char *json_string, struct json_object *json_obj, const char *event_type )
 {
 
-    struct json_object *json_obj = NULL;
+    struct json_object *json_obj_meta = NULL;
     struct json_object *tmp = NULL;
 
+    char *alert = NULL;
     char *policy = NULL;
     char *meer = NULL;
 
-    /* If we are executing on "all", no reason to check policies, etc */
+    char alert_metadata[1024] = { 0 };
+    bool meer_flag = false;
 
-    if ( MeerOutput->external_execute_on_all == true )
+    /* We treat alerts "special".  We allow some filtering to happen, if the
+       user wants, before we send alert EVE to external programs */
+
+    if ( !strcmp(event_type, "alert" ) && MeerOutput->external_alert == true )
+        {
+
+            if ( MeerOutput->external_metadata_et == false && MeerOutput->external_metadata_cisco == false &&
+                    MeerOutput->external_meer_metadata_flag == false )
+                {
+                    External( json_string );
+                    json_object_put(json_obj_meta);
+                    return(0);
+                }
+
+            if (json_object_object_get_ex(json_obj, "alert", &tmp))
+                {
+                    alert = (char *)json_object_get_string(tmp);
+                }
+
+            if ( alert == NULL )
+                {
+                    Meer_Log(WARN, "[%s, line %d] Got NULL alert data (shouldn't ever get this!)", __FILE__, __LINE__);
+                    json_object_put(json_obj_meta);
+                    return(false);
+                }
+
+            json_obj_meta = json_tokener_parse(alert);
+
+            if ( json_object_object_get_ex(json_obj_meta, "metadata", &tmp))
+                {
+                    char *t = (char *)json_object_get_string(tmp);
+
+                    if ( t == NULL )
+                        {
+                            Meer_Log(WARN, "[%s, line %d] Got NULL metadata (shouldn't ever get this!)", __FILE__, __LINE__);
+                            json_object_put(json_obj_meta);
+                            return(false);
+                        }
+
+                    strlcpy( alert_metadata, t, sizeof( alert_metadata ) );
+                }
+
+            if ( alert_metadata[0] != '\0' )
+                {
+
+                    json_obj_meta = json_tokener_parse(alert_metadata);
+
+                    /*******************************************/
+                    /* Look for the "meer" flags in "metadata" */
+                    /*******************************************/
+
+                    if ( MeerOutput->external_meer_metadata_flag == true )
+                        {
+
+                            if (json_object_object_get_ex(json_obj_meta, "meer", &tmp))
+                                {
+
+                                    meer = (char *)json_object_get_string(tmp);
+
+                                    if ( strstr( meer, "external" ) )
+                                        {
+
+                                            if ( MeerOutput->external_debug )
+                                                {
+                                                    Meer_Log(DEBUG, "[%s, line %d] Found Meer Metadata.", __FILE__, __LINE__);
+                                                }
+
+                                            External( json_string );
+                                            json_object_put(json_obj_meta);
+                                            return(true);
+
+                                        }
+                                }
+                        }
+
+                    /********************************************/
+                    /* Look for Cisco Talso specific indicators */
+                    /********************************************/
+
+                    if ( MeerOutput->external_metadata_cisco == true )
+                        {
+
+                            if (json_object_object_get_ex(json_obj_meta, "policy", &tmp))
+                                {
+
+                                    policy = (char *)json_object_get_string(tmp);
+
+                                    if ( ( strstr( policy, "security-ips drop" ) && MeerOutput->external_metadata_security_ips == true ) ||
+                                            ( strstr( policy, "max-detect-ips drop" ) && MeerOutput->external_metadata_max_detect_ips == true ) ||
+                                            ( strstr( policy, "balanced-ips drop" ) && MeerOutput->external_metadata_balanced_ips == true ) ||
+                                            ( strstr( policy, "connectivity-ips" ) && MeerOutput->external_metadata_connectivity_ips == true ) )
+                                        {
+
+                                            if ( MeerOutput->external_debug )
+                                                {
+                                                    Meer_Log(DEBUG, "[%s, line %d] Found Cisco Metadata.", __FILE__, __LINE__);
+                                                }
+
+
+                                            External( json_string );
+                                            json_object_put(json_obj_meta);
+                                            return(true);
+                                        }
+
+                                }
+
+                        } /* MeerOutput->external_metadata_cisco == true */
+
+
+                    /********************************************/
+                    /* Look for Cisco Talso specific indicators */
+                    /********************************************/
+
+                    if ( MeerOutput->external_metadata_et == true )
+                        {
+
+
+                            if (json_object_object_get_ex(json_obj_meta, "signature_severity", &tmp))
+                                {
+
+                                    policy = (char *)json_object_get_string(tmp);
+
+                                    if ( ( strcasestr( policy, "Critical" ) && MeerOutput->external_metadata_et_critical == true ) ||
+                                            ( strcasestr( policy, "Major" ) && MeerOutput->external_metadata_et_major == true ) ||
+                                            ( strcasestr( policy, "Minor" ) && MeerOutput->external_metadata_et_minor == true ) ||
+                                            ( strcasestr( policy, "Informational" ) && MeerOutput->external_metadata_et_informational == true ) )
+                                        {
+
+                                            if ( MeerOutput->external_debug )
+                                                {
+                                                    Meer_Log(DEBUG, "[%s, line %d] Found Emerging Threats Metadata.", __FILE__, __LINE__);
+                                                }
+
+                                            External( json_string );
+                                            json_object_put(json_obj_meta);
+                                            return(true);
+                                        }
+                                }
+                        }
+                }
+
+        } /* !strcmp(event_type, "alert" ) ... */
+
+
+    json_object_put(json_obj_meta);
+
+    /********************************************************************/
+    /* Continue on with other event_types.  No "special" considerations */
+    /* are needed                                                       */
+    /********************************************************************/
+
+    if ( !strcmp(event_type, "files" ) && MeerOutput->external_files == true )
         {
             External( json_string );
-            json_object_put(json_obj);
             return(0);
         }
 
-    if ( alert_metadata[0] != '\0' )
+    else if ( !strcmp(event_type, "flow" ) && MeerOutput->external_flow == true )
         {
-            json_obj = json_tokener_parse(alert_metadata);
-
-            if (json_object_object_get_ex(json_obj, "meer", &tmp))
-                {
-
-                    meer = (char *)json_object_get_string(tmp);
-
-                    if ( strstr( meer, "external" ) )
-                        {
-                            External( json_string );
-                            json_object_put(json_obj);
-
-
-                            /* We can return now.  We don't need to check
-                               policies, etc */
-
-                            return(0);
-                        }
-
-                }
-
-            if ( MeerOutput->external_metadata_security_ips == true ||
-                    MeerOutput->external_metadata_max_detect_ips == true ||
-                    MeerOutput->external_metadata_connectivity_ips == true ||
-                    MeerOutput->external_metadata_balanced_ips == true )
-                {
-
-                    if (json_object_object_get_ex(json_obj, "policy", &tmp))
-                        {
-
-                            policy = (char *)json_object_get_string(tmp);
-
-                            if ( ( strstr( policy, "security-ips drop" ) && MeerOutput->external_metadata_security_ips == true ) ||
-                                    ( strstr( policy, "max-detect-ips drop" ) && MeerOutput->external_metadata_max_detect_ips == true ) ||
-                                    ( strstr( policy, "balanced-ips drop" ) && MeerOutput->external_metadata_balanced_ips == true ) ||
-                                    ( strstr( policy, "connectivity-ips" ) && MeerOutput->external_metadata_connectivity_ips == true ) )
-                                {
-                                    External( json_string );
-                                }
-
-                        }
-
-                }
+            External( json_string );
+            return(0);
         }
 
-    json_object_put(json_obj);
+    else if ( !strcmp(event_type, "dns" ) && MeerOutput->external_dns == true )
+        {
+            External( json_string );
+            return(0);
+        }
 
-    return(0);
+    else if ( !strcmp(event_type, "http" ) && MeerOutput->external_http == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "tls" ) && MeerOutput->external_tls == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "ssh" ) && MeerOutput->external_ssh == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "smtp" ) && MeerOutput->external_smtp == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "email" ) && MeerOutput->external_email == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "fileinfo" ) && MeerOutput->external_fileinfo == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "dhcp" ) && MeerOutput->external_dhcp == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "stats" ) && MeerOutput->external_stats == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "rdp" ) && MeerOutput->external_rdp == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "sip" ) && MeerOutput->external_sip == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+
+    else if ( !strcmp(event_type, "ftp" ) && MeerOutput->external_ftp == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "ikev2" ) && MeerOutput->external_ikev2 == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "nfs" ) && MeerOutput->external_nfs == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "tftp" ) && MeerOutput->external_tftp == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "smb" ) && MeerOutput->external_smb == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+
+    else if ( !strcmp(event_type, "mqtt" ) && MeerOutput->external_mqtt == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+
+    else if ( !strcmp(event_type, "dcerpc" ) && MeerOutput->external_dcerpc == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "netflow" ) && MeerOutput->external_netflow == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "metadata" ) && MeerOutput->external_metadata == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "dnp3" ) && MeerOutput->external_dnp3 == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "anomaly" ) && MeerOutput->external_anomaly == true )
+        {
+            External( json_string );
+            return(0);
+        }
+
+    else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->external_bluedot == true )
+        {
+            External( json_string );
+            return(0);
+        }
 
 }
 

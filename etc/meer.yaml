@@ -319,15 +319,40 @@ output-plugins:
     # If you run your network with an iron fist start here.
 
     # I can't seem to find any documentation on what "max-detect-ips" is :(
+   
+    program: "/usr/local/bin/external_program"
 
-    policy-security-ips: enabled
-    policy-max-detect-ips: enabled
-    policy-connectivity-ips: enabled
-    policy-balanced-ips: enabled
+    #meer_metadata: enabled
+    #cisco_policies: "policy-security-ips,policy-max-detect-ips,policy-connectivity-ips,policy-balanced-ips"
+    #et_signature_severity: "critical,major"		# Critical,Major,Minor,Informational
 
-    # Execute the program _any_ time an alert is detected
 
-    execute-on-all: disabled
+    alert: enabled
+    files: enabled
+    flow: enabled
+    dns: enabled
+    http: enabled
+    tls: enabled
+    ssh: enabled
+    smtp: enabled
+    email: enabled
+    fileinfo: enabled
+    dhcp: enabled
+    stats: enabled
+    rdp: enabled
+    sip: enabled
+    ftp: enabled
+    ikev2: enabled
+    nfs: enabled
+    tftp: enabled
+    smb: enabled
+    dcerpc: enabled
+    mqtt: enabled
+    netflow: enabled
+    metadata: enabled
+    dnp3: enabled
+    anomaly: enabled
+    bluedot: enabled
 
     program: "/usr/local/bin/external_program"
 

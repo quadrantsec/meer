@@ -272,13 +272,50 @@ struct _MeerOutput
     char sql_sid_map_file[256];
 
     bool external_enabled;
+    uint8_t external_based_on;
     bool external_debug;
+    bool external_meer_metadata_flag;
+
     bool external_metadata_security_ips;
     bool external_metadata_max_detect_ips;
     bool external_metadata_balanced_ips;
     bool external_metadata_connectivity_ips;
-    bool external_execute_on_all;
+    bool external_metadata_cisco;
+
+    bool external_metadata_et_critical;
+    bool external_metadata_et_major;
+    bool external_metadata_et_minor;
+    bool external_metadata_et_informational;
+    bool external_metadata_et;
+
     char external_program[256];
+
+    bool external_alert;
+    bool external_files;
+    bool external_flow;
+    bool external_dns;
+    bool external_http;
+    bool external_tls;
+    bool external_ssh;
+    bool external_smtp;
+    bool external_email;
+    bool external_fileinfo;
+    bool external_dhcp;
+    bool external_stats;
+    bool external_rdp;
+    bool external_sip;
+    bool external_ftp;
+    bool external_ikev2;
+    bool external_nfs;
+    bool external_tftp;
+    bool external_smb;
+    bool external_mqtt;
+    bool external_dcerpc;
+    bool external_netflow;
+    bool external_metadata;
+    bool external_dnp3;
+    bool external_anomaly;
+    bool external_bluedot;
 
     bool file_enabled;
     FILE *file_fd;
