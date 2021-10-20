@@ -316,7 +316,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                     if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                         {
 
-//                            MeerCounters->BluedotCount++;
+    //                            MeerCounters->BluedotCount++;
 
                             Alert_Return_Struct->has_bluedot = true;
                             Alert_Return_Struct->bluedot = (char *)json_object_get_string(tmp);
@@ -326,7 +326,7 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                 }
 
         }
-*/
+    */
 
     /* Extract "alert" information */
 

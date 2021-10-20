@@ -376,19 +376,19 @@ void Init_Output( void )
             MeerOutput->sql_sensor_id = SQL_Get_Sensor_ID();
             MeerOutput->sql_last_cid = SQL_Get_Last_CID() + 1;
 
-	    /*
-            Meer_Log(NORMAL, "");
-            Meer_Log(NORMAL, "Record 'json'    : %s", MeerOutput->sql_json ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'metadata': %s", MeerOutput->sql_metadata ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'flow'    : %s", MeerOutput->sql_flow ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'http'    : %s", MeerOutput->sql_http ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'tls'     : %s", MeerOutput->sql_tls ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'ssh'     : %s", MeerOutput->sql_ssh ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'smtp'    : %s", MeerOutput->sql_smtp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'email'   : %s", MeerOutput->sql_email ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'bluedot' : %s", MeerOutput->sql_bluedot ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "");
-	    */
+            /*
+                Meer_Log(NORMAL, "");
+                Meer_Log(NORMAL, "Record 'json'    : %s", MeerOutput->sql_json ? "enabled" : "disabled" );
+                Meer_Log(NORMAL, "Record 'metadata': %s", MeerOutput->sql_metadata ? "enabled" : "disabled" );
+                Meer_Log(NORMAL, "Record 'flow'    : %s", MeerOutput->sql_flow ? "enabled" : "disabled" );
+                Meer_Log(NORMAL, "Record 'http'    : %s", MeerOutput->sql_http ? "enabled" : "disabled" );
+                Meer_Log(NORMAL, "Record 'tls'     : %s", MeerOutput->sql_tls ? "enabled" : "disabled" );
+                Meer_Log(NORMAL, "Record 'ssh'     : %s", MeerOutput->sql_ssh ? "enabled" : "disabled" );
+                Meer_Log(NORMAL, "Record 'smtp'    : %s", MeerOutput->sql_smtp ? "enabled" : "disabled" );
+                Meer_Log(NORMAL, "Record 'email'   : %s", MeerOutput->sql_email ? "enabled" : "disabled" );
+                Meer_Log(NORMAL, "Record 'bluedot' : %s", MeerOutput->sql_bluedot ? "enabled" : "disabled" );
+                Meer_Log(NORMAL, "");
+            */
 
         }
 
@@ -745,12 +745,12 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
 
 //                    if ( MeerConfig->json == true )
 //                        {
-                            SQL_Insert_JSON ( DecodeAlert );
+                    SQL_Insert_JSON ( DecodeAlert );
 //                        }
 
 //                    if ( MeerConfig->dns == true )
 //                        {
-                            SQL_Insert_DNS ( DecodeAlert );
+                    SQL_Insert_DNS ( DecodeAlert );
 //                        }
 
                     /* We can have multiple "xff" fields in extra data */
@@ -1241,7 +1241,7 @@ void Output_Stats ( char *json_string )
 
 //    if ( MeerOutput->sql_stats == true )
 //        {
-            SQL_Insert_Stats ( json_string, timestamp, hostname );
+    SQL_Insert_Stats ( json_string, timestamp, hostname );
 //        }
 
 #endif

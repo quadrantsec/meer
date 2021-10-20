@@ -51,6 +51,8 @@
 #include <curl/curl.h>
 
 bool elasticsearch_death = false;
+uint8_t elasticsearch_death_count = 0;
+
 extern uint_fast16_t elastic_proc_running;
 #endif
 
@@ -140,11 +142,20 @@ void Signal_Handler(int sig_num)
                 {
 
                     elasticsearch_death = true;
+                    elasticsearch_death_count = 0;
 
                     while ( elastic_proc_running != 0 )
                         {
                             Meer_Log(NORMAL, "Waiting on %d Elasticseach thread to shutdown.", elastic_proc_running);
                             sleep(1);
+
+                            if ( elasticsearch_death_count == 15 )
+                                {
+                                    Meer_Log(WARN, "Timemout reached!  Forcing shutdown.");
+                                    break;
+                                }
+
+                            elasticsearch_death_count++;
 
                             curl_global_cleanup();
                         }
