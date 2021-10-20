@@ -10,11 +10,7 @@ Meer User Guide
    command-line-options
    starting-meer
    core
-   redis
-   elastic
-   pipe
-   file
-   sql
+   output
    console-output
    getting-help
 
