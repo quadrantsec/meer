@@ -5,11 +5,392 @@ Output Plugins
 Redis
 -----
 
+This controls how Meer logs to a Redis database.  Meer can record alert records to 
+Redis similar to how Suricata with Redis support enabled does.  Redis is also used
+as a temporary storage engine for ``client_stats`` (Sagan only) and ``fingerprint``
+data if enabled.
+
+::
+
+     ###########################################################################
+     # "redis" allows you to send Suricata/Sagan EVE data to a Redis database. 
+     # This will mimic the way Suricata writes EVE data to Redis with the 
+     # exception of "client_stats" which is a Sagan specific processor. 
+     ###########################################################################
+
+     redis:
+
+       enabled: no
+       debug: no
+       server: 127.0.0.1
+       port: 6379
+       batch: 10                # Batch/pipelining mode. Max is 100. 1 == no batching.
+       key: "suricata"	        # Default 'key' or 'channel' to use. 
+       mode: list               # How to publish data to Redis.  Valid types are list/lpush, 
+                                # rpush, channel|publish.
+
+       # This controls event_types to send to Redis. 
+
+       alert: enabled
+       files: enabled
+       flow: enabled
+       dns: enabled
+       http: enabled
+       tls: enabled
+       ssh: enabled
+       smtp: enabled
+       fileinfo: enabled
+       dhcp: enabled
+
+       # Fingerprint data can be temporarily stored in a Redis database.  When an alert
+       # fires, this information can be used to determine the targets operating system, 
+       # type (client/server), etc.  This can be useful in determining the validity of
+       # an event. If used in conjunction with the SQL output,  the fingerprint data for
+       # the targeted system is stored in the 'fingerprint' table.
+
+       fingerprint: enabled
+
+       # This controls sending Sagan client tracking data to Redis.  This has no affect 
+       # on Suricata systems. 
+
+       client_stats: disabled
+
+
+enabled
+~~~~~~~
+
+Enable or disable the Redis output.
+
+debug
+~~~~~
+
+Enable or disabled Redis debugging.
+
+server
+~~~~~~
+
+The Redis server address you want to store data to.
+
+port
+~~~~
+
+Port of the target Redis server.
+
+batch
+~~~~~
+
+The ``batch`` is the amount of data to collect before sending it to Redis.  This has no 
+affect when using Redis with either ``client_stats`` or ``fingerprint`` data.
+
+key
+~~~
+
+The ``key`` is the default Redis channel or key to use. 
+
+mode
+~~~~
+
+The ``mode`` controls how data is stored to Redis.  Valid options are ``list``, ``lpush``, 
+``rpush``, ``channel`` or ``publish``.  The default is ``list``.  The method Meer stores the
+data is compatible with Suricata's Redis output format.  Note; This option does not have any
+affect on ``client_stats`` or ``fingerprint`` recording.
+
+alert
+~~~~~
+
+Enable or disable storing ``alert`` data into Redis.
+
+files
+~~~~~
+
+Enable or disable storing ``files`` data into Redis.
+
+flow
+~~~~
+
+Enable or disable storing ``flow`` data into Redis.
+
+dns
+~~~
+
+Enable or disable storing ``dns`` data into Redis.
+
+http
+~~~~
+
+Enable or disable storing ``http`` data into Redis.
+
+tls
+~~~
+
+Enable or disable storing ``tls`` data into Redis.
+
+ssh
+~~~
+
+Enable or disable storing ``ssh`` data into Redis.
+
+smtp
+~~~~
+
+Enable or disable storing ``smtp`` data into Redis.
+
+fileinfo
+~~~~~~~~
+
+Enable or disable storing ``fileinfo`` data into Redis.
+
+dhcp
+~~~~
+
+Enable or disable storing ``dhcp`` data into Redis.
+
+
+fingerprint
+~~~~~~~~~~~
+
+Enable or disable storing ``fingerprint`` data in the Redis database.  This is a temporary 
+storage system for ``fingerprint`` data.   This allows correlation between device fingerprints
+(ie - operating systems, devices types, etc) with alerts. 
+
+client_stats
+~~~~~~~~~~~~
+
+This is a Sagan only option.  This option temporarily stores devices that are sending Sagan 
+logs along with an example log entry.   This has no affect with Suricata. 
+
 Elasticsearch
 -------------
 
+External
+--------
+
+This option allows signatures to call "external" programs.  For example,  if a signature the
+proper "metadata" (``metadata: meer external`` or a set policy),  Meer will fork a copy
+of the specified program and pass the EVE via stdin.  This feature can be useful for creating
+custom firewalling routines or routing data to alternate programs.  The "external" program
+can be written in any language that suites you.
+
+::
+
+     ###########################################################################
+     # external 
+     #
+     # EVE data (JSON) is passed via stdin to the external program.   The 
+     # external program can be written in any language you choose (shell script, 
+     # Python, Perl, etc). 
+     #
+     # This can be useful for automatic firewalling,  building block lists, 
+     # replicating "snortsam" functionality, etc.  See the "tools/external"
+     # directory for example routines that use this feature.
+     #
+     # If this option is enabled, any rule that has the metadata of "meer 
+     # external" (ie - "metadata:meer external") will cause the external script 
+     # to be executed.  Execution can also be controlled by Snort metadata
+     # "policies".
+     ###########################################################################
+
+     external:
+
+       enabled: no
+       debug: no
+
+       # Execution of an external program based on metadata "policy".  When Meer
+       # encounters a "policy" (security-ips, balanced-ips, connectivity-ips, 
+       # and max-detect-ips),  Meer will execute the specified routine.  
+       # Currently only Snort rules have these types of polices.  This can be
+       # useful when you want to execute an external script that will to "block"
+       # or "firewall" based off the policy types.  This section only applies if
+       # you are using Suricata with Snort rules.  Snort's polices are
+       # below:
+
+       # connectivity-ips  - You run a lot of real time applications (VOIP, 
+       # financial transactions, etc), and don't want to run any rules that 
+       # could affect the current performance of your sensor.  The rules in this 
+       # category make snort happy, additionally this category focuses on the high
+       # profile most likely to affect the largest number of people type of
+       # vulnerabilities.
+
+       # balanced-ips - You are normal, you run normal stuff and you want normal
+       # security protections.  This is the best policy to start from if you are 
+       # new, old, or just plain average.  If you don't have any special
+       # requirements for super high speeds or super secure networks start here.
+
+       # security-ips - You don't care about dropping your bosses email, everything
+       # in your environment is tightly regulated and you don't tolerate people 
+       # stepping outside of your security policy.  This policy hates on IM, P2P,
+       # vulnerabilities, malware, web apps that cause productivity loss, remote
+       # access, and just about anything not related to getting work done.  
+       # If you run your network with an iron fist start here.
+
+       # I can't seem to find any documentation on what "max-detect-ips" is :(
+
+       policy-security-ips: enabled
+       policy-max-detect-ips: enabled
+       policy-connectivity-ips: enabled
+       policy-balanced-ips: enabled
+
+       program: "/usr/local/bin/external_program"
+
+
+
+enabled
+~~~~~~~
+
+Keyword is used to enable/disable ``external`` output. 
+
+debug
+~~~~~
+
+When enabled,  this option will display and log debugging information. 
+
+policy-security-ips
+~~~~~~~~~~~~~~~~~~~
+
+Execute ``external`` program when the ``policy-security-ips`` is encountered.
+
+policy-max-detect-ips
+~~~~~~~~~~~~~~~~~~~~~
+
+Execute ``external`` program when the ``policy-max-detect-ips`` is encountered.
+
+policy-connectivity-ips
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Execute ``external`` program when the ``policy-connectivity-ips`` is encountered.
+
+policy-balanced-ips
+~~~~~~~~~~~~~~~~~~~
+
+Execute ``external`` program when the ``policy-balanced-ips`` is encountered.
+
+
+program
+~~~~~~~
+
+``external`` program to execute when conditions are met. 
+
+
+
 Pipe
------
+----
+
+Below is an example of the "pipe" output plugin.  This takes data being written to the EVE
+file and puts it into a named pipe (FIFO).  This can be useful if you want a third party
+program (for example, Sagan - https://sagan.io) to analyze the data. 
+
+::
+
+   pipe:
+
+       enabled: no
+       pipe_location: /var/sagan/fifo/sagan.fifo
+       pipe_size: 1048576                        # System must support F_GETPIPE_SZ/F_SETPIPE_SZ
+       metadata: enabled
+
+       # Below are the "event_types" from Suricata/Sagan. This tells Meer what to send
+       # to the named pipe/FIFO. 
+
+       alert: enabled
+       files: enabled
+       flow: enabled
+       dns: enabled
+       http: enabled
+       tls: enabled
+       ssh: enabled
+       smtp: enabled
+       fileinfo: enabled
+       dhcp: enabled
+
+
+enabled
+~~~~~~~
+
+Enabled/disabled the 'pipe' output. 
+
+pipe_location
+~~~~~~~~~~~~~
+
+Location of the named pipe on the file system.
+
+pipe_size
+~~~~~~~~~
+
+Number of bytes will set the size of the named pipe/FIFO to.  
+
+metadata
+~~~~~~~~
+
+This option controls Meer's ability to record decoded alert metadata to the named pipe.
+If "metadata" is detected within the EVE/JSON  and the ``metadata``
+decoder is enabled (controlled in the ``meer-core``),  then it will be recorded to the named
+pipe.
+
+flow
+~~~~
+
+This option controls Meer's ability to record decoded alert flow to named pipe.
+If "flow" is detected within the EVE/JSON  and the ``flow``
+decoder is enabled (controlled in the ``meer-core``),  then it will be recorded to the 
+named pipe.
+
+http
+~~~~
+
+This option controls Meer's ability to record decoded alert http to the named pipe.
+If "http" is detected within the EVE/JSON  and the ``http``
+decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
+to the named pipe.
+
+tls
+~~~
+
+This option controls Meer's ability to record decoded alert tls to the named pipe.
+If "tls" is detected within the EVE/JSON  and the ``tls``
+decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
+to the named pipe.
+
+ssh
+~~~
+
+This option controls Meer's ability to record decoded alert ssh to the named pipe.
+If "ssh" is detected within the EVE/JSON  and the ``ssh``
+decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
+to the named pipe.
+
+smtp
+~~~
+
+This option controls Meer's ability to record decoded alert smtp to the named pipe.
+If "smtp" is detected within the EVE/JSON  and the ``smtp``
+decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
+to the named pipe.
+
+email
+~~~~~
+
+This option controls Meer's ability to record decoded alert email to the named pipe.
+If "email" is detected within the EVE/JSON  and the ``email``
+decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
+to the named pipe.  This is not to be confused with the ``smtp`` table.
+
+fileinfo
+~~~~~~~~
+
+This option controls Meer's ability to record decoded alert fileinfo to the named pipe.
+If "fileinfo" is detected within the EVE/JSON  and the ``fileinfo``
+decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
+to the named pipe.
+
+dhcp
+~~~~
+
+This option controls Meer's ability to record decoded alert dhcp to the named pipe.
+If "dhcp" is detected within the EVE/JSON  and the ``dhcp``
+decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
+to the named pipe.
+
+
 
 File
 ----
@@ -210,127 +591,8 @@ The ``sid_file`` is a legacy "signature message map" file that points signature
 IDs to their references.  If you want to use the legacy ``reference_system``, 
 you will need a "signature message map" (``sid_file``) for Meer to read.
 
-
-"pipe" output
--------------
-
-Below is an example of the "pipe" output plugin.  This takes data being written to the EVE
-file and puts it into a named pipe (FIFO).  This can be useful if you want a third party
-program (for example, Sagan - https://sagan.io) to analyze the data. 
-
-::
-
-   pipe:
-
-       enabled: no
-       pipe_location: /var/sagan/fifo/sagan.fifo
-       pipe_size: 1048576                        # System must support F_GETPIPE_SZ/F_SETPIPE_SZ
-       metadata: enabled
-
-       # Below are the "event_types" from Suricata/Sagan. This tells Meer what to send
-       # to the named pipe/FIFO. 
-
-       alert: enabled
-       files: enabled
-       flow: enabled
-       dns: enabled
-       http: enabled
-       tls: enabled
-       ssh: enabled
-       smtp: enabled
-       fileinfo: enabled
-       dhcp: enabled
-
-
-enabled
-~~~~~~~
-
-Enabled/disabled the 'pipe' output. 
-
-pipe_location
-~~~~~~~~~~~~~
-
-Location of the named pipe on the file system.
-
-pipe_size
-~~~~~~~~~
-
-Number of bytes will set the size of the named pipe/FIFO to.  
-
-metadata
-~~~~~~~~
-
-This option controls Meer's ability to record decoded alert metadata to the named pipe.
-If "metadata" is detected within the EVE/JSON  and the ``metadata``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded to the named
-pipe.
-
-flow
-~~~~
-
-This option controls Meer's ability to record decoded alert flow to named pipe.
-If "flow" is detected within the EVE/JSON  and the ``flow``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded to the 
-named pipe.
-
-http
-~~~~
-
-This option controls Meer's ability to record decoded alert http to the named pipe.
-If "http" is detected within the EVE/JSON  and the ``http``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-tls
-~~~
-
-This option controls Meer's ability to record decoded alert tls to the named pipe.
-If "tls" is detected within the EVE/JSON  and the ``tls``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-ssh
-~~~
-
-This option controls Meer's ability to record decoded alert ssh to the named pipe.
-If "ssh" is detected within the EVE/JSON  and the ``ssh``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-smtp
-~~~
-
-This option controls Meer's ability to record decoded alert smtp to the named pipe.
-If "smtp" is detected within the EVE/JSON  and the ``smtp``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-email
-~~~~~
-
-This option controls Meer's ability to record decoded alert email to the named pipe.
-If "email" is detected within the EVE/JSON  and the ``email``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.  This is not to be confused with the ``smtp`` table.
-
-fileinfo
-~~~~~~~~
-
-This option controls Meer's ability to record decoded alert fileinfo to the named pipe.
-If "fileinfo" is detected within the EVE/JSON  and the ``fileinfo``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-dhcp
-~~~~
-
-This option controls Meer's ability to record decoded alert dhcp to the named pipe.
-If "dhcp" is detected within the EVE/JSON  and the ``dhcp``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-"external" output
------------------
+External
+--------
 
 This option allows signatures to call "external" programs.  For example,  if a signature the
 proper "metadata" (``metadata: meer external`` or a set policy),  Meer will fork a copy
@@ -436,161 +698,4 @@ program
 ~~~~~~~
 
 ``external`` program to execute when conditions are met. 
-
-Redis output
-------------
-
-This controls how Meer logs to a Redis database.  Meer can record alert records to 
-Redis similar to how Suricata with Redis support enabled does.  Redis is also used
-as a temporary storage engine for ``client_stats`` (Sagan only) and ``fingerprint``
-data if enabled.
-
-::
-
-     ###########################################################################
-     # "redis" allows you to send Suricata/Sagan EVE data to a Redis database. 
-     # This will mimic the way Suricata writes EVE data to Redis with the 
-     # exception of "client_stats" which is a Sagan specific processor. 
-     ###########################################################################
-
-     redis:
-
-       enabled: no
-       debug: no
-       server: 127.0.0.1
-       port: 6379
-       batch: 10                # Batch/pipelining mode. Max is 100. 1 == no batching.
-       key: "suricata"	        # Default 'key' or 'channel' to use. 
-       mode: list               # How to publish data to Redis.  Valid types are list/lpush, 
-                                # rpush, channel|publish.
-
-       # This controls event_types to send to Redis. 
-
-       alert: enabled
-       files: enabled
-       flow: enabled
-       dns: enabled
-       http: enabled
-       tls: enabled
-       ssh: enabled
-       smtp: enabled
-       fileinfo: enabled
-       dhcp: enabled
-
-       # Fingerprint data can be temporarily stored in a Redis database.  When an alert
-       # fires, this information can be used to determine the targets operating system, 
-       # type (client/server), etc.  This can be useful in determining the validity of
-       # an event. If used in conjunction with the SQL output,  the fingerprint data for
-       # the targeted system is stored in the 'fingerprint' table.
-
-       fingerprint: enabled
-
-       # This controls sending Sagan client tracking data to Redis.  This has no affect 
-       # on Suricata systems. 
-
-       client_stats: disabled
-
-
-enabled
-~~~~~~~
-
-Enable or disable the Redis output.
-
-debug
-~~~~~
-
-Enable or disabled Redis debugging.
-
-server
-~~~~~~
-
-The Redis server address you want to store data to.
-
-port
-~~~~
-
-Port of the target Redis server.
-
-batch
-~~~~~
-
-The ``batch`` is the amount of data to collect before sending it to Redis.  This has no 
-affect when using Redis with either ``client_stats`` or ``fingerprint`` data.
-
-key
-~~~
-
-The ``key`` is the default Redis channel or key to use. 
-
-mode
-~~~~
-
-The ``mode`` controls how data is stored to Redis.  Valid options are ``list``, ``lpush``, 
-``rpush``, ``channel`` or ``publish``.  The default is ``list``.  The method Meer stores the
-data is compatible with Suricata's Redis output format.  Note; This option does not have any
-affect on ``client_stats`` or ``fingerprint`` recording.
-
-alert
-~~~~~
-
-Enable or disable storing ``alert`` data into Redis.
-
-files
-~~~~~
-
-Enable or disable storing ``files`` data into Redis.
-
-flow
-~~~~
-
-Enable or disable storing ``flow`` data into Redis.
-
-dns
-~~~
-
-Enable or disable storing ``dns`` data into Redis.
-
-http
-~~~~
-
-Enable or disable storing ``http`` data into Redis.
-
-tls
-~~~
-
-Enable or disable storing ``tls`` data into Redis.
-
-ssh
-~~~
-
-Enable or disable storing ``ssh`` data into Redis.
-
-smtp
-~~~~
-
-Enable or disable storing ``smtp`` data into Redis.
-
-fileinfo
-~~~~~~~~
-
-Enable or disable storing ``fileinfo`` data into Redis.
-
-dhcp
-~~~~
-
-Enable or disable storing ``dhcp`` data into Redis.
-
-
-fingerprint
-~~~~~~~~~~~
-
-Enable or disable storing ``fingerprint`` data in the Redis database.  This is a temporary 
-storage system for ``fingerprint`` data.   This allows correlation between device fingerprints
-(ie - operating systems, devices types, etc) with alerts. 
-
-client_stats
-~~~~~~~~~~~~
-
-This is a Sagan only option.  This option temporarily stores devices that are sending Sagan 
-logs along with an example log entry.   This has no affect with Suricata. 
 
