@@ -216,7 +216,11 @@ int main (int argc, char *argv[])
 
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, "Fingerprint support    : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );
+
+#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
     Meer_Log(NORMAL, "Health updates         : %s", MeerConfig->health ? "enabled" : "disabled" );
+#endif
+
     Meer_Log(NORMAL, "");
 
 #ifdef HAVE_LIBMAXMINDDB

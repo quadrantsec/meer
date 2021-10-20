@@ -1910,13 +1910,6 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
-                            if ( MeerOutput->elasticsearch_flag == true && !strcmp(last_pass, "bluedot") )
-                                {
-                                    if (!strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerOutput->elasticsearch_bluedot = true;
-                                        }
-                                }
                         }
 
 
