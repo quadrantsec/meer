@@ -168,7 +168,9 @@ void Get_OUI( struct json_object *json_obj, char *str, size_t size )
 
                     strlcpy(new_json_string, json_object_to_json_string(jobj_obj_new), PACKET_BUFFER_SIZE_DEFAULT);
                     new_json_string[ strlen(new_json_string) -2 ] = '\0';
+
                     snprintf(final_json, PACKET_BUFFER_SIZE_DEFAULT, "%s, \"dhcp\": %s }", new_json_string, json_object_to_json_string(json_obj_dhcp) );
+		    final_json[ sizeof(final_json) - 1] = '\0';
 
                     json_object_put(json_obj_dhcp);
                     snprintf(str, size, "%s\n", final_json);

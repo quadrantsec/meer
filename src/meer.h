@@ -99,19 +99,6 @@ struct _MeerConfig
     bool client_stats;
     uint8_t client_stats_type;
 
-    /* What ever to record */
-
-//    bool flow;
-//    bool http;
-//    bool tls;
-//    bool ssh;
-//    bool smtp;
-//    bool email;
-//    bool dns_meta;	/* NOT DONE */
-//    bool metadata;
-//    bool json;
-//    bool bluedot;
-
 };
 
 typedef struct _MeerHealth _MeerHealth;
@@ -233,8 +220,6 @@ struct _MeerOutput
     bool elasticsearch_dnp3;
     bool elasticsearch_anomaly;
     bool elasticsearch_bluedot;
-    //bool elasticsearch_fingerprint;
-
 
 #endif
 
@@ -252,19 +237,6 @@ struct _MeerOutput
 
     bool sql_reconnect;
     uint32_t sql_reconnect_time;
-
-    /*
-        bool sql_flow;
-        bool sql_http;
-        bool sql_tls;
-        bool sql_ssh;
-        bool sql_smtp;
-        bool sql_email;
-        bool sql_metadata;
-        bool sql_json;
-        bool sql_stats;
-        bool sql_bluedot;
-        */
 
     char sql_driver;
 
@@ -349,12 +321,10 @@ struct _MeerOutput
     bool file_dnp3;
     bool file_anomaly;
 
-
     bool pipe_enabled;
     char pipe_location[256];
     int  pipe_fd;
     uint32_t pipe_size;
-
 
     bool pipe_alert;
     bool pipe_files;
@@ -382,21 +352,6 @@ struct _MeerOutput
     bool pipe_dnp3;
     bool pipe_anomaly;
     bool pipe_bluedot;
-
-    /*
-        bool pipe_alert;
-        bool pipe_files;
-        bool pipe_flow;
-        bool pipe_http;
-        bool pipe_smtp;
-        bool pipe_ssh;
-        bool pipe_tls;
-        bool pipe_dns;
-        bool pipe_fileinfo;
-        bool pipe_dhcp;
-        bool pipe_bluedot;
-    */
-
 
 };
 
