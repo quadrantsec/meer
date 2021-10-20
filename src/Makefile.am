@@ -17,6 +17,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      util-dns.c \
 							      get-dns.c \
 							      get-geoip.c \
+							      get-oui.c \
 							      lockfile.c \
 							      counters.c \
 							      stats.c \

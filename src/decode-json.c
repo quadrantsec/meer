@@ -53,6 +53,7 @@ libjson-c is required for Meer to function!
 #include "meer-def.h"
 #include "output.h"
 #include "get-dns.h"
+#include "get-oui.h"
 #include "counters.h"
 
 #ifdef HAVE_LIBMAXMINDDB
@@ -141,6 +142,15 @@ bool Decode_JSON( char *json_string )
         }
 
 #endif
+
+    /* Add OUI / Mac data */
+
+    if ( MeerConfig->oui == true && !strcmp( event_type, "dhcp"  ) )
+        {
+	    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+            json_string = Get_OUI( json_obj, new_json_string, PACKET_BUFFER_SIZE_DEFAULT );
+	    json_string = new_json_string;
+        }
 
 #if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
 
