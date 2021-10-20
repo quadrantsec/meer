@@ -9,7 +9,8 @@ Meer User Guide
    install.rst
    command-line-options
    starting-meer
-   configuration
+   database
+   redis
    console-output
    getting-help
 

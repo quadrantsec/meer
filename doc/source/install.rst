@@ -22,12 +22,25 @@ MariaDB/MySQL/PostgreSQL
 
 Before compiling and installing Meer,  you will need to determine where you want your data to reside.  Currently,  Meer supports MariaDB, MySQL and PostgreSQL.  In order to build Meer, you will need one or more of these installed with all development files.  For example,  Ubuntu/Debian systems can install via:
 
-.. option:: apt-get install mariadb-dev  # For MariaDB
+.. option:: sudo apt-get install mariadb-dev  # For MariaDB
 
-.. option:: apt-get install libmysqlclient-dev # For MySQL 
+.. option:: sudo apt-get install libmysqlclient-dev # For MySQL 
 
-.. option:: apt-get install libpq-dev # For PostgreSQL
+.. option:: sudo apt-get install libpq-dev # For PostgreSQL
 
+Redis
+~~~~~
+
+If you would like to have Meer store data into Redis,  which is enabled by default during compile time,  you will need the "hiredis" library and development files.  On Ubuntu/Debian systems:
+
+.. option:: sudo apt-get install libhiredis-dev
+
+Elasticsearch
+~~~~~~~~~~~~~
+
+If you would like Meer to use the 'elasticsearch' output plugin,  then you'll need to install libcurl.  To do this on Ubuntu/Debian systems,  do the following:
+
+.. option:: apt-get install libcurl4-openssl-dev
 
 Source
 ------
@@ -43,8 +56,7 @@ Basic steps::
     make
     sudo make install
 
-By default, this will install Meer into the ``/usr/local/bin/`` directory with the default Meer configuration file in the ``/usr/local/etc/`` directory.  By default, 
-Meer will compile with MySQL/MariaDB support.
+By default, this will install Meer into the ``/usr/local/bin/`` directory with the default Meer configuration file in the ``/usr/local/etc/`` directory.  By default, Meer will compile with only Redis support.
 
 Common configure options
 ^^^^^^^^^^^^^^^^^^^^^^^^
