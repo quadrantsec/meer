@@ -9,8 +9,11 @@ Meer User Guide
    install.rst
    command-line-options
    starting-meer
-   database
    redis
+   elastic
+   pipe
+   file
+   database
    console-output
    getting-help
 
