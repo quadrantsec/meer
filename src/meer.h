@@ -110,7 +110,7 @@ struct _MeerConfig
 //    bool dns_meta;	/* NOT DONE */
 //    bool metadata;
 //    bool json;
-    bool bluedot;
+//    bool bluedot;
 
 };
 
@@ -140,6 +140,7 @@ struct _MeerOutput
 #endif
 
 #ifdef HAVE_LIBHIREDIS
+
     bool redis_flag;
     char redis_server[255];
     int  redis_port;

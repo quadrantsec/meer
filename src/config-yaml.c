@@ -283,13 +283,14 @@ void Load_YAML_Config( char *yaml_file )
                                 {
                                     sub_type = YAML_MEER_FILE;
                                 }
-
+/*
 #ifdef WITH_BLUEDOT
                             if ( !strcmp(value, "bluedot") )
                                 {
                                     sub_type = YAML_MEER_BLUEDOT;
                                 }
 #endif
+*/
 
 #ifdef WITH_ELASTICSEARCH
                             if ( !strcmp(value, "elasticsearch") )
@@ -486,6 +487,7 @@ void Load_YAML_Config( char *yaml_file )
                                                             }
 
                             */
+				    /*
                             else if ( !strcmp(last_pass, "bluedot" ) )
                                 {
 
@@ -495,6 +497,8 @@ void Load_YAML_Config( char *yaml_file )
                                         }
 
                                 }
+
+				*/
 
                             else if ( !strcmp(last_pass, "fingerprint" ) )
                                 {

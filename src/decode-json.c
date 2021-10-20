@@ -78,8 +78,8 @@ bool Decode_JSON( char *json_string )
     struct json_object *json_obj = NULL;
     struct json_object *tmp = NULL;
 
-    char tmp_type[32] = { 0 };
-    bool bad_json = false;
+//    char tmp_type[32] = { 0 };
+//    bool bad_json = false;
     bool fingerprint_return = false;
 
     const char *event_type = NULL;

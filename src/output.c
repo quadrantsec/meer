@@ -44,6 +44,7 @@
 #include "meer.h"
 #include "meer-def.h"
 #include "util.h"
+#include "util-dns.h"
 #include "output.h"
 #include "references.h"
 #include "sid-map.h"
@@ -375,6 +376,7 @@ void Init_Output( void )
             MeerOutput->sql_sensor_id = SQL_Get_Sensor_ID();
             MeerOutput->sql_last_cid = SQL_Get_Last_CID() + 1;
 
+	    /*
             Meer_Log(NORMAL, "");
             Meer_Log(NORMAL, "Record 'json'    : %s", MeerOutput->sql_json ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Record 'metadata': %s", MeerOutput->sql_metadata ? "enabled" : "disabled" );
@@ -386,6 +388,7 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Record 'email'   : %s", MeerOutput->sql_email ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Record 'bluedot' : %s", MeerOutput->sql_bluedot ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "");
+	    */
 
         }
 
@@ -740,15 +743,15 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
                             SQL_Insert_Syslog_Data( DecodeAlert );
                         }
 
-                    if ( MeerConfig->json == true )
-                        {
+//                    if ( MeerConfig->json == true )
+//                        {
                             SQL_Insert_JSON ( DecodeAlert );
-                        }
+//                        }
 
-                    if ( MeerConfig->dns == true )
-                        {
+//                    if ( MeerConfig->dns == true )
+//                        {
                             SQL_Insert_DNS ( DecodeAlert );
-                        }
+//                        }
 
                     /* We can have multiple "xff" fields in extra data */
 
@@ -802,10 +805,10 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
                             SQL_Insert_Email ( DecodeAlert );
                         }
 
-                    if ( DecodeAlert->has_bluedot == true ) // && MeerConfig->bluedot == true )
-                        {
-                            SQL_Insert_Bluedot ( DecodeAlert );
-                        }
+//                    if ( DecodeAlert->has_bluedot == true ) // && MeerConfig->bluedot == true )
+//                        {
+//                            SQL_Insert_Bluedot ( DecodeAlert );
+//                        }
 
                     /* Record CID in case of crash/disconnections */
 
@@ -883,7 +886,7 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
     char *meer = NULL;
 
     char alert_metadata[1024] = { 0 };
-    bool meer_flag = false;
+//    bool meer_flag = false;
 
     /* We treat alerts "special".  We allow some filtering to happen, if the
        user wants, before we send alert EVE to external programs */
@@ -896,7 +899,7 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
                 {
                     External( json_string );
                     json_object_put(json_obj_meta);
-                    return(0);
+                    return(true);
                 }
 
             if (json_object_object_get_ex(json_obj, "alert", &tmp))
@@ -1039,156 +1042,157 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
     if ( !strcmp(event_type, "files" ) && MeerOutput->external_files == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "flow" ) && MeerOutput->external_flow == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "dns" ) && MeerOutput->external_dns == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "http" ) && MeerOutput->external_http == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "tls" ) && MeerOutput->external_tls == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "ssh" ) && MeerOutput->external_ssh == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "smtp" ) && MeerOutput->external_smtp == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "email" ) && MeerOutput->external_email == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "fileinfo" ) && MeerOutput->external_fileinfo == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "dhcp" ) && MeerOutput->external_dhcp == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "stats" ) && MeerOutput->external_stats == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "rdp" ) && MeerOutput->external_rdp == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "sip" ) && MeerOutput->external_sip == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
 
     else if ( !strcmp(event_type, "ftp" ) && MeerOutput->external_ftp == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "ikev2" ) && MeerOutput->external_ikev2 == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "nfs" ) && MeerOutput->external_nfs == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "tftp" ) && MeerOutput->external_tftp == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "smb" ) && MeerOutput->external_smb == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
 
     else if ( !strcmp(event_type, "mqtt" ) && MeerOutput->external_mqtt == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
 
     else if ( !strcmp(event_type, "dcerpc" ) && MeerOutput->external_dcerpc == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "netflow" ) && MeerOutput->external_netflow == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "metadata" ) && MeerOutput->external_metadata == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "dnp3" ) && MeerOutput->external_dnp3 == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "anomaly" ) && MeerOutput->external_anomaly == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
     else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->external_bluedot == true )
         {
             External( json_string );
-            return(0);
+            return(true);
         }
 
+    return(false);
 }
 
 /****************************************************************************
@@ -1235,10 +1239,10 @@ void Output_Stats ( char *json_string )
             hostname =  (char *)json_object_get_string(tmp);
         }
 
-    if ( MeerOutput->sql_stats == true )
-        {
+//    if ( MeerOutput->sql_stats == true )
+//        {
             SQL_Insert_Stats ( json_string, timestamp, hostname );
-        }
+//        }
 
 #endif
 
@@ -1271,7 +1275,7 @@ bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
                             Bluedot( DecodeAlert );
 
                             json_object_put(json_obj);
-                            return;
+                            return(true);
                         }
 
                 }
@@ -1280,6 +1284,7 @@ bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
 
     json_object_put(json_obj);
 
+    return(false);
 }
 
 #endif
@@ -1498,6 +1503,7 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
 
         }
 
+    return(true);
 }
 
 #endif
@@ -1666,6 +1672,8 @@ bool Output_File ( const char *json_string, const char *event_type )
 
 }
 
+#ifdef HAVE_LIBHIREDIS
+
 bool Output_Redis( const char *json_string, const char *event_type )
 {
 
@@ -1829,3 +1837,5 @@ bool Output_Redis( const char *json_string, const char *event_type )
     return(false);
 
 }
+
+#endif

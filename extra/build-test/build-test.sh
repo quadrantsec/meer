@@ -113,7 +113,6 @@ for I in $ALLFLAGS
 do
 
 make clean
-cd tools && make clean && cd .. 
 
 echo "**** FLAGS $I *****"
 echo "**** FLAGS $I *****" >> $LOG
