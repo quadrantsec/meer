@@ -14,7 +14,7 @@ Meer User Guide
    elastic
    pipe
    file
-   database
+   sql
    console-output
    getting-help
 
