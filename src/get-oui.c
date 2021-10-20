@@ -33,8 +33,6 @@
 
 #include "get-oui.h"
 
-
-
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerCounters *MeerCounters;
 
@@ -42,8 +40,6 @@ void Get_OUI( struct json_object *json_obj, char *str, size_t size )
 {
 
     struct json_object *tmp = NULL;
-
-//    char dhcp[1024] = { 0 };
 
     char mac[20] = { 0 };
 
@@ -81,111 +77,109 @@ void Get_OUI( struct json_object *json_obj, char *str, size_t size )
 
                     struct json_object *jobj_obj_new;
                     jobj_obj_new = json_object_new_object();
-		    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 }; 
-		    char final_json[PACKET_BUFFER_SIZE_DEFAULT] = { 0 }; 
+                    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+                    char final_json[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
-		    const char *timestamp = NULL;
-		    uint64_t flow_id = 0;
-		    const char *in_iface = NULL;
-		    const char *event_type = NULL;
-		    const char *src_ip = NULL;
-		    uint16_t src_port = 0; 
-		    const char *dest_ip = NULL;
-		    uint16_t dest_port = 0; 
-		    const char *proto = NULL;
-		    const char *host = NULL;
+                    const char *timestamp = NULL;
+                    uint64_t flow_id = 0;
+                    const char *in_iface = NULL;
+                    const char *event_type = NULL;
+                    const char *src_ip = NULL;
+                    uint16_t src_port = 0;
+                    const char *dest_ip = NULL;
+                    uint16_t dest_port = 0;
+                    const char *proto = NULL;
+                    const char *host = NULL;
 
-		    if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
-        		{
-				timestamp = json_object_get_string(tmp);
-			        json_object *jtimestamp = json_object_new_string( timestamp );
-				json_object_object_add(jobj_obj_new,"timestamp", jtimestamp);
+                    if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
+                        {
+                            timestamp = json_object_get_string(tmp);
+                            json_object *jtimestamp = json_object_new_string( timestamp );
+                            json_object_object_add(jobj_obj_new,"timestamp", jtimestamp);
 
-			}
+                        }
 
-		    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
-        		{
-				flow_id = json_object_get_int64(tmp);
-				json_object *jflow_id = json_object_new_int64( flow_id );
-				json_object_object_add(jobj_obj_new,"flow_id", jflow_id);
-			}
+                    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
+                        {
+                            flow_id = json_object_get_int64(tmp);
+                            json_object *jflow_id = json_object_new_int64( flow_id );
+                            json_object_object_add(jobj_obj_new,"flow_id", jflow_id);
+                        }
 
-		    if ( json_object_object_get_ex(json_obj, "in_iface", &tmp) )
-        		{
-			 	in_iface = json_object_get_string(tmp);
-				json_object *jin_iface = json_object_new_string( in_iface );
-				json_object_object_add(jobj_obj_new,"in_iface", jin_iface);
-			}
+                    if ( json_object_object_get_ex(json_obj, "in_iface", &tmp) )
+                        {
+                            in_iface = json_object_get_string(tmp);
+                            json_object *jin_iface = json_object_new_string( in_iface );
+                            json_object_object_add(jobj_obj_new,"in_iface", jin_iface);
+                        }
 
-		    if ( json_object_object_get_ex(json_obj, "event_type", &tmp) )
-        		{
-			 	event_type = json_object_get_string(tmp);
-				json_object *jevent_type = json_object_new_string( event_type );
-				json_object_object_add(jobj_obj_new,"event_type", jevent_type);
-			}
+                    if ( json_object_object_get_ex(json_obj, "event_type", &tmp) )
+                        {
+                            event_type = json_object_get_string(tmp);
+                            json_object *jevent_type = json_object_new_string( event_type );
+                            json_object_object_add(jobj_obj_new,"event_type", jevent_type);
+                        }
 
-		    if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
-        		{
-			 	src_ip = json_object_get_string(tmp);
-				json_object *jsrc_ip = json_object_new_string( src_ip );
-				json_object_object_add(jobj_obj_new,"src_ip", jsrc_ip);
-			}
+                    if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
+                        {
+                            src_ip = json_object_get_string(tmp);
+                            json_object *jsrc_ip = json_object_new_string( src_ip );
+                            json_object_object_add(jobj_obj_new,"src_ip", jsrc_ip);
+                        }
 
-		    if ( json_object_object_get_ex(json_obj, "src_port", &tmp) )
-        		{
-			 	src_port = json_object_get_int(tmp);
-				json_object *jsrc_port = json_object_new_int( src_port );
-				json_object_object_add(jobj_obj_new,"src_port", jsrc_port);
-			}
+                    if ( json_object_object_get_ex(json_obj, "src_port", &tmp) )
+                        {
+                            src_port = json_object_get_int(tmp);
+                            json_object *jsrc_port = json_object_new_int( src_port );
+                            json_object_object_add(jobj_obj_new,"src_port", jsrc_port);
+                        }
 
-		    if ( json_object_object_get_ex(json_obj, "dest_ip", &tmp) )
-        		{
-			 	dest_ip = json_object_get_string(tmp);
-				json_object *jdest_ip = json_object_new_string( dest_ip );
-				json_object_object_add(jobj_obj_new,"dest_ip", jdest_ip);
-			}
+                    if ( json_object_object_get_ex(json_obj, "dest_ip", &tmp) )
+                        {
+                            dest_ip = json_object_get_string(tmp);
+                            json_object *jdest_ip = json_object_new_string( dest_ip );
+                            json_object_object_add(jobj_obj_new,"dest_ip", jdest_ip);
+                        }
 
-		    if ( json_object_object_get_ex(json_obj, "dest_port", &tmp) )
-        		{
-			 	dest_port = json_object_get_int(tmp);
-				json_object *jdest_port = json_object_new_int( dest_port );
-				json_object_object_add(jobj_obj_new,"dest_port", jdest_port);
-			}
+                    if ( json_object_object_get_ex(json_obj, "dest_port", &tmp) )
+                        {
+                            dest_port = json_object_get_int(tmp);
+                            json_object *jdest_port = json_object_new_int( dest_port );
+                            json_object_object_add(jobj_obj_new,"dest_port", jdest_port);
+                        }
 
-		    if ( json_object_object_get_ex(json_obj, "proto", &tmp) )
-        		{
-			 	proto = json_object_get_string(tmp);
-				json_object *jproto = json_object_new_string( proto );
-                                json_object_object_add(jobj_obj_new,"proto", jproto);
-				
-			}
+                    if ( json_object_object_get_ex(json_obj, "proto", &tmp) )
+                        {
+                            proto = json_object_get_string(tmp);
+                            json_object *jproto = json_object_new_string( proto );
+                            json_object_object_add(jobj_obj_new,"proto", jproto);
 
-		    if ( json_object_object_get_ex(json_obj, "host", &tmp) )
-        		{
-			 	host = json_object_get_string(tmp);
-				json_object *jhost = json_object_new_string( host );
-                                json_object_object_add(jobj_obj_new,"host", jhost);
-			}
+                        }
+
+                    if ( json_object_object_get_ex(json_obj, "host", &tmp) )
+                        {
+                            host = json_object_get_string(tmp);
+                            json_object *jhost = json_object_new_string( host );
+                            json_object_object_add(jobj_obj_new,"host", jhost);
+                        }
 
 
-			/* Tie everything back together */
+                    /* Tie everything back together */
 
-		strlcpy(new_json_string, json_object_to_json_string(jobj_obj_new), PACKET_BUFFER_SIZE_DEFAULT);
-                new_json_string[ strlen(new_json_string) -2 ] = '\0';
-                snprintf(final_json, PACKET_BUFFER_SIZE_DEFAULT, "%s, \"dhcp\": %s", new_json_string, json_object_to_json_string(json_obj_dhcp) );
+                    strlcpy(new_json_string, json_object_to_json_string(jobj_obj_new), PACKET_BUFFER_SIZE_DEFAULT);
+                    new_json_string[ strlen(new_json_string) -2 ] = '\0';
+                    snprintf(final_json, PACKET_BUFFER_SIZE_DEFAULT, "%s, \"dhcp\": %s }", new_json_string, json_object_to_json_string(json_obj_dhcp) );
 
-			json_object_put(json_obj_dhcp);	
-			json_object_put(jobj_obj_new);
+                    json_object_put(json_obj_dhcp);
+                    snprintf(str, size, "%s\n", final_json);
 
-//			return ( (char*) final_json );
-			printf("%s\n", final_json);
+                    return;
 
                 }
 
         }
 
-//    json_object_put(tmp);
-//    return ( (char*)json_object_to_json_string(json_obj) );
+    snprintf(str, size, "%s", (char*)json_object_to_json_string(json_obj) );
 
 }
 
