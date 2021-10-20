@@ -9,6 +9,7 @@ Meer User Guide
    install.rst
    command-line-options
    starting-meer
+   core
    redis
    elastic
    pipe
