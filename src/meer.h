@@ -166,7 +166,7 @@ struct _MeerOutput
     bool redis_metadata;
     bool redis_dnp3;
     bool redis_anomaly;
-    bool redis_bluedot;
+//    bool redis_bluedot;
     bool redis_client_stats;
 
 #endif
@@ -219,7 +219,7 @@ struct _MeerOutput
     bool elasticsearch_metadata;
     bool elasticsearch_dnp3;
     bool elasticsearch_anomaly;
-    bool elasticsearch_bluedot;
+//    bool elasticsearch_bluedot;
 
 #endif
 
@@ -288,7 +288,7 @@ struct _MeerOutput
     bool external_metadata;
     bool external_dnp3;
     bool external_anomaly;
-    bool external_bluedot;
+//    bool external_bluedot;
 
     bool file_enabled;
     FILE *file_fd;
@@ -306,7 +306,7 @@ struct _MeerOutput
     bool file_dns;
     bool file_fileinfo;
     bool file_dhcp;
-    bool file_bluedot;
+//    bool file_bluedot;
     bool file_rdp;
     bool file_sip;
     bool file_ftp;
@@ -351,7 +351,7 @@ struct _MeerOutput
     bool pipe_metadata;
     bool pipe_dnp3;
     bool pipe_anomaly;
-    bool pipe_bluedot;
+//    bool pipe_bluedot;
 
 };
 

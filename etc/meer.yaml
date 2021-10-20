@@ -221,8 +221,6 @@ output-plugins:
     metadata: enabled
     dnp3: enabled
     anomaly: enabled
-    bluedot: enabled
-
 
   ###########################################################################
   # pipe
@@ -266,7 +264,6 @@ output-plugins:
     metadata: enabled
     dnp3: enabled
     anomaly: enabled
-    bluedot: enabled
 
   ###########################################################################
   # external 
@@ -352,7 +349,6 @@ output-plugins:
     metadata: enabled
     dnp3: enabled
     anomaly: enabled
-    bluedot: enabled
 
     program: "/usr/local/bin/external_program"
 
@@ -415,7 +411,6 @@ output-plugins:
     metadata: enabled
     dnp3: enabled
     anomaly: enabled
-    bluedot: enabled
 
     # Fingerprint data can be temporarily stored in a Redis database.  When an alert
     # fires, this information can be used to determine the targets operating system, 
@@ -474,6 +469,4 @@ output-plugins:
     metadata: enabled
     dnp3: enabled
     anomaly: enabled
-    bluedot: enabled
-
 
