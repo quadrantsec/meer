@@ -3,28 +3,30 @@ Installation
 
 There are currently no binary packages of Meer available.  However,  installation from source is pretty straightforward.
 
-Prerequisites
--------------
+Required Prerequisites
+----------------------
 
-Before compiling and installing Meer,  you will need to determine where you want your data to reside.  Currently,  Meer supports MariaDB, 
-MySQL and PostgreSQL.  In order to build Meer, you will need one or more of these installed with all development files.  For
-example,  Ubuntu/Debian systems can install via:
+Meer uses a YAML configuration file.  This means that Meer will need libyaml installed on the system.  On Ubuntu/Debian systems,  this can be installed via:
+
+.. option:: apt-get install libyaml-dev
+
+Meer uses `JSON-C <https://github.com/json-c/json-c>`_ to parse JSON (EVE) output from Sagan and Suricata.  On Ubuntu/Debian systems, this prerequisite can be installed via:
+
+.. option:: apt-get install libjson-c-dev
+
+Optional Prerequisites
+----------------------
+
+MariaDB/MySQL/PostgreSQL
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before compiling and installing Meer,  you will need to determine where you want your data to reside.  Currently,  Meer supports MariaDB, MySQL and PostgreSQL.  In order to build Meer, you will need one or more of these installed with all development files.  For example,  Ubuntu/Debian systems can install via:
 
 .. option:: apt-get install mariadb-dev  # For MariaDB
 
 .. option:: apt-get install libmysqlclient-dev # For MySQL 
 
 .. option:: apt-get install libpq-dev # For PostgreSQL
-
-Meer uses a YAML configuration file.  This means that Meer will need libyaml installed on the system.  On Ubuntu/Debian 
-systems,  this can be installed via:
-
-.. option:: apt-get install libyaml-dev
-
-Meer uses `JSON-C <https://github.com/json-c/json-c>`_ to parse JSON output from Sagan and Suricata.   On Ubuntu/Debian 
-systems, this prerequisite can be installed via:
-
-.. option:: apt-get install libjson-c-dev
 
 
 Source
