@@ -123,70 +123,6 @@ The ``mode`` controls how data is stored to Redis.  Valid options are ``list``, 
 data is compatible with Suricata's Redis output format.  Note; This option does not have any
 affect on ``client_stats`` or ``fingerprint`` recording.
 
-alert
-~~~~~
-
-Enable or disable storing ``alert`` data into Redis.
-
-files
-~~~~~
-
-Enable or disable storing ``files`` data into Redis.
-
-flow
-~~~~
-
-Enable or disable storing ``flow`` data into Redis.
-
-dns
-~~~
-
-Enable or disable storing ``dns`` data into Redis.
-
-http
-~~~~
-
-Enable or disable storing ``http`` data into Redis.
-
-tls
-~~~
-
-Enable or disable storing ``tls`` data into Redis.
-
-ssh
-~~~
-
-Enable or disable storing ``ssh`` data into Redis.
-
-smtp
-~~~~
-
-Enable or disable storing ``smtp`` data into Redis.
-
-fileinfo
-~~~~~~~~
-
-Enable or disable storing ``fileinfo`` data into Redis.
-
-dhcp
-~~~~
-
-Enable or disable storing ``dhcp`` data into Redis.
-
-
-fingerprint
-~~~~~~~~~~~
-
-Enable or disable storing ``fingerprint`` data in the Redis database.  This is a temporary 
-storage system for ``fingerprint`` data.   This allows correlation between device fingerprints
-(ie - operating systems, devices types, etc) with alerts. 
-
-client_stats
-~~~~~~~~~~~~
-
-This is a Sagan only option.  This option temporarily stores devices that are sending Sagan 
-logs along with an example log entry.   This has no affect with Suricata. 
-
 Elasticsearch
 -------------
 
@@ -443,80 +379,6 @@ pipe_size
 
 Number of bytes will set the size of the named pipe/FIFO to.  
 
-metadata
-~~~~~~~~
-
-This option controls Meer's ability to record decoded alert metadata to the named pipe.
-If "metadata" is detected within the EVE/JSON  and the ``metadata``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded to the named
-pipe.
-
-flow
-~~~~
-
-This option controls Meer's ability to record decoded alert flow to named pipe.
-If "flow" is detected within the EVE/JSON  and the ``flow``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded to the 
-named pipe.
-
-http
-~~~~
-
-This option controls Meer's ability to record decoded alert http to the named pipe.
-If "http" is detected within the EVE/JSON  and the ``http``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-tls
-~~~
-
-This option controls Meer's ability to record decoded alert tls to the named pipe.
-If "tls" is detected within the EVE/JSON  and the ``tls``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-ssh
-~~~
-
-This option controls Meer's ability to record decoded alert ssh to the named pipe.
-If "ssh" is detected within the EVE/JSON  and the ``ssh``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-smtp
-~~~
-
-This option controls Meer's ability to record decoded alert smtp to the named pipe.
-If "smtp" is detected within the EVE/JSON  and the ``smtp``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-email
-~~~~~
-
-This option controls Meer's ability to record decoded alert email to the named pipe.
-If "email" is detected within the EVE/JSON  and the ``email``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.  This is not to be confused with the ``smtp`` table.
-
-fileinfo
-~~~~~~~~
-
-This option controls Meer's ability to record decoded alert fileinfo to the named pipe.
-If "fileinfo" is detected within the EVE/JSON  and the ``fileinfo``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-dhcp
-~~~~
-
-This option controls Meer's ability to record decoded alert dhcp to the named pipe.
-If "dhcp" is detected within the EVE/JSON  and the ``dhcp``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the named pipe.
-
-
-
 File
 ----
 
@@ -572,64 +434,50 @@ the SQL output.
 
 ::
 
-   output-plugins:
+  ###########################################################################
+  # sql
+  #
+  # This enabled MySQL/MariaDB or PostgreSQL output support.  This writes 
+  # Suricata & Sagan data into a "Barnyard2" like database schema.  This
+  # will likely go away in Meer 2.0
+  ###########################################################################
 
-     # MySQL/MariaDB output - Stores data from Suricata or Sagan into a semi-
-     # traditional "Barnyard2/Snort"-like database.
+  sql:
 
-     sql:
+    enabled: yes
+    driver: mysql        # "mysql" or "postgresql"
+    debug: no
+    server: 127.0.0.1
+    port: 3306           # Change to 5432 for PostgreSQL 
+    username: "XXXX"
+    password: "XXXXXX"
+    database: "snort_test"
 
-       enabled: yes
-       driver: mysql        # "mysql" or "postgresql"
-       port: 3306           # Change to 5432 for PostgreSQL
-       debug: no
-       server: 127.0.0.1
-       port: 3306
-       username: "XXXX"
-       password: "XXXXXX"
-       database: "snort_test"
+    # Automatically reconnect to the database when disconnected.
 
-       # Automatically reconnect to the database when disconnected.
+    reconnect: enabled
+    reconnect_time: 10 
 
-       reconnect: enabled
-       reconnect_time: 10
+    # Store decoded JSON data that is similar to Unified2 "extra" data to the
+    # "extra" table.
 
-       # Store decoded JSON data that is similar to Unified2 "extra" data to the
-       # "extra" table.
+    extra_data: enabled
 
-       extra_data: enabled
+    # If you would like Meer to mimic the legacy "reference" tables from
+    # Snort/Barnyard2, enable it here.  If your using more than one database
+    # to store Suricata or Sagan data, you'll likely want to leave this 
+    # disabled. The legacy reference system isn't very efficient and there's
+    # better ways to keep track of this data.  This is also a memory hog and
+    # performance killer.  See tools/reference_handler/reference_handler.pl to
+    # build a centralized reference table.  This will go away in Meer version
+    # 2.0.
 
-       # Store extra decoded JSON metadata from Suricata or Sagan.  This requires
-       # your database to have the metadata, flow, http, etc. tables.  If all are
-       # disabled,  Meer will store data in strictly a Barnyard2/Snort method.
-       # If you want to store this decoded information,  and you likely do,  make
-       # sure you have the decoders enabled in the "core" section of this Meer
-       # configuration file!
+    reference_system: disabled
+    sid_file: "/etc/suricata/rules/sid-msg.map"	  # Created with "create-sidmap"
+    reference: "/etc/suricata/reference.config"
 
-       metadata: enabled
-       flow: enabled
-       http: enabled
-       tls: enabled
-       ssh: enabled
-       smtp: enabled
-       email: enabled
-       json: enabled
-
-       # If you would like Meer to mimic the legacy "reference" tables from
-       # Snort/Barnyard2, enable it here.  If you are using more than one database
-       # to store Suricata or Sagan data, you will likely want to leave this
-       # disabled. The legacy reference system is not very efficient and there are
-       # better ways to keep track of this data.  This is also a memory hog and
-       # performance killer.  See tools/reference_handler/reference_handler.pl to
-       # build a centralized reference table.
-
-       reference_system: disabled
-       sid_file: "/etc/suricata/rules/sid-msg.map"   # Created with "create-sidmap"
-       reference: "/etc/suricata/reference.config"
-
-       #sid_file: "/usr/local/etc/sagan-rules/sagan-sid-msg.map"
-       #reference: "/usr/local/etc/sagan-rules/reference.config"
-
+    #sid_file: "/usr/local/etc/sagan-rules/sagan-sid-msg.map"
+    #reference: "/usr/local/etc/sagan-rules/reference.config"
 
 enabled
 ~~~~~~~
