@@ -350,9 +350,6 @@ output-plugins:
     dnp3: enabled
     anomaly: enabled
 
-    program: "/usr/local/bin/external_program"
-
-
   ###########################################################################
   # redis
   # 
@@ -441,8 +438,8 @@ output-plugins:
     insecure: true                                      # Only applied when https is used.
     batch: 100						# Batch size per/writes.
     threads: 10						# Number of "writer" threads.
-#    username: "myusername"
-#    password: "mypassword"
+    #username: "myusername"
+    #password: "mypassword"
 
     alert: enabled
     files: enabled

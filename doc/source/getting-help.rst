@@ -1,10 +1,6 @@
 Getting help
 ============
 
-The primary Meer site is located at:
-
-https://quadrantsec.com/meer
-
 The Meer Github site is located at: 
 
 https://github.com/quadrantsec/meer 
