@@ -156,8 +156,6 @@ void Load_YAML_Config( char *yaml_file )
 
 #endif
 
-//    MeerOutput->external_based_on = MEER_EXTERNAL_POLICY;
-
     MeerConfig->client_stats = false;
     MeerConfig->oui = false;
 
@@ -294,12 +292,10 @@ void Load_YAML_Config( char *yaml_file )
 
 #endif
 
-#ifdef WITH_ELASTICSEARCH
                             if ( !strcmp(value, "elasticsearch") )
                                 {
                                     sub_type = YAML_MEER_ELASTICSEARCH;
                                 }
-#endif
 
                         }
 
@@ -1614,6 +1610,24 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
+                        }
+
+#endif
+
+
+#ifndef WITH_ELASTICSEARCH
+
+                    if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_ELASTICSEARCH )
+                        {
+
+                            if (!strcmp(last_pass, "enabled"))
+                                {
+                                    if (!strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                        {
+                                            Meer_Log(ERROR, "[%s, line %d] Meer was not compiled with Elasticsearch support!", __FILE__, __LINE__);
+                                        }
+
+                                }
                         }
 
 #endif

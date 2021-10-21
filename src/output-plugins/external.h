@@ -18,7 +18,4 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-#define		MEER_EXTERNAL_POLICY		1
-#define		MEER_EXTERNAL_ROUTE		2
-
 bool External( const char *json_string );
