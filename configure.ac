@@ -360,6 +360,8 @@ AC_DEFINE_UNQUOTED(PACKAGE_BUGREPORT, "cclark@quadrantsec.com" )
 AC_DEFINE_UNQUOTED(PACKAGE_TARNAME, "meer" )
 AC_DEFINE_UNQUOTED(PACKAGE_VERSION, "$VERSION" )
 
+CFLAGS="$CFLAGS -fPIC"                                                                                                 LDFLAGS="$LDFLAGS -Wl,--no-relax"
+
 AC_CONFIG_FILES([ \
 Makefile \
 src/Makefile])
