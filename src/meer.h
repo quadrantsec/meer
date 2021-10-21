@@ -59,6 +59,7 @@ struct _MeerConfig
     char interface[64];
     char hostname[64];
     char runas[32];
+    char description[128];
 
     bool daemonize;
     bool quiet;

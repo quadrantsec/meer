@@ -110,6 +110,7 @@ void Load_YAML_Config( char *yaml_file )
     MeerConfig->fingerprint = false;
 
     strlcpy(MeerConfig->meer_log, MEER_LOG, sizeof(MeerConfig->meer_log));
+    strlcpy(MeerConfig->description, MEER_DESC, sizeof( MeerConfig->description ));
 
     MeerOutput = (struct _MeerOutput *) malloc(sizeof(_MeerOutput));
 
@@ -284,14 +285,14 @@ void Load_YAML_Config( char *yaml_file )
                                     sub_type = YAML_MEER_FILE;
                                 }
 
-                            #ifdef WITH_BLUEDOT
+#ifdef WITH_BLUEDOT
 
                             if ( !strcmp(value, "bluedot") )
-                               {
-                               sub_type = YAML_MEER_BLUEDOT;
-                               }
+                                {
+                                    sub_type = YAML_MEER_BLUEDOT;
+                                }
 
-                            #endif
+#endif
 
 #ifdef WITH_ELASTICSEARCH
                             if ( !strcmp(value, "elasticsearch") )
@@ -308,6 +309,11 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(last_pass, "interface" ))
                                 {
                                     strlcpy(MeerConfig->interface, value, sizeof(MeerConfig->interface));
+                                }
+
+                            if ( !strcmp(last_pass, "description" ))
+                                {
+                                    strlcpy(MeerConfig->description, value, sizeof(MeerConfig->description));
                                 }
 
                             else if ( !strcmp(last_pass, "hostname" ))
@@ -1261,15 +1267,15 @@ void Load_YAML_Config( char *yaml_file )
                                                 }
                                         }
 
-/*
-                                    if ( !strcmp(last_pass, "bluedot" ))
-                                        {
-                                            if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                {
-                                                    MeerOutput->external_bluedot = true;
-                                                }
-                                        }
-					*/
+                                    /*
+                                                                        if ( !strcmp(last_pass, "bluedot" ))
+                                                                            {
+                                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                                                                    {
+                                                                                        MeerOutput->external_bluedot = true;
+                                                                                    }
+                                                                            }
+                                    					*/
 
                                 }
 
@@ -1590,15 +1596,15 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
-/*
-                            if ( !strcmp(last_pass, "bluedot" ))
-                                {
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerOutput->redis_bluedot = true;
-                                        }
-                                }
-				*/
+                            /*
+                                                        if ( !strcmp(last_pass, "bluedot" ))
+                                                            {
+                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                                                    {
+                                                                        MeerOutput->redis_bluedot = true;
+                                                                    }
+                                                            }
+                            				*/
 
                             if ( !strcmp(last_pass, "client_stats" ))
                                 {
@@ -2155,15 +2161,15 @@ void Load_YAML_Config( char *yaml_file )
                                             MeerOutput->file_dhcp = true;
                                         }
                                 }
-/*
-                            if ( !strcmp(last_pass, "bluedot" ) &&  MeerOutput->file_enabled == true )
-                                {
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerOutput->file_bluedot = true;
-                                        }
-                                }
-				*/
+                            /*
+                                                        if ( !strcmp(last_pass, "bluedot" ) &&  MeerOutput->file_enabled == true )
+                                                            {
+                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                                                    {
+                                                                        MeerOutput->file_bluedot = true;
+                                                                    }
+                                                            }
+                            				*/
 
                             if ( !strcmp(last_pass, "rdp" ) &&  MeerOutput->file_enabled == true )
                                 {
@@ -2525,15 +2531,15 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
-/*
-                            if ( !strcmp(last_pass, "bluedot" ) && MeerOutput->pipe_enabled == true )
-                                {
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerOutput->pipe_bluedot = true;
-                                        }
-                                }
-				*/
+                            /*
+                                                        if ( !strcmp(last_pass, "bluedot" ) && MeerOutput->pipe_enabled == true )
+                                                            {
+                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
+                                                                    {
+                                                                        MeerOutput->pipe_bluedot = true;
+                                                                    }
+                                                            }
+                            				*/
 
                         }
 

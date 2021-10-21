@@ -646,13 +646,13 @@ bool Output_Pipe ( const char *json_string, const char *event_type )
             Pipe_Write( json_string );
             return(true);
         }
-/*
-    else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->pipe_bluedot == true )
-        {
-            Pipe_Write( json_string );
-            return(true);
-        }
-	*/
+    /*
+        else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->pipe_bluedot == true )
+            {
+                Pipe_Write( json_string );
+                return(true);
+            }
+    	*/
 
 
     MeerCounters->JSONPipeMisses++;
@@ -1184,13 +1184,13 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
             External( json_string );
             return(true);
         }
-/*
-    else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->external_bluedot == true )
-        {
-            External( json_string );
-            return(true);
-        }
-	*/
+    /*
+        else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->external_bluedot == true )
+            {
+                External( json_string );
+                return(true);
+            }
+    	*/
 
     return(false);
 }
@@ -1445,13 +1445,13 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type )
             return(true);
         }
 
-/*
-    else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->elasticsearch_bluedot == true )
-        {
-            Output_Do_Elasticsearch( json_string, event_type );
-            return(true);
-        }
-	*/
+    /*
+        else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->elasticsearch_bluedot == true )
+            {
+                Output_Do_Elasticsearch( json_string, event_type );
+                return(true);
+            }
+    	*/
 
 
 //    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
@@ -1663,13 +1663,13 @@ bool Output_File ( const char *json_string, const char *event_type )
             return(true);
         }
 
-/*
-    else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->file_bluedot == true )
-        {
-            Output_Do_File( json_string );
-            return(true);
-        }
-	*/
+    /*
+        else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->file_bluedot == true )
+            {
+                Output_Do_File( json_string );
+                return(true);
+            }
+    	*/
 
 //    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     return(false);
@@ -1825,13 +1825,13 @@ bool Output_Redis( const char *json_string, const char *event_type )
             return(true);
         }
 
-/*
-    else if ( !strcmp( event_type, "bluedot") && MeerOutput->redis_bluedot == true )
-        {
-            JSON_To_Redis( json_string, event_type );
-            return(true);
-        }
-	*/
+    /*
+        else if ( !strcmp( event_type, "bluedot") && MeerOutput->redis_bluedot == true )
+            {
+                JSON_To_Redis( json_string, event_type );
+                return(true);
+            }
+    	*/
 
     else if ( !strcmp( event_type, "client_stats") && MeerOutput->redis_client_stats == true )
         {

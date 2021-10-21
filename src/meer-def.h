@@ -29,6 +29,7 @@
 #define MEER_LOG	"/var/log/meer.log"
 
 #define BAD_IP		"127.127.127.127"
+#define MEER_DESC	"My Awesome Sensor"
 
 #define NORMAL		0
 #define ERROR		1
