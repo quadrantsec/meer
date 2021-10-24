@@ -84,6 +84,8 @@ void Load_YAML_Config( char *yaml_file )
     char *ptr2 = NULL;
     char tmp[512] = { 0 };
 
+    bool routing = false;
+
 //#endif
 
     /* For fingerprint */
@@ -261,26 +263,31 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "sql") )
                                 {
                                     sub_type = YAML_MEER_SQL;
+				    routing == false;
                                 }
 
                             if ( !strcmp(value, "pipe") )
                                 {
                                     sub_type = YAML_MEER_PIPE;
+				    routing == false;
                                 }
 
                             if ( !strcmp(value, "external") )
                                 {
                                     sub_type = YAML_MEER_EXTERNAL;
+				    routing == false;
                                 }
 
                             if ( !strcmp(value, "redis") )
                                 {
                                     sub_type = YAML_MEER_REDIS;
+				    routing == false;
                                 }
 
                             if ( !strcmp(value, "file") )
                                 {
                                     sub_type = YAML_MEER_FILE;
+				    routing == false;
                                 }
 
 #ifdef WITH_BLUEDOT
@@ -288,6 +295,7 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "bluedot") )
                                 {
                                     sub_type = YAML_MEER_BLUEDOT;
+				    routing == false;
                                 }
 
 #endif
@@ -295,6 +303,7 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "elasticsearch") )
                                 {
                                     sub_type = YAML_MEER_ELASTICSEARCH;
+				    routing == false;
                                 }
 
                         }
@@ -2080,6 +2089,145 @@ void Load_YAML_Config( char *yaml_file )
                                     strlcpy(MeerOutput->file_location, value, sizeof(MeerOutput->file_location));
                                 }
 
+
+
+			    if ( !strcmp(last_pass, "routing" ) && MeerOutput->file_enabled == true )
+			    		{
+					routing = true;
+					}
+
+			    if ( routing == true && MeerOutput->file_enabled == true ) 
+			    		{
+
+					if ( !strcmp(last_pass, "alert" ) )
+						{
+						MeerOutput->file_alert = true;
+						}
+
+					else if ( !strcmp(last_pass, "files" ) )
+						{
+						MeerOutput->file_files = true;
+						}
+
+					else if ( !strcmp(last_pass, "flow" ) )
+						{
+						MeerOutput->file_flow = true;
+						}
+
+					else if ( !strcmp(last_pass, "dns" ) )
+						{
+						MeerOutput->file_dns = true;
+						}
+
+					else if ( !strcmp(last_pass, "http" ) )
+						{
+						MeerOutput->file_http = true;
+						}
+
+					else if ( !strcmp(last_pass, "tls" ) )
+						{
+						MeerOutput->file_tls = true;
+						}
+
+					else if ( !strcmp(last_pass, "ssh" ) )
+						{
+						MeerOutput->file_ssh = true;
+						}
+
+					else if ( !strcmp(last_pass, "smtp" ) )
+						{
+						MeerOutput->file_smtp = true;
+						}
+
+					else if ( !strcmp(last_pass, "email" ) )
+						{
+						MeerOutput->file_email = true;
+						}
+
+					else if ( !strcmp(last_pass, "fileinfo" ) )
+						{
+						MeerOutput->file_fileinfo = true;
+						}
+
+					else if ( !strcmp(last_pass, "dhcp" ) )
+						{
+						MeerOutput->file_dhcp = true;
+						}
+
+					else if ( !strcmp(last_pass, "stats" ) )
+						{
+						MeerOutput->file_stats = true;
+						}
+
+					else if ( !strcmp(last_pass, "rdp" ) )
+						{
+						MeerOutput->file_rdp  = true;
+						}
+
+					else if ( !strcmp(last_pass, "sip" ) )
+						{
+						MeerOutput->file_sip = true;
+						}
+
+					else if ( !strcmp(last_pass, "ftp" ) )
+						{
+						MeerOutput->file_ftp = true;
+						}
+
+					else if ( !strcmp(last_pass, "ikev2" ) )
+						{
+						MeerOutput->file_ikev2 = true;
+						}
+
+					else if ( !strcmp(last_pass, "nfs" ) )
+						{
+						MeerOutput->file_nfs = true;
+						}
+
+					else if ( !strcmp(last_pass, "tftp" ) )
+						{
+						MeerOutput->file_tftp = true;
+						}
+
+					else if ( !strcmp(last_pass, "smb" ) )
+						{
+						MeerOutput->file_smb = true;
+						}
+
+					else if ( !strcmp(last_pass, "dcerpc" ) )
+						{
+						MeerOutput->file_dcerpc = true;
+						}
+
+					else if ( !strcmp(last_pass, "mqtt" ) )
+						{
+						MeerOutput->file_mqtt = true;
+						}
+
+					else if ( !strcmp(last_pass, "netflow" ) )
+						{
+						MeerOutput->file_netflow = true;
+						}
+
+					else if ( !strcmp(last_pass, "metadata" ) )
+						{
+						MeerOutput->file_metadata = true;
+						}
+
+					else if ( !strcmp(last_pass, "dnp3" ) )
+						{
+						MeerOutput->file_dnp3 = true;
+						}
+
+					else if ( !strcmp(last_pass, "anomaly" ) )
+						{
+						MeerOutput->file_anomaly = true;
+						}
+
+					}
+
+/*
+
                             if ( !strcmp(last_pass, "alert" ) &&  MeerOutput->file_enabled == true )
                                 {
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -2184,7 +2332,7 @@ void Load_YAML_Config( char *yaml_file )
                                                                     }
                                                             }
                             				*/
-
+/*
                             if ( !strcmp(last_pass, "rdp" ) &&  MeerOutput->file_enabled == true )
                                 {
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
@@ -2289,16 +2437,7 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
-
-
-
-
-
-
-
-
-
-
+*/
 
                         }
 
