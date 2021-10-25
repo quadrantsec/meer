@@ -129,7 +129,7 @@ struct _MeerOutput
 
 #ifdef HAVE_LIBHIREDIS
 
-    bool redis_flag;
+    bool redis_enabled;
     char redis_server[255];
     int  redis_port;
     int  redis_batch;
@@ -185,7 +185,7 @@ struct _MeerOutput
 
 #ifdef WITH_ELASTICSEARCH
 
-    bool elasticsearch_flag;
+    bool elasticsearch_enabled;
     bool elasticsearch_debug;
     bool elasticsearch_insecure;
     char elasticsearch_url[8192];

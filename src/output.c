@@ -175,7 +175,7 @@ void Init_Output( void )
     char redis_command[300];
     char redis_reply[5];
 
-    if ( MeerOutput->redis_flag )
+    if ( MeerOutput->redis_enabled == true )
         {
 
             Meer_Log(NORMAL, "--[ Redis information ]--------------------------------------------");
@@ -223,6 +223,7 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Write 'dnp3'         : %s", MeerOutput->redis_dnp3 ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'anomaly'      : %s", MeerOutput->redis_anomaly ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'client_stats' : %s", MeerOutput->redis_client_stats ? "enabled" : "disabled" );
+	    Meer_Log(NORMAL, "");
 
 
         }
@@ -436,7 +437,7 @@ void Init_Output( void )
 
 #ifdef WITH_ELASTICSEARCH
 
-    if ( MeerOutput->elasticsearch_flag == true )
+    if ( MeerOutput->elasticsearch_enabled == true )
         {
 
             Meer_Log(NORMAL, "--[ Elasticsearch output information ]---------------------------");

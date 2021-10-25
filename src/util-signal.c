@@ -138,7 +138,7 @@ void Signal_Handler(int sig_num)
 
 #ifdef WITH_ELASTICSEARCH
 
-            if ( MeerOutput->elasticsearch_flag == true )
+            if ( MeerOutput->elasticsearch_enabled == true )
                 {
 
                     elasticsearch_death = true;

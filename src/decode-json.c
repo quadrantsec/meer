@@ -177,7 +177,7 @@ bool Decode_JSON( char *json_string )
 
     /* Add fingerprint */
 
-    if ( !strcmp(event_type, "alert") && MeerConfig->fingerprint == true && MeerOutput->redis_flag == true )
+    if ( !strcmp(event_type, "alert") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
         {
 
             struct _DecodeAlert *DecodeAlert;   /* event_type: alert */
@@ -224,7 +224,7 @@ bool Decode_JSON( char *json_string )
 
 #ifdef HAVE_LIBHIREDIS
 
-    if ( fingerprint_return == false && MeerOutput->redis_flag == true && MeerOutput->redis_alert == true )
+    if ( fingerprint_return == false && MeerOutput->redis_enabled == true && MeerOutput->redis_alert == true )
         {
             JSON_To_Redis( json_string, "alert" );
         }
@@ -232,7 +232,7 @@ bool Decode_JSON( char *json_string )
 
 #ifdef HAVE_LIBHIREDIS
 
-    if ( MeerOutput->redis_flag == true )
+    if ( MeerOutput->redis_enabled == true )
         {
 
             if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true )
@@ -278,7 +278,7 @@ bool Decode_JSON( char *json_string )
 
 #ifdef HAVE_LIBHIREDIS
 
-    if ( MeerOutput->redis_flag == true )
+    if ( MeerOutput->redis_enabled == true )
         {
             Output_Redis( json_string, event_type );
         }
@@ -287,7 +287,7 @@ bool Decode_JSON( char *json_string )
 
 #ifdef WITH_ELASTICSEARCH
 
-    if ( MeerOutput->elasticsearch_flag == true )
+    if ( MeerOutput->elasticsearch_enabled == true )
         {
             Output_Elasticsearch( json_string, event_type );
         }

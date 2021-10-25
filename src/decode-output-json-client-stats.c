@@ -174,7 +174,7 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
             json_object_object_add(encode_json,"dns", jdns);
         }
 
-    if ( MeerOutput->redis_flag )
+    if ( MeerOutput->redis_enabled )
         {
 
             // This isn't quite it, but Mark has modified the key format.  We'll need to update it when that

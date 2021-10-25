@@ -150,23 +150,6 @@ output-plugins:
 
     extra_data: enabled
 
-    # Store extra decoded JSON metadata from Suricata or Sagan.  This requires
-    # your database to have the metadata, flow, http, etc. tables.  If all are
-    # disabled,  Meer will store data in strictly a Barnyard2/Snort method. 
-    # If you want to store this decoded information,  and you likely do,  make
-    # sure you have the decoders enabled in the "core" section of this Meer 
-    # configuration file! 
-
-    metadata: enabled
-    flow: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    json: enabled
-    stats: enabled
-
     # If you would like Meer to mimic the legacy "reference" tables from
     # Snort/Barnyard2, enable it here.  If your using more than one database
     # to store Suricata or Sagan data, you'll likely want to leave this 
@@ -196,31 +179,33 @@ output-plugins:
     enabled: no
     file_location: "/path/to/output/file"
 
-    alert: enabled
-    files: enabled
-    flow: enabled
-    dns: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    fileinfo: enabled
-    dhcp: enabled
-    stats: enabled
-    rdp: enabled
-    sip: disabled
-    ftp: enabled
-    ikev2: enabled
-    nfs: enabled
-    tftp: enabled
-    smb: enabled
-    dcerpc: enabled
-    mqtt: enabled
-    netflow: enabled
-    metadata: enabled
-    dnp3: enabled
-    anomaly: enabled
+    routing:
+
+      - alert
+      - files
+      - flow
+      - dns
+      - http
+      - tls
+      - ssh
+      - smtp
+      - email
+      - fileinfo
+      - dhcp
+      - stats
+      - rdp
+      - sip
+      - ftp
+      - ikev2
+      - nfs
+      - tftp
+      - smb
+      - dcerpc
+      - mqtt
+      - netflow
+      - metadata
+      - dnp3
+      - anomaly
 
   ###########################################################################
   # pipe
@@ -236,34 +221,33 @@ output-plugins:
     pipe_location: /var/sagan/fifo/sagan.fifo
     pipe_size: 1048576                        # System must support F_GETPIPE_SZ/F_SETPIPE_SZ
 
-    # Below are the "event_types" from Suricata/Sagan. This tells Meer what to send
-    # to the named pipe/FIFO. 
+    routing:
 
-    alert: enabled
-    files: enabled
-    flow: enabled
-    dns: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    fileinfo: enabled
-    dhcp: enabled
-    stats: enabled
-    rdp: enabled
-    sip: disabled
-    ftp: enabled
-    ikev2: enabled
-    nfs: enabled
-    tftp: enabled
-    smb: enabled
-    dcerpc: enabled
-    mqtt: enabled
-    netflow: enabled
-    metadata: enabled
-    dnp3: enabled
-    anomaly: enabled
+      - alert
+      - files
+      - flow
+      - dns
+      - http
+      - tls
+      - ssh
+      - smtp
+      - email
+      - fileinfo
+      - dhcp
+      - stats
+      - rdp
+      - sip
+      - ftp
+      - ikev2
+      - nfs
+      - tftp
+      - smb
+      - dcerpc
+      - mqtt
+      - netflow
+      - metadata
+      - dnp3
+      - anomaly
 
   ###########################################################################
   # external 
@@ -323,32 +307,12 @@ output-plugins:
     #cisco_policies: "policy-security-ips,policy-max-detect-ips,policy-connectivity-ips,policy-balanced-ips"
     #et_signature_severity: "critical,major"		# Critical,Major,Minor,Informational
 
+    # You likely don't want to route to much data to a external program. External
+    # output is slow.
 
-    alert: enabled
-    files: enabled
-    flow: enabled
-    dns: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    fileinfo: enabled
-    dhcp: enabled
-    stats: enabled
-    rdp: enabled
-    sip: enabled
-    ftp: enabled
-    ikev2: enabled
-    nfs: enabled
-    tftp: enabled
-    smb: enabled
-    dcerpc: enabled
-    mqtt: enabled
-    netflow: enabled
-    metadata: enabled
-    dnp3: enabled
-    anomaly: enabled
+    routing:
+
+      - alert
 
   ###########################################################################
   # redis
@@ -381,33 +345,33 @@ output-plugins:
                              # Redis object can become "alert|hostname|1". This
                              # is good when you are using the "set" mode. 
 
-    # This controls event_types to send to Redis. 
+    routing:
 
-    alert: enabled
-    files: enabled
-    flow: enabled
-    dns: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    fileinfo: enabled
-    dhcp: enabled
-    stats: enabled
-    rdp: enabled
-    sip: enabled
-    ftp: enabled
-    ikev2: enabled
-    nfs: enabled
-    tftp: enabled
-    smb: enabled
-    dcerpc: enabled
-    mqtt: enabled
-    netflow: enabled
-    metadata: enabled
-    dnp3: enabled
-    anomaly: enabled
+      - alert
+      - files
+      - flow
+      - dns
+      - http
+      - tls
+      - ssh
+      - smtp
+      - email
+      - fileinfo
+      - dhcp
+      - stats
+      - rdp
+      - sip
+      - ftp
+      - ikev2
+      - nfs
+      - tftp
+      - smb
+      - dcerpc
+      - mqtt
+      - netflow
+      - metadata
+      - dnp3
+      - anomaly
 
     # Fingerprint data can be temporarily stored in a Redis database.  When an alert
     # fires, this information can be used to determine the targets operating system, 
@@ -415,12 +379,12 @@ output-plugins:
     # an event. If used in conjunction with the SQL output,  the fingerprint data for
     # the targeted system is stored in the 'fingerprint' table.
 
-    fingerprint: enabled
+      - fingerprint
 
     # This controls sending Sagan client tracking data to Redis.  This has no affect 
     # on Suricata systems. 
  
-    client_stats: disabled
+      - client_stats
 
   ###########################################################################
   # elasticsearch
@@ -441,29 +405,32 @@ output-plugins:
     #username: "myusername"
     #password: "mypassword"
 
-    alert: enabled
-    files: enabled
-    flow: enabled
-    dns: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    fileinfo: enabled
-    dhcp: enabled
-    stats: enabled
-    rdp: enabled
-    sip: enabled
-    ftp: enabled
-    ikev2: enabled
-    nfs: enabled
-    tftp: enabled
-    smb: enabled
-    dcerpc: enabled
-    mqtt: enabled
-    netflow: enabled
-    metadata: enabled
-    dnp3: enabled
-    anomaly: enabled
+    routing:
+
+      - alert
+      - files
+      - flow
+      - dns
+      - http
+      - tls
+      - ssh
+      - smtp
+      - email
+      - fileinfo
+      - dhcp
+      - stats
+      - rdp
+      - sip
+      - ftp
+      - ikev2
+      - nfs
+      - tftp
+      - smb
+      - dcerpc
+      - mqtt
+      - netflow
+      - metadata
+      - dnp3
+      - anomaly
+
 
