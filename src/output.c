@@ -149,7 +149,6 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Write 'files'        : %s", MeerOutput->external_files ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'fileinfo'     : %s", MeerOutput->external_fileinfo ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'dhcp'         : %s", MeerOutput->external_dhcp ? "enabled" : "disabled" );
-//            Meer_Log(NORMAL, "Write 'bluedot'      : %s", MeerOutput->external_bluedot ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'rdp'          : %s", MeerOutput->external_rdp ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'sip'          : %s", MeerOutput->external_sip ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'ftp'          : %s", MeerOutput->external_ftp ? "enabled" : "disabled" );
@@ -163,6 +162,10 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Write 'metadata'     : %s", MeerOutput->external_metadata ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'dnp3'         : %s", MeerOutput->external_dnp3 ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'anomaly'      : %s", MeerOutput->external_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fingerprint'  : %s", MeerOutput->external_fingerprint ? "enabled" : "disabled" );
+
+
+
 
 //               }
 
@@ -208,7 +211,6 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Write 'files'        : %s", MeerOutput->redis_files ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'fileinfo'     : %s", MeerOutput->redis_fileinfo ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'dhcp'         : %s", MeerOutput->redis_dhcp ? "enabled" : "disabled" );
-//            Meer_Log(NORMAL, "Write 'bluedot'      : %s", MeerOutput->redis_bluedot ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'rdp'          : %s", MeerOutput->redis_rdp ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'sip'          : %s", MeerOutput->redis_sip ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'ftp'          : %s", MeerOutput->redis_ftp ? "enabled" : "disabled" );
@@ -222,8 +224,9 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Write 'metadata'     : %s", MeerOutput->redis_metadata ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'dnp3'         : %s", MeerOutput->redis_dnp3 ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'anomaly'      : %s", MeerOutput->redis_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fingerprint'  : %s", MeerOutput->redis_fingerprint ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'client_stats' : %s", MeerOutput->redis_client_stats ? "enabled" : "disabled" );
-	    Meer_Log(NORMAL, "");
+            Meer_Log(NORMAL, "");
 
 
         }
@@ -237,32 +240,32 @@ void Init_Output( void )
             Meer_Log(NORMAL, "");
             Meer_Log(NORMAL, "File Location: %s", MeerOutput->file_location);
             Meer_Log(NORMAL, "");
-            Meer_Log(NORMAL, "Write 'alert'   : %s", MeerOutput->file_alert ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'stats'   : %s", MeerOutput->file_stats ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'email'   : %s", MeerOutput->file_email ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'dns'     : %s", MeerOutput->file_dns ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'flow'    : %s", MeerOutput->file_flow ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'http'    : %s", MeerOutput->file_http ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'tls'     : %s", MeerOutput->file_tls ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'ssh'     : %s", MeerOutput->file_ssh ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'smtp'    : %s", MeerOutput->file_smtp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'files'   : %s", MeerOutput->file_files ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'fileinfo': %s", MeerOutput->file_fileinfo ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'dhcp'    : %s", MeerOutput->file_dhcp ? "enabled" : "disabled" );
-//            Meer_Log(NORMAL, "Write 'bluedot' : %s", MeerOutput->file_bluedot ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'rdp'     : %s", MeerOutput->file_rdp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'sip'     : %s", MeerOutput->file_sip ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'ftp'     : %s", MeerOutput->file_ftp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'ikev2'   : %s", MeerOutput->file_ikev2 ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'nfs'     : %s", MeerOutput->file_nfs ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'tftp'    : %s", MeerOutput->file_tftp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'smb'     : %s", MeerOutput->file_smb ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'dcerpc'  : %s", MeerOutput->file_dcerpc ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'mqtt'    : %s", MeerOutput->file_mqtt ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'netflow' : %s", MeerOutput->file_netflow ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'metadata': %s", MeerOutput->file_metadata ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'dnp3'    : %s", MeerOutput->file_dnp3 ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'anomaly' : %s", MeerOutput->file_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'alert'      : %s", MeerOutput->file_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'stats'      : %s", MeerOutput->file_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'email'      : %s", MeerOutput->file_email ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dns'        : %s", MeerOutput->file_dns ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'flow'       : %s", MeerOutput->file_flow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'http'       : %s", MeerOutput->file_http ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tls'        : %s", MeerOutput->file_tls ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ssh'        : %s", MeerOutput->file_ssh ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smtp'       : %s", MeerOutput->file_smtp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'files'      : %s", MeerOutput->file_files ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fileinfo'   : %s", MeerOutput->file_fileinfo ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dhcp'       : %s", MeerOutput->file_dhcp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'rdp'        : %s", MeerOutput->file_rdp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'sip'        : %s", MeerOutput->file_sip ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ftp'        : %s", MeerOutput->file_ftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ikev2'      : %s", MeerOutput->file_ikev2 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'nfs'        : %s", MeerOutput->file_nfs ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tftp'       : %s", MeerOutput->file_tftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smb'        : %s", MeerOutput->file_smb ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dcerpc'     : %s", MeerOutput->file_dcerpc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'mqtt'       : %s", MeerOutput->file_mqtt ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'netflow'    : %s", MeerOutput->file_netflow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'metadata'   : %s", MeerOutput->file_metadata ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dnp3'       : %s", MeerOutput->file_dnp3 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'anomaly'    : %s", MeerOutput->file_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fingerprint': %s", MeerOutput->file_fingerprint ? "enabled" : "disabled" );
 
             Meer_Log(NORMAL, "");
 
@@ -287,32 +290,33 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Pipe Size: %d bytes", MeerOutput->pipe_size);
             Meer_Log(NORMAL, "");
 
-            Meer_Log(NORMAL, "Write 'alert'   : %s", MeerOutput->pipe_alert ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'stats'   : %s", MeerOutput->pipe_stats ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'email'   : %s", MeerOutput->pipe_email ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'dns'     : %s", MeerOutput->pipe_dns ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'flow'    : %s", MeerOutput->pipe_flow ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'http'    : %s", MeerOutput->pipe_http ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'tls'     : %s", MeerOutput->pipe_tls ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'ssh'     : %s", MeerOutput->pipe_ssh ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'smtp'    : %s", MeerOutput->pipe_smtp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'files'   : %s", MeerOutput->pipe_files ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'fileinfo': %s", MeerOutput->pipe_fileinfo ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'dhcp'    : %s", MeerOutput->pipe_dhcp ? "enabled" : "disabled" );
-//            Meer_Log(NORMAL, "Write 'bluedot' : %s", MeerOutput->pipe_bluedot ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'rdp'     : %s", MeerOutput->pipe_rdp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'sip'     : %s", MeerOutput->pipe_sip ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'ftp'     : %s", MeerOutput->pipe_ftp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'ikev2'   : %s", MeerOutput->pipe_ikev2 ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'nfs'     : %s", MeerOutput->pipe_nfs ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'tftp'    : %s", MeerOutput->pipe_tftp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'smb'     : %s", MeerOutput->pipe_smb ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'dcerpc'  : %s", MeerOutput->pipe_dcerpc ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'mqtt'    : %s", MeerOutput->pipe_mqtt ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'netflow' : %s", MeerOutput->pipe_netflow ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'metadata': %s", MeerOutput->pipe_metadata ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'dnp3'    : %s", MeerOutput->pipe_dnp3 ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Write 'anomaly' : %s", MeerOutput->pipe_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'alert'      : %s", MeerOutput->pipe_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'stats'      : %s", MeerOutput->pipe_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'email'      : %s", MeerOutput->pipe_email ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dns'        : %s", MeerOutput->pipe_dns ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'flow'       : %s", MeerOutput->pipe_flow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'http'       : %s", MeerOutput->pipe_http ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tls'        : %s", MeerOutput->pipe_tls ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ssh'        : %s", MeerOutput->pipe_ssh ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smtp'       : %s", MeerOutput->pipe_smtp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'files'      : %s", MeerOutput->pipe_files ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fileinfo'   : %s", MeerOutput->pipe_fileinfo ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dhcp'       : %s", MeerOutput->pipe_dhcp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'rdp'        : %s", MeerOutput->pipe_rdp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'sip'        : %s", MeerOutput->pipe_sip ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ftp'        : %s", MeerOutput->pipe_ftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ikev2'      : %s", MeerOutput->pipe_ikev2 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'nfs'        : %s", MeerOutput->pipe_nfs ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tftp'       : %s", MeerOutput->pipe_tftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smb'        : %s", MeerOutput->pipe_smb ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dcerpc'     : %s", MeerOutput->pipe_dcerpc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'mqtt'       : %s", MeerOutput->pipe_mqtt ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'netflow'    : %s", MeerOutput->pipe_netflow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'metadata'   : %s", MeerOutput->pipe_metadata ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dnp3'       : %s", MeerOutput->pipe_dnp3 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'anomaly'    : %s", MeerOutput->pipe_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fingerprint': %s", MeerOutput->pipe_fingerprint ? "enabled" : "disabled" );
+
 
             Meer_Log(NORMAL, "");
 
@@ -457,31 +461,31 @@ void Init_Output( void )
                 }
 
             Meer_Log(NORMAL, "");
-            Meer_Log(NORMAL, "Record 'alert'    : %s", MeerOutput->elasticsearch_alert ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'files'    : %s", MeerOutput->elasticsearch_files ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'flow'     : %s", MeerOutput->elasticsearch_flow ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'dns'      : %s", MeerOutput->elasticsearch_dns ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'http'     : %s", MeerOutput->elasticsearch_http ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'tls'      : %s", MeerOutput->elasticsearch_tls ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'ssh'      : %s", MeerOutput->elasticsearch_ssh ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'smtp'     : %s", MeerOutput->elasticsearch_smtp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'email'    : %s", MeerOutput->elasticsearch_email ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'fileinfo' : %s", MeerOutput->elasticsearch_fileinfo ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'dhcp'     : %s", MeerOutput->elasticsearch_dhcp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'stats'    : %s", MeerOutput->elasticsearch_stats ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'rdp'      : %s", MeerOutput->elasticsearch_rdp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'sip'      : %s", MeerOutput->elasticsearch_sip ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'ftp'      : %s", MeerOutput->elasticsearch_ftp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'nfs'      : %s", MeerOutput->elasticsearch_nfs ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'tftp'     : %s", MeerOutput->elasticsearch_tftp ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'smb'      : %s", MeerOutput->elasticsearch_smb ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'mqtt'     : %s", MeerOutput->elasticsearch_mqtt ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'dcerpc'   : %s", MeerOutput->elasticsearch_dcerpc ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'netflow'  : %s", MeerOutput->elasticsearch_netflow ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'metadata' : %s", MeerOutput->elasticsearch_metadata ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'dnp3'     : %s", MeerOutput->elasticsearch_dnp3 ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'anomaly'  : %s", MeerOutput->elasticsearch_anomaly ? "enabled" : "disabled" );
-//            Meer_Log(NORMAL, "Record 'bluedot'  : %s", MeerOutput->elasticsearch_bluedot ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'alert'       : %s", MeerOutput->elasticsearch_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'files'       : %s", MeerOutput->elasticsearch_files ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'flow'        : %s", MeerOutput->elasticsearch_flow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'dns'         : %s", MeerOutput->elasticsearch_dns ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'http'        : %s", MeerOutput->elasticsearch_http ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'tls'         : %s", MeerOutput->elasticsearch_tls ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'ssh'         : %s", MeerOutput->elasticsearch_ssh ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'smtp'        : %s", MeerOutput->elasticsearch_smtp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'email'       : %s", MeerOutput->elasticsearch_email ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'fileinfo'    : %s", MeerOutput->elasticsearch_fileinfo ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'dhcp'        : %s", MeerOutput->elasticsearch_dhcp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'stats'       : %s", MeerOutput->elasticsearch_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'rdp'         : %s", MeerOutput->elasticsearch_rdp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'sip'         : %s", MeerOutput->elasticsearch_sip ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'ftp'         : %s", MeerOutput->elasticsearch_ftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'nfs'         : %s", MeerOutput->elasticsearch_nfs ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'tftp'        : %s", MeerOutput->elasticsearch_tftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'smb'         : %s", MeerOutput->elasticsearch_smb ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'mqtt'        : %s", MeerOutput->elasticsearch_mqtt ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'dcerpc'      : %s", MeerOutput->elasticsearch_dcerpc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'netflow'     : %s", MeerOutput->elasticsearch_netflow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'metadata'    : %s", MeerOutput->elasticsearch_metadata ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'dnp3'        : %s", MeerOutput->elasticsearch_dnp3 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'anomaly'     : %s", MeerOutput->elasticsearch_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'fingerprint' : %s", MeerOutput->elasticsearch_fingerprint ? "enabled" : "disabled" );
 
             Elasticsearch_Init();
 
@@ -647,13 +651,12 @@ bool Output_Pipe ( const char *json_string, const char *event_type )
             Pipe_Write( json_string );
             return(true);
         }
-    /*
-        else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->pipe_bluedot == true )
-            {
-                Pipe_Write( json_string );
-                return(true);
-            }
-    	*/
+
+    else if ( !strcmp(event_type, "fingerprint" ) && MeerOutput->pipe_fingerprint == true )
+        {
+            Pipe_Write( json_string );
+            return(true);
+        }
 
 
     MeerCounters->JSONPipeMisses++;
@@ -1185,13 +1188,12 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
             External( json_string );
             return(true);
         }
-    /*
-        else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->external_bluedot == true )
-            {
-                External( json_string );
-                return(true);
-            }
-    	*/
+
+    else if ( !strcmp(event_type, "fingerprint" ) && MeerOutput->external_fingerprint == true )
+        {
+            External( json_string );
+            return(true);
+        }
 
     return(false);
 }
@@ -1446,13 +1448,11 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type )
             return(true);
         }
 
-    /*
-        else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->elasticsearch_bluedot == true )
-            {
-                Output_Do_Elasticsearch( json_string, event_type );
-                return(true);
-            }
-    	*/
+    else if ( !strcmp(event_type, "fingerprint" ) && MeerOutput->elasticsearch_fingerprint == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type );
+            return(true);
+        }
 
 
 //    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
@@ -1664,13 +1664,11 @@ bool Output_File ( const char *json_string, const char *event_type )
             return(true);
         }
 
-    /*
-        else if ( !strcmp(event_type, "bluedot" ) && MeerOutput->file_bluedot == true )
-            {
-                Output_Do_File( json_string );
-                return(true);
-            }
-    	*/
+    else if ( !strcmp(event_type, "fingerprint" ) && MeerOutput->file_fingerprint == true )
+        {
+            Output_Do_File( json_string );
+            return(true);
+        }
 
 //    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     return(false);
@@ -1826,13 +1824,11 @@ bool Output_Redis( const char *json_string, const char *event_type )
             return(true);
         }
 
-    /*
-        else if ( !strcmp( event_type, "bluedot") && MeerOutput->redis_bluedot == true )
-            {
-                JSON_To_Redis( json_string, event_type );
-                return(true);
-            }
-    	*/
+    else if ( !strcmp( event_type, "fingerprint") && MeerOutput->redis_fingerprint == true )
+        {
+            JSON_To_Redis( json_string, event_type );
+            return(true);
+        }
 
     else if ( !strcmp( event_type, "client_stats") && MeerOutput->redis_client_stats == true )
         {

@@ -167,7 +167,7 @@ struct _MeerOutput
     bool redis_metadata;
     bool redis_dnp3;
     bool redis_anomaly;
-//    bool redis_bluedot;
+    bool redis_fingerprint;
     bool redis_client_stats;
 
 #endif
@@ -220,7 +220,7 @@ struct _MeerOutput
     bool elasticsearch_metadata;
     bool elasticsearch_dnp3;
     bool elasticsearch_anomaly;
-//    bool elasticsearch_bluedot;
+    bool elasticsearch_fingerprint;
 
 #endif
 
@@ -289,7 +289,7 @@ struct _MeerOutput
     bool external_metadata;
     bool external_dnp3;
     bool external_anomaly;
-//    bool external_bluedot;
+    bool external_fingerprint;
 
     bool file_enabled;
     FILE *file_fd;
@@ -321,6 +321,7 @@ struct _MeerOutput
     bool file_metadata;
     bool file_dnp3;
     bool file_anomaly;
+    bool file_fingerprint;
 
     bool pipe_enabled;
     char pipe_location[256];
@@ -352,7 +353,7 @@ struct _MeerOutput
     bool pipe_metadata;
     bool pipe_dnp3;
     bool pipe_anomaly;
-//    bool pipe_bluedot;
+    bool pipe_fingerprint;
 
 };
 
@@ -373,7 +374,7 @@ struct _MeerCounters
     int SIDMapCount;
     int OUICount;
 
-    int fingerprint_network_count;
+    uint16_t fingerprint_network_count;
 
     uint32_t bluedot_skip_count;
 
@@ -429,6 +430,7 @@ struct _MeerCounters
     uint_fast64_t anomaly;
     uint_fast64_t unknown;
     uint_fast64_t bad;
+    uint_fast64_t fingerprint;
 
     uint64_t DNSCount;
     uint64_t DNSCacheCount;

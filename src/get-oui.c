@@ -22,7 +22,6 @@
 #include "config.h"             /* From autoconf */
 #endif
 
-
 #include <stdio.h>
 #include <string.h>
 #include <json-c/json.h>

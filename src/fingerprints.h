@@ -17,6 +17,7 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+/*
 typedef struct _FingerprintData _FingerprintData;
 struct _FingerprintData
 {
@@ -33,6 +34,8 @@ void Parse_Fingerprint ( struct _DecodeAlert *DecodeAlert, struct _FingerprintDa
 void Fingerprint_IP_JSON ( struct _DecodeAlert *DecodeAlert, char *str, size_t size );
 void Fingerprint_EVENT_JSON ( struct _DecodeAlert *DecodeAlert, struct _FingerprintData *FingerprintData, char *str, size_t size );
 void Fingerprint_DHCP_JSON ( struct _DecodeDHCP *DecodeDHCP, char *str, size_t size );
+*/
+
 
 
 

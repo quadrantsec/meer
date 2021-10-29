@@ -18,6 +18,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      get-dns.c \
 							      get-geoip.c \
 							      get-oui.c \
+							      get-fingerprint.c \
 							      lockfile.c \
 							      counters.c \
 							      stats.c \
@@ -29,8 +30,6 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      usage.c \
 							      oui.c \
 							      geoip.c \
-							      fingerprint.c \
-							      fingerprint-to-json.c \
 							      decode-json.c \
 							      decode-json-alert.c \
 							      decode-json-dhcp.c \
@@ -42,7 +41,6 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      output-plugins/external.c \
 							      output-plugins/redis.c \
 							      output-plugins/bluedot.c \
-							      output-plugins/fingerprint.c \
 							      output-plugins/elasticsearch.c \
 							      output-plugins/file.c
 

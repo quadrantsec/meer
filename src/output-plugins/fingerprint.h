@@ -18,8 +18,9 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+/*
 void Output_Fingerprint_DHCP ( struct _DecodeDHCP *DecodeDHCP, char *fingerprint_DHCP_JSON );
 void Output_Fingerprint_IP( struct _DecodeAlert *DecodeAlert, char *fingerprint_IP_JSON );
 void Output_Fingerprint_EVENT( struct _DecodeAlert *DecodeAlert, struct _FingerprintData *FingerprintData, char *fingerprint_EVENT_JSON );
-
+*/
 

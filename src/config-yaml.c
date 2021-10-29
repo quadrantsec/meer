@@ -263,31 +263,31 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "sql") )
                                 {
                                     sub_type = YAML_MEER_SQL;
-				    routing == false;
+                                    routing == false;
                                 }
 
                             if ( !strcmp(value, "pipe") )
                                 {
                                     sub_type = YAML_MEER_PIPE;
-				    routing == false;
+                                    routing == false;
                                 }
 
                             if ( !strcmp(value, "external") )
                                 {
                                     sub_type = YAML_MEER_EXTERNAL;
-				    routing == false;
+                                    routing == false;
                                 }
 
                             if ( !strcmp(value, "redis") )
                                 {
                                     sub_type = YAML_MEER_REDIS;
-				    routing == false;
+                                    routing == false;
                                 }
 
                             if ( !strcmp(value, "file") )
                                 {
                                     sub_type = YAML_MEER_FILE;
-				    routing == false;
+                                    routing == false;
                                 }
 
 #ifdef WITH_BLUEDOT
@@ -295,7 +295,7 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "bluedot") )
                                 {
                                     sub_type = YAML_MEER_BLUEDOT;
-				    routing == false;
+                                    routing == false;
                                 }
 
 #endif
@@ -303,7 +303,7 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "elasticsearch") )
                                 {
                                     sub_type = YAML_MEER_ELASTICSEARCH;
-				    routing == false;
+                                    routing == false;
                                 }
 
                         }
@@ -1021,142 +1021,146 @@ void Load_YAML_Config( char *yaml_file )
                                             ptr2 = strtok_r(NULL, ",", &ptr1);
 
                                         }
-				}
+                                }
 
-			    if ( !strcmp(last_pass, "routing" ) && MeerOutput->external_enabled == true )
-			    		{
-					routing = true;
-					}
+                            if ( !strcmp(last_pass, "routing" ) && MeerOutput->external_enabled == true )
+                                {
+                                    routing = true;
+                                }
 
-			    if ( routing == true && MeerOutput->external_enabled == true ) 
-			    		{
+                            if ( routing == true && MeerOutput->external_enabled == true )
+                                {
 
-					if ( !strcmp(value, "alert" ) )
-						{
-						MeerOutput->external_alert = true;
-						}
+                                    if ( !strcmp(value, "alert" ) )
+                                        {
+                                            MeerOutput->external_alert = true;
+                                        }
 
-					else if ( !strcmp(value, "files" ) )
-						{
-						MeerOutput->external_files = true;
-						}
+                                    else if ( !strcmp(value, "files" ) )
+                                        {
+                                            MeerOutput->external_files = true;
+                                        }
 
-					else if ( !strcmp(value, "flow" ) )
-						{
-						MeerOutput->external_flow = true;
-						}
+                                    else if ( !strcmp(value, "flow" ) )
+                                        {
+                                            MeerOutput->external_flow = true;
+                                        }
 
-					else if ( !strcmp(value, "dns" ) )
-						{
-						MeerOutput->external_dns = true;
-						}
+                                    else if ( !strcmp(value, "dns" ) )
+                                        {
+                                            MeerOutput->external_dns = true;
+                                        }
 
-					else if ( !strcmp(value, "http" ) )
-						{
-						MeerOutput->external_http = true;
-						}
+                                    else if ( !strcmp(value, "http" ) )
+                                        {
+                                            MeerOutput->external_http = true;
+                                        }
 
-					else if ( !strcmp(value, "tls" ) )
-						{
-						MeerOutput->external_tls = true;
-						}
+                                    else if ( !strcmp(value, "tls" ) )
+                                        {
+                                            MeerOutput->external_tls = true;
+                                        }
 
-					else if ( !strcmp(value, "ssh" ) )
-						{
-						MeerOutput->external_ssh = true;
-						}
+                                    else if ( !strcmp(value, "ssh" ) )
+                                        {
+                                            MeerOutput->external_ssh = true;
+                                        }
 
-					else if ( !strcmp(value, "smtp" ) )
-						{
-						MeerOutput->external_smtp = true;
-						}
+                                    else if ( !strcmp(value, "smtp" ) )
+                                        {
+                                            MeerOutput->external_smtp = true;
+                                        }
 
-					else if ( !strcmp(value, "email" ) )
-						{
-						MeerOutput->external_email = true;
-						}
+                                    else if ( !strcmp(value, "email" ) )
+                                        {
+                                            MeerOutput->external_email = true;
+                                        }
 
-					else if ( !strcmp(value, "fileinfo" ) )
-						{
-						MeerOutput->external_fileinfo = true;
-						}
+                                    else if ( !strcmp(value, "fileinfo" ) )
+                                        {
+                                            MeerOutput->external_fileinfo = true;
+                                        }
 
-					else if ( !strcmp(value, "dhcp" ) )
-						{
-						MeerOutput->external_dhcp = true;
-						}
+                                    else if ( !strcmp(value, "dhcp" ) )
+                                        {
+                                            MeerOutput->external_dhcp = true;
+                                        }
 
-					else if ( !strcmp(value, "stats" ) )
-						{
-						MeerOutput->external_stats = true;
-						}
+                                    else if ( !strcmp(value, "stats" ) )
+                                        {
+                                            MeerOutput->external_stats = true;
+                                        }
 
-					else if ( !strcmp(value, "rdp" ) )
-						{
-						MeerOutput->external_rdp  = true;
-						}
+                                    else if ( !strcmp(value, "rdp" ) )
+                                        {
+                                            MeerOutput->external_rdp  = true;
+                                        }
 
-					else if ( !strcmp(value, "sip" ) )
-						{
-						MeerOutput->external_sip = true;
-						}
+                                    else if ( !strcmp(value, "sip" ) )
+                                        {
+                                            MeerOutput->external_sip = true;
+                                        }
 
-					else if ( !strcmp(value, "ftp" ) )
-						{
-						MeerOutput->external_ftp = true;
-						}
+                                    else if ( !strcmp(value, "ftp" ) )
+                                        {
+                                            MeerOutput->external_ftp = true;
+                                        }
 
-					else if ( !strcmp(value, "ikev2" ) )
-						{
-						MeerOutput->external_ikev2 = true;
-						}
+                                    else if ( !strcmp(value, "ikev2" ) )
+                                        {
+                                            MeerOutput->external_ikev2 = true;
+                                        }
 
-					else if ( !strcmp(value, "nfs" ) )
-						{
-						MeerOutput->external_nfs = true;
-						}
+                                    else if ( !strcmp(value, "nfs" ) )
+                                        {
+                                            MeerOutput->external_nfs = true;
+                                        }
 
-					else if ( !strcmp(value, "tftp" ) )
-						{
-						MeerOutput->external_tftp = true;
-						}
+                                    else if ( !strcmp(value, "tftp" ) )
+                                        {
+                                            MeerOutput->external_tftp = true;
+                                        }
 
-					else if ( !strcmp(value, "smb" ) )
-						{
-						MeerOutput->external_smb = true;
-						}
+                                    else if ( !strcmp(value, "smb" ) )
+                                        {
+                                            MeerOutput->external_smb = true;
+                                        }
 
-					else if ( !strcmp(value, "dcerpc" ) )
-						{
-						MeerOutput->external_dcerpc = true;
-						}
+                                    else if ( !strcmp(value, "dcerpc" ) )
+                                        {
+                                            MeerOutput->external_dcerpc = true;
+                                        }
 
-					else if ( !strcmp(value, "mqtt" ) )
-						{
-						MeerOutput->external_mqtt = true;
-						}
+                                    else if ( !strcmp(value, "mqtt" ) )
+                                        {
+                                            MeerOutput->external_mqtt = true;
+                                        }
 
-					else if ( !strcmp(value, "netflow" ) )
-						{
-						MeerOutput->external_netflow = true;
-						}
+                                    else if ( !strcmp(value, "netflow" ) )
+                                        {
+                                            MeerOutput->external_netflow = true;
+                                        }
 
-					else if ( !strcmp(value, "metadata" ) )
-						{
-						MeerOutput->external_metadata = true;
-						}
+                                    else if ( !strcmp(value, "metadata" ) )
+                                        {
+                                            MeerOutput->external_metadata = true;
+                                        }
 
-					else if ( !strcmp(value, "dnp3" ) )
-						{
-						MeerOutput->external_dnp3 = true;
-						}
+                                    else if ( !strcmp(value, "dnp3" ) )
+                                        {
+                                            MeerOutput->external_dnp3 = true;
+                                        }
 
-					else if ( !strcmp(value, "anomaly" ) )
-						{
-						MeerOutput->external_anomaly = true;
-						}
+                                    else if ( !strcmp(value, "anomaly" ) )
+                                        {
+                                            MeerOutput->external_anomaly = true;
+                                        }
 
-                                	} 
+                                    else if ( !strcmp(value, "fingerprint" ) )
+                                        {
+                                            MeerOutput->external_fingerprint = true;
+                                        }
+                                }
                         }
 
 
@@ -1274,146 +1278,151 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
-			    if ( !strcmp(last_pass, "routing" ) && MeerOutput->redis_enabled == true )
-			    		{
-					routing = true;
-					}
+                            if ( !strcmp(last_pass, "routing" ) && MeerOutput->redis_enabled == true )
+                                {
+                                    routing = true;
+                                }
 
-			    if ( routing == true && MeerOutput->redis_enabled == true ) 
-			    		{
+                            if ( routing == true && MeerOutput->redis_enabled == true )
+                                {
 
-					if ( !strcmp(value, "alert" ) )
-						{
-						MeerOutput->redis_alert = true;
-						}
+                                    if ( !strcmp(value, "alert" ) )
+                                        {
+                                            MeerOutput->redis_alert = true;
+                                        }
 
-					else if ( !strcmp(value, "files" ) )
-						{
-						MeerOutput->redis_files = true;
-						}
+                                    else if ( !strcmp(value, "files" ) )
+                                        {
+                                            MeerOutput->redis_files = true;
+                                        }
 
-					else if ( !strcmp(value, "flow" ) )
-						{
-						MeerOutput->redis_flow = true;
-						}
+                                    else if ( !strcmp(value, "flow" ) )
+                                        {
+                                            MeerOutput->redis_flow = true;
+                                        }
 
-					else if ( !strcmp(value, "dns" ) )
-						{
-						MeerOutput->redis_dns = true;
-						}
+                                    else if ( !strcmp(value, "dns" ) )
+                                        {
+                                            MeerOutput->redis_dns = true;
+                                        }
 
-					else if ( !strcmp(value, "http" ) )
-						{
-						MeerOutput->redis_http = true;
-						}
+                                    else if ( !strcmp(value, "http" ) )
+                                        {
+                                            MeerOutput->redis_http = true;
+                                        }
 
-					else if ( !strcmp(value, "tls" ) )
-						{
-						MeerOutput->redis_tls = true;
-						}
+                                    else if ( !strcmp(value, "tls" ) )
+                                        {
+                                            MeerOutput->redis_tls = true;
+                                        }
 
-					else if ( !strcmp(value, "ssh" ) )
-						{
-						MeerOutput->redis_ssh = true;
-						}
+                                    else if ( !strcmp(value, "ssh" ) )
+                                        {
+                                            MeerOutput->redis_ssh = true;
+                                        }
 
-					else if ( !strcmp(value, "smtp" ) )
-						{
-						MeerOutput->redis_smtp = true;
-						}
+                                    else if ( !strcmp(value, "smtp" ) )
+                                        {
+                                            MeerOutput->redis_smtp = true;
+                                        }
 
-					else if ( !strcmp(value, "email" ) )
-						{
-						MeerOutput->redis_email = true;
-						}
+                                    else if ( !strcmp(value, "email" ) )
+                                        {
+                                            MeerOutput->redis_email = true;
+                                        }
 
-					else if ( !strcmp(value, "fileinfo" ) )
-						{
-						MeerOutput->redis_fileinfo = true;
-						}
+                                    else if ( !strcmp(value, "fileinfo" ) )
+                                        {
+                                            MeerOutput->redis_fileinfo = true;
+                                        }
 
-					else if ( !strcmp(value, "dhcp" ) )
-						{
-						MeerOutput->redis_dhcp = true;
-						}
+                                    else if ( !strcmp(value, "dhcp" ) )
+                                        {
+                                            MeerOutput->redis_dhcp = true;
+                                        }
 
-					else if ( !strcmp(value, "stats" ) )
-						{
-						MeerOutput->redis_stats = true;
-						}
+                                    else if ( !strcmp(value, "stats" ) )
+                                        {
+                                            MeerOutput->redis_stats = true;
+                                        }
 
-					else if ( !strcmp(value, "rdp" ) )
-						{
-						MeerOutput->redis_rdp  = true;
-						}
+                                    else if ( !strcmp(value, "rdp" ) )
+                                        {
+                                            MeerOutput->redis_rdp  = true;
+                                        }
 
-					else if ( !strcmp(value, "sip" ) )
-						{
-						MeerOutput->redis_sip = true;
-						}
+                                    else if ( !strcmp(value, "sip" ) )
+                                        {
+                                            MeerOutput->redis_sip = true;
+                                        }
 
-					else if ( !strcmp(value, "ftp" ) )
-						{
-						MeerOutput->redis_ftp = true;
-						}
+                                    else if ( !strcmp(value, "ftp" ) )
+                                        {
+                                            MeerOutput->redis_ftp = true;
+                                        }
 
-					else if ( !strcmp(value, "ikev2" ) )
-						{
-						MeerOutput->redis_ikev2 = true;
-						}
+                                    else if ( !strcmp(value, "ikev2" ) )
+                                        {
+                                            MeerOutput->redis_ikev2 = true;
+                                        }
 
-					else if ( !strcmp(value, "nfs" ) )
-						{
-						MeerOutput->redis_nfs = true;
-						}
+                                    else if ( !strcmp(value, "nfs" ) )
+                                        {
+                                            MeerOutput->redis_nfs = true;
+                                        }
 
-					else if ( !strcmp(value, "tftp" ) )
-						{
-						MeerOutput->redis_tftp = true;
-						}
+                                    else if ( !strcmp(value, "tftp" ) )
+                                        {
+                                            MeerOutput->redis_tftp = true;
+                                        }
 
-					else if ( !strcmp(value, "smb" ) )
-						{
-						MeerOutput->redis_smb = true;
-						}
+                                    else if ( !strcmp(value, "smb" ) )
+                                        {
+                                            MeerOutput->redis_smb = true;
+                                        }
 
-					else if ( !strcmp(value, "dcerpc" ) )
-						{
-						MeerOutput->redis_dcerpc = true;
-						}
+                                    else if ( !strcmp(value, "dcerpc" ) )
+                                        {
+                                            MeerOutput->redis_dcerpc = true;
+                                        }
 
-					else if ( !strcmp(value, "mqtt" ) )
-						{
-						MeerOutput->redis_mqtt = true;
-						}
+                                    else if ( !strcmp(value, "mqtt" ) )
+                                        {
+                                            MeerOutput->redis_mqtt = true;
+                                        }
 
-					else if ( !strcmp(value, "netflow" ) )
-						{
-						MeerOutput->redis_netflow = true;
-						}
+                                    else if ( !strcmp(value, "netflow" ) )
+                                        {
+                                            MeerOutput->redis_netflow = true;
+                                        }
 
-					else if ( !strcmp(value, "metadata" ) )
-						{
-						MeerOutput->redis_metadata = true;
-						}
+                                    else if ( !strcmp(value, "metadata" ) )
+                                        {
+                                            MeerOutput->redis_metadata = true;
+                                        }
 
-					else if ( !strcmp(value, "dnp3" ) )
-						{
-						MeerOutput->redis_dnp3 = true;
-						}
+                                    else if ( !strcmp(value, "dnp3" ) )
+                                        {
+                                            MeerOutput->redis_dnp3 = true;
+                                        }
 
-					else if ( !strcmp(value, "anomaly" ) )
-						{
-						MeerOutput->redis_anomaly = true;
-						}
+                                    else if ( !strcmp(value, "anomaly" ) )
+                                        {
+                                            MeerOutput->redis_anomaly = true;
+                                        }
 
-					else if ( !strcmp(value, "client_stats" ) )
-						{
-						MeerOutput->redis_client_stats = true;
-						}
+                                    else if ( !strcmp(value, "fingerprint" ) )
+                                        {
+                                            MeerOutput->redis_fingerprint = true;
+                                        }
 
-					}
-                        } 
+                                    else if ( !strcmp(value, "client_stats" ) )
+                                        {
+                                            MeerOutput->redis_client_stats = true;
+                                        }
+
+                                }
+                        }
 
 #endif
 
@@ -1532,142 +1541,148 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
-			    if ( !strcmp(last_pass, "routing" ) && MeerOutput->elasticsearch_enabled == true )
-			    		{
-					routing = true;
-					}
+                            if ( !strcmp(last_pass, "routing" ) && MeerOutput->elasticsearch_enabled == true )
+                                {
+                                    routing = true;
+                                }
 
-			    if ( routing == true && MeerOutput->elasticsearch_enabled == true ) 
-			    		{
+                            if ( routing == true && MeerOutput->elasticsearch_enabled == true )
+                                {
 
-					if ( !strcmp(value, "alert" ) )
-						{
-						MeerOutput->elasticsearch_alert = true;
-						}
+                                    if ( !strcmp(value, "alert" ) )
+                                        {
+                                            MeerOutput->elasticsearch_alert = true;
+                                        }
 
-					else if ( !strcmp(value, "files" ) )
-						{
-						MeerOutput->elasticsearch_files = true;
-						}
+                                    else if ( !strcmp(value, "files" ) )
+                                        {
+                                            MeerOutput->elasticsearch_files = true;
+                                        }
 
-					else if ( !strcmp(value, "flow" ) )
-						{
-						MeerOutput->elasticsearch_flow = true;
-						}
+                                    else if ( !strcmp(value, "flow" ) )
+                                        {
+                                            MeerOutput->elasticsearch_flow = true;
+                                        }
 
-					else if ( !strcmp(value, "dns" ) )
-						{
-						MeerOutput->elasticsearch_dns = true;
-						}
+                                    else if ( !strcmp(value, "dns" ) )
+                                        {
+                                            MeerOutput->elasticsearch_dns = true;
+                                        }
 
-					else if ( !strcmp(value, "http" ) )
-						{
-						MeerOutput->elasticsearch_http = true;
-						}
+                                    else if ( !strcmp(value, "http" ) )
+                                        {
+                                            MeerOutput->elasticsearch_http = true;
+                                        }
 
-					else if ( !strcmp(value, "tls" ) )
-						{
-						MeerOutput->elasticsearch_tls = true;
-						}
+                                    else if ( !strcmp(value, "tls" ) )
+                                        {
+                                            MeerOutput->elasticsearch_tls = true;
+                                        }
 
-					else if ( !strcmp(value, "ssh" ) )
-						{
-						MeerOutput->elasticsearch_ssh = true;
-						}
+                                    else if ( !strcmp(value, "ssh" ) )
+                                        {
+                                            MeerOutput->elasticsearch_ssh = true;
+                                        }
 
-					else if ( !strcmp(value, "smtp" ) )
-						{
-						MeerOutput->elasticsearch_smtp = true;
-						}
+                                    else if ( !strcmp(value, "smtp" ) )
+                                        {
+                                            MeerOutput->elasticsearch_smtp = true;
+                                        }
 
-					else if ( !strcmp(value, "email" ) )
-						{
-						MeerOutput->elasticsearch_email = true;
-						}
+                                    else if ( !strcmp(value, "email" ) )
+                                        {
+                                            MeerOutput->elasticsearch_email = true;
+                                        }
 
-					else if ( !strcmp(value, "fileinfo" ) )
-						{
-						MeerOutput->elasticsearch_fileinfo = true;
-						}
+                                    else if ( !strcmp(value, "fileinfo" ) )
+                                        {
+                                            MeerOutput->elasticsearch_fileinfo = true;
+                                        }
 
-					else if ( !strcmp(value, "dhcp" ) )
-						{
-						MeerOutput->elasticsearch_dhcp = true;
-						}
+                                    else if ( !strcmp(value, "dhcp" ) )
+                                        {
+                                            MeerOutput->elasticsearch_dhcp = true;
+                                        }
 
-					else if ( !strcmp(value, "stats" ) )
-						{
-						MeerOutput->elasticsearch_stats = true;
-						}
+                                    else if ( !strcmp(value, "stats" ) )
+                                        {
+                                            MeerOutput->elasticsearch_stats = true;
+                                        }
 
-					else if ( !strcmp(value, "rdp" ) )
-						{
-						MeerOutput->elasticsearch_rdp  = true;
-						}
+                                    else if ( !strcmp(value, "rdp" ) )
+                                        {
+                                            MeerOutput->elasticsearch_rdp  = true;
+                                        }
 
-					else if ( !strcmp(value, "sip" ) )
-						{
-						MeerOutput->elasticsearch_sip = true;
-						}
+                                    else if ( !strcmp(value, "sip" ) )
+                                        {
+                                            MeerOutput->elasticsearch_sip = true;
+                                        }
 
-					else if ( !strcmp(value, "ftp" ) )
-						{
-						MeerOutput->elasticsearch_ftp = true;
-						}
+                                    else if ( !strcmp(value, "ftp" ) )
+                                        {
+                                            MeerOutput->elasticsearch_ftp = true;
+                                        }
 
-					else if ( !strcmp(value, "ikev2" ) )
-						{
-						MeerOutput->elasticsearch_ikev2 = true;
-						}
+                                    else if ( !strcmp(value, "ikev2" ) )
+                                        {
+                                            MeerOutput->elasticsearch_ikev2 = true;
+                                        }
 
-					else if ( !strcmp(value, "nfs" ) )
-						{
-						MeerOutput->elasticsearch_nfs = true;
-						}
+                                    else if ( !strcmp(value, "nfs" ) )
+                                        {
+                                            MeerOutput->elasticsearch_nfs = true;
+                                        }
 
-					else if ( !strcmp(value, "tftp" ) )
-						{
-						MeerOutput->elasticsearch_tftp = true;
-						}
+                                    else if ( !strcmp(value, "tftp" ) )
+                                        {
+                                            MeerOutput->elasticsearch_tftp = true;
+                                        }
 
-					else if ( !strcmp(value, "smb" ) )
-						{
-						MeerOutput->elasticsearch_smb = true;
-						}
+                                    else if ( !strcmp(value, "smb" ) )
+                                        {
+                                            MeerOutput->elasticsearch_smb = true;
+                                        }
 
-					else if ( !strcmp(value, "dcerpc" ) )
-						{
-						MeerOutput->elasticsearch_dcerpc = true;
-						}
+                                    else if ( !strcmp(value, "dcerpc" ) )
+                                        {
+                                            MeerOutput->elasticsearch_dcerpc = true;
+                                        }
 
-					else if ( !strcmp(value, "mqtt" ) )
-						{
-						MeerOutput->elasticsearch_mqtt = true;
-						}
+                                    else if ( !strcmp(value, "mqtt" ) )
+                                        {
+                                            MeerOutput->elasticsearch_mqtt = true;
+                                        }
 
-					else if ( !strcmp(value, "netflow" ) )
-						{
-						MeerOutput->elasticsearch_netflow = true;
-						}
+                                    else if ( !strcmp(value, "netflow" ) )
+                                        {
+                                            MeerOutput->elasticsearch_netflow = true;
+                                        }
 
-					else if ( !strcmp(value, "metadata" ) )
-						{
-						MeerOutput->elasticsearch_metadata = true;
-						}
+                                    else if ( !strcmp(value, "metadata" ) )
+                                        {
+                                            MeerOutput->elasticsearch_metadata = true;
+                                        }
 
-					else if ( !strcmp(value, "dnp3" ) )
-						{
-						MeerOutput->elasticsearch_dnp3 = true;
-						}
+                                    else if ( !strcmp(value, "dnp3" ) )
+                                        {
+                                            MeerOutput->elasticsearch_dnp3 = true;
+                                        }
 
-					else if ( !strcmp(value, "anomaly" ) )
-						{
-						MeerOutput->elasticsearch_anomaly = true;
-						}
+                                    else if ( !strcmp(value, "anomaly" ) )
+                                        {
+                                            MeerOutput->elasticsearch_anomaly = true;
+                                        }
 
-					}
+                                    else if ( !strcmp(value, "fingerprint" ) )
+                                        {
+                                            MeerOutput->elasticsearch_fingerprint = true;
+                                        }
 
-                        } 
+
+                                }
+
+                        }
 
 #endif
 
@@ -1816,141 +1831,146 @@ void Load_YAML_Config( char *yaml_file )
                                     strlcpy(MeerOutput->file_location, value, sizeof(MeerOutput->file_location));
                                 }
 
-			    if ( !strcmp(last_pass, "routing" ) && MeerOutput->file_enabled == true )
-			    		{
-					routing = true;
-					}
+                            if ( !strcmp(last_pass, "routing" ) && MeerOutput->file_enabled == true )
+                                {
+                                    routing = true;
+                                }
 
-			    if ( routing == true && MeerOutput->file_enabled == true ) 
-			    		{
+                            if ( routing == true && MeerOutput->file_enabled == true )
+                                {
 
-					if ( !strcmp(value, "alert" ) )
-						{
-						MeerOutput->file_alert = true;
-						}
+                                    if ( !strcmp(value, "alert" ) )
+                                        {
+                                            MeerOutput->file_alert = true;
+                                        }
 
-					else if ( !strcmp(value, "files" ) )
-						{
-						MeerOutput->file_files = true;
-						}
+                                    else if ( !strcmp(value, "files" ) )
+                                        {
+                                            MeerOutput->file_files = true;
+                                        }
 
-					else if ( !strcmp(value, "flow" ) )
-						{
-						MeerOutput->file_flow = true;
-						}
+                                    else if ( !strcmp(value, "flow" ) )
+                                        {
+                                            MeerOutput->file_flow = true;
+                                        }
 
-					else if ( !strcmp(value, "dns" ) )
-						{
-						MeerOutput->file_dns = true;
-						}
+                                    else if ( !strcmp(value, "dns" ) )
+                                        {
+                                            MeerOutput->file_dns = true;
+                                        }
 
-					else if ( !strcmp(value, "http" ) )
-						{
-						MeerOutput->file_http = true;
-						}
+                                    else if ( !strcmp(value, "http" ) )
+                                        {
+                                            MeerOutput->file_http = true;
+                                        }
 
-					else if ( !strcmp(value, "tls" ) )
-						{
-						MeerOutput->file_tls = true;
-						}
+                                    else if ( !strcmp(value, "tls" ) )
+                                        {
+                                            MeerOutput->file_tls = true;
+                                        }
 
-					else if ( !strcmp(value, "ssh" ) )
-						{
-						MeerOutput->file_ssh = true;
-						}
+                                    else if ( !strcmp(value, "ssh" ) )
+                                        {
+                                            MeerOutput->file_ssh = true;
+                                        }
 
-					else if ( !strcmp(value, "smtp" ) )
-						{
-						MeerOutput->file_smtp = true;
-						}
+                                    else if ( !strcmp(value, "smtp" ) )
+                                        {
+                                            MeerOutput->file_smtp = true;
+                                        }
 
-					else if ( !strcmp(value, "email" ) )
-						{
-						MeerOutput->file_email = true;
-						}
+                                    else if ( !strcmp(value, "email" ) )
+                                        {
+                                            MeerOutput->file_email = true;
+                                        }
 
-					else if ( !strcmp(value, "fileinfo" ) )
-						{
-						MeerOutput->file_fileinfo = true;
-						}
+                                    else if ( !strcmp(value, "fileinfo" ) )
+                                        {
+                                            MeerOutput->file_fileinfo = true;
+                                        }
 
-					else if ( !strcmp(value, "dhcp" ) )
-						{
-						MeerOutput->file_dhcp = true;
-						}
+                                    else if ( !strcmp(value, "dhcp" ) )
+                                        {
+                                            MeerOutput->file_dhcp = true;
+                                        }
 
-					else if ( !strcmp(value, "stats" ) )
-						{
-						MeerOutput->file_stats = true;
-						}
+                                    else if ( !strcmp(value, "stats" ) )
+                                        {
+                                            MeerOutput->file_stats = true;
+                                        }
 
-					else if ( !strcmp(value, "rdp" ) )
-						{
-						MeerOutput->file_rdp  = true;
-						}
+                                    else if ( !strcmp(value, "rdp" ) )
+                                        {
+                                            MeerOutput->file_rdp  = true;
+                                        }
 
-					else if ( !strcmp(value, "sip" ) )
-						{
-						MeerOutput->file_sip = true;
-						}
+                                    else if ( !strcmp(value, "sip" ) )
+                                        {
+                                            MeerOutput->file_sip = true;
+                                        }
 
-					else if ( !strcmp(value, "ftp" ) )
-						{
-						MeerOutput->file_ftp = true;
-						}
+                                    else if ( !strcmp(value, "ftp" ) )
+                                        {
+                                            MeerOutput->file_ftp = true;
+                                        }
 
-					else if ( !strcmp(value, "ikev2" ) )
-						{
-						MeerOutput->file_ikev2 = true;
-						}
+                                    else if ( !strcmp(value, "ikev2" ) )
+                                        {
+                                            MeerOutput->file_ikev2 = true;
+                                        }
 
-					else if ( !strcmp(value, "nfs" ) )
-						{
-						MeerOutput->file_nfs = true;
-						}
+                                    else if ( !strcmp(value, "nfs" ) )
+                                        {
+                                            MeerOutput->file_nfs = true;
+                                        }
 
-					else if ( !strcmp(value, "tftp" ) )
-						{
-						MeerOutput->file_tftp = true;
-						}
+                                    else if ( !strcmp(value, "tftp" ) )
+                                        {
+                                            MeerOutput->file_tftp = true;
+                                        }
 
-					else if ( !strcmp(value, "smb" ) )
-						{
-						MeerOutput->file_smb = true;
-						}
+                                    else if ( !strcmp(value, "smb" ) )
+                                        {
+                                            MeerOutput->file_smb = true;
+                                        }
 
-					else if ( !strcmp(value, "dcerpc" ) )
-						{
-						MeerOutput->file_dcerpc = true;
-						}
+                                    else if ( !strcmp(value, "dcerpc" ) )
+                                        {
+                                            MeerOutput->file_dcerpc = true;
+                                        }
 
-					else if ( !strcmp(value, "mqtt" ) )
-						{
-						MeerOutput->file_mqtt = true;
-						}
+                                    else if ( !strcmp(value, "mqtt" ) )
+                                        {
+                                            MeerOutput->file_mqtt = true;
+                                        }
 
-					else if ( !strcmp(value, "netflow" ) )
-						{
-						MeerOutput->file_netflow = true;
-						}
+                                    else if ( !strcmp(value, "netflow" ) )
+                                        {
+                                            MeerOutput->file_netflow = true;
+                                        }
 
-					else if ( !strcmp(value, "metadata" ) )
-						{
-						MeerOutput->file_metadata = true;
-						}
+                                    else if ( !strcmp(value, "metadata" ) )
+                                        {
+                                            MeerOutput->file_metadata = true;
+                                        }
 
-					else if ( !strcmp(value, "dnp3" ) )
-						{
-						MeerOutput->file_dnp3 = true;
-						}
+                                    else if ( !strcmp(value, "dnp3" ) )
+                                        {
+                                            MeerOutput->file_dnp3 = true;
+                                        }
 
-					else if ( !strcmp(value, "anomaly" ) )
-						{
-						MeerOutput->file_anomaly = true;
-						}
+                                    else if ( !strcmp(value, "anomaly" ) )
+                                        {
+                                            MeerOutput->file_anomaly = true;
+                                        }
 
-					}
-                        } 
+                                    else if ( !strcmp(value, "fingerprint" ) )
+                                        {
+                                            MeerOutput->file_fingerprint = true;
+                                        }
+
+                                }
+                        }
 
                     if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_PIPE )
                         {
@@ -1994,142 +2014,146 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-			    if ( !strcmp(last_pass, "routing" ) && MeerOutput->pipe_enabled == true )
-			    		{
-					routing = true;
-					}
+                            if ( !strcmp(last_pass, "routing" ) && MeerOutput->pipe_enabled == true )
+                                {
+                                    routing = true;
+                                }
 
-			    if ( routing == true && MeerOutput->pipe_enabled == true ) 
-			    		{
+                            if ( routing == true && MeerOutput->pipe_enabled == true )
+                                {
 
-					if ( !strcmp(value, "alert" ) )
-						{
-						MeerOutput->pipe_alert = true;
-						}
+                                    if ( !strcmp(value, "alert" ) )
+                                        {
+                                            MeerOutput->pipe_alert = true;
+                                        }
 
-					else if ( !strcmp(value, "files" ) )
-						{
-						MeerOutput->pipe_files = true;
-						}
+                                    else if ( !strcmp(value, "files" ) )
+                                        {
+                                            MeerOutput->pipe_files = true;
+                                        }
 
-					else if ( !strcmp(value, "flow" ) )
-						{
-						MeerOutput->pipe_flow = true;
-						}
+                                    else if ( !strcmp(value, "flow" ) )
+                                        {
+                                            MeerOutput->pipe_flow = true;
+                                        }
 
-					else if ( !strcmp(value, "dns" ) )
-						{
-						MeerOutput->pipe_dns = true;
-						}
+                                    else if ( !strcmp(value, "dns" ) )
+                                        {
+                                            MeerOutput->pipe_dns = true;
+                                        }
 
-					else if ( !strcmp(value, "http" ) )
-						{
-						MeerOutput->pipe_http = true;
-						}
+                                    else if ( !strcmp(value, "http" ) )
+                                        {
+                                            MeerOutput->pipe_http = true;
+                                        }
 
-					else if ( !strcmp(value, "tls" ) )
-						{
-						MeerOutput->pipe_tls = true;
-						}
+                                    else if ( !strcmp(value, "tls" ) )
+                                        {
+                                            MeerOutput->pipe_tls = true;
+                                        }
 
-					else if ( !strcmp(value, "ssh" ) )
-						{
-						MeerOutput->pipe_ssh = true;
-						}
+                                    else if ( !strcmp(value, "ssh" ) )
+                                        {
+                                            MeerOutput->pipe_ssh = true;
+                                        }
 
-					else if ( !strcmp(value, "smtp" ) )
-						{
-						MeerOutput->pipe_smtp = true;
-						}
+                                    else if ( !strcmp(value, "smtp" ) )
+                                        {
+                                            MeerOutput->pipe_smtp = true;
+                                        }
 
-					else if ( !strcmp(value, "email" ) )
-						{
-						MeerOutput->pipe_email = true;
-						}
+                                    else if ( !strcmp(value, "email" ) )
+                                        {
+                                            MeerOutput->pipe_email = true;
+                                        }
 
-					else if ( !strcmp(value, "fileinfo" ) )
-						{
-						MeerOutput->pipe_fileinfo = true;
-						}
+                                    else if ( !strcmp(value, "fileinfo" ) )
+                                        {
+                                            MeerOutput->pipe_fileinfo = true;
+                                        }
 
-					else if ( !strcmp(value, "dhcp" ) )
-						{
-						MeerOutput->pipe_dhcp = true;
-						}
+                                    else if ( !strcmp(value, "dhcp" ) )
+                                        {
+                                            MeerOutput->pipe_dhcp = true;
+                                        }
 
-					else if ( !strcmp(value, "stats" ) )
-						{
-						MeerOutput->pipe_stats = true;
-						}
+                                    else if ( !strcmp(value, "stats" ) )
+                                        {
+                                            MeerOutput->pipe_stats = true;
+                                        }
 
-					else if ( !strcmp(value, "rdp" ) )
-						{
-						MeerOutput->pipe_rdp  = true;
-						}
+                                    else if ( !strcmp(value, "rdp" ) )
+                                        {
+                                            MeerOutput->pipe_rdp  = true;
+                                        }
 
-					else if ( !strcmp(value, "sip" ) )
-						{
-						MeerOutput->pipe_sip = true;
-						}
+                                    else if ( !strcmp(value, "sip" ) )
+                                        {
+                                            MeerOutput->pipe_sip = true;
+                                        }
 
-					else if ( !strcmp(value, "ftp" ) )
-						{
-						MeerOutput->pipe_ftp = true;
-						}
+                                    else if ( !strcmp(value, "ftp" ) )
+                                        {
+                                            MeerOutput->pipe_ftp = true;
+                                        }
 
-					else if ( !strcmp(value, "ikev2" ) )
-						{
-						MeerOutput->pipe_ikev2 = true;
-						}
+                                    else if ( !strcmp(value, "ikev2" ) )
+                                        {
+                                            MeerOutput->pipe_ikev2 = true;
+                                        }
 
-					else if ( !strcmp(value, "nfs" ) )
-						{
-						MeerOutput->pipe_nfs = true;
-						}
+                                    else if ( !strcmp(value, "nfs" ) )
+                                        {
+                                            MeerOutput->pipe_nfs = true;
+                                        }
 
-					else if ( !strcmp(value, "tftp" ) )
-						{
-						MeerOutput->pipe_tftp = true;
-						}
+                                    else if ( !strcmp(value, "tftp" ) )
+                                        {
+                                            MeerOutput->pipe_tftp = true;
+                                        }
 
-					else if ( !strcmp(value, "smb" ) )
-						{
-						MeerOutput->pipe_smb = true;
-						}
+                                    else if ( !strcmp(value, "smb" ) )
+                                        {
+                                            MeerOutput->pipe_smb = true;
+                                        }
 
-					else if ( !strcmp(value, "dcerpc" ) )
-						{
-						MeerOutput->pipe_dcerpc = true;
-						}
+                                    else if ( !strcmp(value, "dcerpc" ) )
+                                        {
+                                            MeerOutput->pipe_dcerpc = true;
+                                        }
 
-					else if ( !strcmp(value, "mqtt" ) )
-						{
-						MeerOutput->pipe_mqtt = true;
-						}
+                                    else if ( !strcmp(value, "mqtt" ) )
+                                        {
+                                            MeerOutput->pipe_mqtt = true;
+                                        }
 
-					else if ( !strcmp(value, "netflow" ) )
-						{
-						MeerOutput->pipe_netflow = true;
-						}
+                                    else if ( !strcmp(value, "netflow" ) )
+                                        {
+                                            MeerOutput->pipe_netflow = true;
+                                        }
 
-					else if ( !strcmp(value, "metadata" ) )
-						{
-						MeerOutput->pipe_metadata = true;
-						}
+                                    else if ( !strcmp(value, "metadata" ) )
+                                        {
+                                            MeerOutput->pipe_metadata = true;
+                                        }
 
-					else if ( !strcmp(value, "dnp3" ) )
-						{
-						MeerOutput->pipe_dnp3 = true;
-						}
+                                    else if ( !strcmp(value, "dnp3" ) )
+                                        {
+                                            MeerOutput->pipe_dnp3 = true;
+                                        }
 
-					else if ( !strcmp(value, "anomaly" ) )
-						{
-						MeerOutput->pipe_anomaly = true;
-						}
+                                    else if ( !strcmp(value, "anomaly" ) )
+                                        {
+                                            MeerOutput->pipe_anomaly = true;
+                                        }
 
-					}
+                                    else if ( !strcmp(value, "fingerprint" ) )
+                                        {
+                                            MeerOutput->pipe_fingerprint = true;
+                                        }
+                                }
 
-                        }  
+                        }
 
                     strlcpy(last_pass, value, sizeof(last_pass));
 

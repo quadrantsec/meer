@@ -187,6 +187,13 @@ void Counters ( const char *event_type )
             return;
         }
 
+    else if ( !strcmp(event_type, "fingerprint" ) )
+        {
+            MeerCounters->fingerprint++;
+            return;
+        }
+
+
 
     MeerCounters->unknown++;
     Meer_Log(WARN, "[%s, line %d] Unknown event_type '%s'. Skipping....", __FILE__, __LINE__, event_type);

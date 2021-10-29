@@ -206,6 +206,7 @@ output-plugins:
       - metadata
       - dnp3
       - anomaly
+      - fingerprint
 
   ###########################################################################
   # pipe
@@ -248,6 +249,7 @@ output-plugins:
       - metadata
       - dnp3
       - anomaly
+      - fingerprint
 
   ###########################################################################
   # external 
@@ -372,13 +374,6 @@ output-plugins:
       - metadata
       - dnp3
       - anomaly
-
-    # Fingerprint data can be temporarily stored in a Redis database.  When an alert
-    # fires, this information can be used to determine the targets operating system, 
-    # type (client/server), etc.  This can be useful in determining the validity of
-    # an event. If used in conjunction with the SQL output,  the fingerprint data for
-    # the targeted system is stored in the 'fingerprint' table.
-
       - fingerprint
 
     # This controls sending Sagan client tracking data to Redis.  This has no affect 
@@ -432,5 +427,6 @@ output-plugins:
       - metadata
       - dnp3
       - anomaly
+      - fingerprint
 
 
