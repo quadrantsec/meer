@@ -29,7 +29,6 @@
 
 #include "util-base64.h"
 
-
 #define ASCII_BLOCK         3
 #define B64_BLOCK           4
 #define BASE64_TABLE_MAX  122
@@ -40,6 +39,7 @@ static inline int GetBase64Value(uint8_t c);
 
 /* Base64 character to index conversion table */
 /* Characters are mapped as "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" */
+
 static const int b64table[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                                 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,

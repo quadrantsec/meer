@@ -33,12 +33,9 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <netdb.h>
-//#include <sys/socket.h>
 #include <unistd.h>
-//#include <sys/types.h>
 #include <sys/stat.h>
 #include <ctype.h>
-
 
 #include "meer.h"
 #include "meer-def.h"
@@ -48,9 +45,6 @@
 
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerCounters *MeerCounters;
-//struct _DnsCache *DnsCache;
-
-//uint32_t DnsCacheCount = 0;
 
 void Drop_Priv(void)
 {
@@ -133,8 +127,6 @@ void Meer_Log (int type, const char *format,... )
 
 }
 
-
-
 void Remove_Return(char *s)
 {
     char *s1, *s2;
@@ -203,9 +195,9 @@ bool IP2Bit(char *ipaddr, unsigned char *out)
             break;
 
 //                default:
-//                    Sagan_Log(S_WARN, "Warning: Got a getaddrinfo() received a non IPv4/IPv6 address for \"%s\" but continuing...", ipaddr);
+//                    Meer_Log(S_WARN, "Warning: Got a getaddrinfo() received a non IPv4/IPv6 address for \"%s\" but continuing...", ipaddr);
         }
-//        }
+
     if (result != NULL)
         {
             freeaddrinfo(result);
@@ -248,7 +240,6 @@ bool Check_Endian()
         return 1;   /* Big endian */
 }
 
-
 char *Hexify(char *xdata, int length)
 {
 
@@ -272,7 +263,6 @@ char *Hexify(char *xdata, int length)
 
     return(retbuf);
 }
-
 
 uint64_t Current_Epoch( void )
 {
@@ -388,8 +378,6 @@ double CalcPct(uint64_t cnt, uint64_t total)
 
     return pct;
 }
-
-
 
 /**************************
  * Checks if a file exsists

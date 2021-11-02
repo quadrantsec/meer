@@ -31,7 +31,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-
 #include "meer-def.h"
 #include "meer.h"
 
@@ -42,13 +41,10 @@ extern struct _MeerConfig *MeerConfig;
 extern struct _MeerCounters *MeerCounters;
 
 struct _DnsCache *DnsCache;
-
 uint32_t DnsCacheCount = 0;
-
 
 void DNS_Lookup_Reverse( char *host, char *str, size_t size )
 {
-
 
     struct sockaddr_in ipaddr;
     time_t t;

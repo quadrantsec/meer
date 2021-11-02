@@ -37,7 +37,6 @@
 
 #include "decode-json-alert.h"
 #include "decode-json-dhcp.h"
-#include "fingerprints.h"
 
 #include "meer.h"
 #include "meer-def.h"
@@ -51,7 +50,6 @@
 #include "output-plugins/sql.h"
 #include "output-plugins/pipe.h"
 #include "output-plugins/external.h"
-#include "output-plugins/fingerprint.h"
 #include "output-plugins/pipe.h"
 #include "output-plugins/file.h"
 
@@ -164,11 +162,6 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Write 'anomaly'      : %s", MeerOutput->external_anomaly ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'fingerprint'  : %s", MeerOutput->external_fingerprint ? "enabled" : "disabled" );
 
-
-
-
-//               }
-
             Meer_Log(NORMAL, "");
 
         }
@@ -183,7 +176,6 @@ void Init_Output( void )
 
             Meer_Log(NORMAL, "--[ Redis information ]--------------------------------------------");
             Meer_Log(NORMAL, "");
-
 
             /* Connect to redis database */
 
@@ -227,7 +219,6 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Write 'fingerprint'  : %s", MeerOutput->redis_fingerprint ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Write 'client_stats' : %s", MeerOutput->redis_client_stats ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "");
-
 
         }
 
@@ -344,7 +335,6 @@ void Init_Output( void )
     if ( MeerOutput->sql_enabled )
         {
 
-
             Meer_Log(NORMAL, "--[ SQL information ]--------------------------------------------");
             Meer_Log(NORMAL, "");
 
@@ -360,7 +350,6 @@ void Init_Output( void )
 
             Meer_Log(NORMAL, "Extra data: %s", MeerOutput->sql_extra_data ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Fingerprinting: %s", MeerOutput->sql_fingerprint ? "enabled" : "disabled" );
-
 
             /* Legacy reference system */
 
@@ -378,21 +367,6 @@ void Init_Output( void )
 
             MeerOutput->sql_sensor_id = SQL_Get_Sensor_ID();
             MeerOutput->sql_last_cid = SQL_Get_Last_CID() + 1;
-
-            /*
-                Meer_Log(NORMAL, "");
-                Meer_Log(NORMAL, "Record 'json'    : %s", MeerOutput->sql_json ? "enabled" : "disabled" );
-                Meer_Log(NORMAL, "Record 'metadata': %s", MeerOutput->sql_metadata ? "enabled" : "disabled" );
-                Meer_Log(NORMAL, "Record 'flow'    : %s", MeerOutput->sql_flow ? "enabled" : "disabled" );
-                Meer_Log(NORMAL, "Record 'http'    : %s", MeerOutput->sql_http ? "enabled" : "disabled" );
-                Meer_Log(NORMAL, "Record 'tls'     : %s", MeerOutput->sql_tls ? "enabled" : "disabled" );
-                Meer_Log(NORMAL, "Record 'ssh'     : %s", MeerOutput->sql_ssh ? "enabled" : "disabled" );
-                Meer_Log(NORMAL, "Record 'smtp'    : %s", MeerOutput->sql_smtp ? "enabled" : "disabled" );
-                Meer_Log(NORMAL, "Record 'email'   : %s", MeerOutput->sql_email ? "enabled" : "disabled" );
-                Meer_Log(NORMAL, "Record 'bluedot' : %s", MeerOutput->sql_bluedot ? "enabled" : "disabled" );
-                Meer_Log(NORMAL, "");
-            */
-
         }
 
 #endif
@@ -403,13 +377,7 @@ void Init_Output( void )
             Meer_Log(NORMAL, "--[ Fingerprinting information ]---------------------------------");
             Meer_Log(NORMAL, "");
             Meer_Log(NORMAL, "Fingerprinting : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Fingerprint log file : %s", MeerConfig->fingerprint_log );
             Meer_Log(NORMAL, "");
-
-            if (( MeerConfig->fingerprint_log_fd  = fopen(MeerConfig->fingerprint_log, "a" )) == NULL )
-                {
-                    Meer_Log(ERROR, "Cannot open Meer fingerprint log file %s! [%s]. Abort!", MeerConfig->fingerprint_log, strerror(errno));
-                }
 
         }
 
@@ -746,15 +714,8 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
                             SQL_Insert_Syslog_Data( DecodeAlert );
                         }
 
-//                    if ( MeerConfig->json == true )
-//                        {
                     SQL_Insert_JSON ( DecodeAlert );
-//                        }
-
-//                    if ( MeerConfig->dns == true )
-//                        {
                     SQL_Insert_DNS ( DecodeAlert );
-//                        }
 
                     /* We can have multiple "xff" fields in extra data */
 
@@ -808,11 +769,6 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
                             SQL_Insert_Email ( DecodeAlert );
                         }
 
-//                    if ( DecodeAlert->has_bluedot == true ) // && MeerConfig->bluedot == true )
-//                        {
-//                            SQL_Insert_Bluedot ( DecodeAlert );
-//                        }
-
                     /* Record CID in case of crash/disconnections */
 
                     snprintf(tmp, sizeof(tmp),
@@ -864,7 +820,6 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
 
                 }
 
-
         }
 
     return 0;
@@ -889,7 +844,6 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
     char *meer = NULL;
 
     char alert_metadata[1024] = { 0 };
-//    bool meer_flag = false;
 
     /* We treat alerts "special".  We allow some filtering to happen, if the
        user wants, before we send alert EVE to external programs */
@@ -1242,10 +1196,7 @@ void Output_Stats ( char *json_string )
             hostname =  (char *)json_object_get_string(tmp);
         }
 
-//    if ( MeerOutput->sql_stats == true )
-//        {
     SQL_Insert_Stats ( json_string, timestamp, hostname );
-//        }
 
 #endif
 
@@ -1454,8 +1405,6 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type )
             return(true);
         }
 
-
-//    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     return(false);
 
 }
@@ -1670,7 +1619,6 @@ bool Output_File ( const char *json_string, const char *event_type )
             return(true);
         }
 
-//    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     return(false);
 
 }
@@ -1836,7 +1784,6 @@ bool Output_Redis( const char *json_string, const char *event_type )
             return(true);
         }
 
-//    Meer_Log(WARN, "[%s, line %d] Unknown JSON type '%s'. JSON String: %s", __FILE__,  __LINE__, event_type, json_string);
     return(false);
 
 }

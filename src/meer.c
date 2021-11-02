@@ -44,10 +44,6 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
-//#ifdef HAVE_LIBMAXMINDDB
-//#include <maxminddb.h>
-//#endif
-
 #include "meer.h"
 #include "meer-def.h"
 #include "decode-json-alert.h"
@@ -68,14 +64,12 @@
 #include "geoip.h"
 #endif
 
-
 struct _MeerConfig *MeerConfig = NULL;
 struct _MeerOutput *MeerOutput = NULL;
 struct _MeerWaldo *MeerWaldo = NULL;
 struct _MeerCounters *MeerCounters = NULL;
 struct _Classifications *MeerClass = NULL;
 struct _References *MeerReferences = NULL;
-
 
 int main (int argc, char *argv[])
 {

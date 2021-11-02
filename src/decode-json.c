@@ -42,8 +42,6 @@ libjson-c is required for Meer to function!
 #include "decode-json.h"
 #include "decode-json-alert.h"
 #include "decode-json-dhcp.h"
-
-#include "fingerprints.h"
 #include "decode-output-json-client-stats.h"
 
 #include "output-plugins/pipe.h"
@@ -63,8 +61,6 @@ libjson-c is required for Meer to function!
 #ifdef HAVE_LIBHIREDIS
 #include "get-fingerprint.h"
 #include "output-plugins/redis.h"
-#include "output-plugins/fingerprint.h"
-#include "fingerprint-to-json.h"
 #endif
 
 extern struct _Classifications *MeerClass;
@@ -208,57 +204,6 @@ bool Decode_JSON( char *json_string )
             json_string = new_json_string;
         }
 
-    /*
-    #ifdef HAVE_LIBHIREDIS
-
-        if ( !strcmp(event_type, "alert") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
-            {
-
-                struct _FingerprintData *FingerprintData;
-                FingerprintData = (struct _FingerprintData *) malloc(sizeof(_FingerprintData));
-
-                if ( FingerprintData == NULL )
-                    {
-                        Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _FingerprintData.  Abort!", __FILE__, __LINE__, json_string);
-                    }
-
-                memset(FingerprintData, 0, sizeof(_FingerprintData));
-
-                /* Determine if the "alert" is a "fingerprint" event or not.  It if is,
-                   store "fingerprint" data in the FingerprintData array.  Otherwise,  enrich
-                   the standard "alert" data with "fingerprint" data */
-    /*
-                if ( Is_Fingerprint( json_obj, FingerprintData ) == false )
-                    {
-
-                        /* This is a standard "alert".  Add any "fingerprint" JSON to the event */
-
-    /*                   char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-                       Get_Fingerprint( json_obj, json_string, new_json_string, PACKET_BUFFER_SIZE_DEFAULT );
-                       json_string = new_json_string;
-                   }
-               else
-                   {
-
-                       /* This is a fingerprint event,  change the event_type and build out new JSON */
-    /*
-                        event_type = "fingerprint";
-
-                        /* Write Fingerprint data to Redis (for future use) */
-    /*
-    		    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-                        Fingerprint_JSON_Redis( json_obj, FingerprintData);
-    		    json_string = new_json_string;
-
-                    }
-
-
-                free(FingerprintData);
-            }
-
-    #endif
-    */
-
 #if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
 
     /* SQL is sort of a difficult output and we only store "alert"
@@ -273,97 +218,6 @@ bool Decode_JSON( char *json_string )
             free( DecodeAlert );
         }
 
-#endif
-
-#ifdef HAVE_LIBHIREDIS
-
-    /* Add fingerprint */
-    /*
-        if ( !strcmp(event_type, "alert") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
-            {
-
-                struct _DecodeAlert *DecodeAlert;   /* event_type: alert */
-//           DecodeAlert = Decode_JSON_Alert( json_obj, json_string );
-
-    /* This does the lookup to see if we have any fingerprint data to "add" to the
-       alert.  */
-
-    //          Add_Fingerprint_To_JSON( json_obj, DecodeAlert );
-
-    /* Is this a "fingerprint" signature? */
-
-    /*         struct _FingerprintData *FingerprintData;
-             FingerprintData = (struct _FingerprintData *) malloc(sizeof(_FingerprintData));
-
-             if ( FingerprintData == NULL )
-                 {
-                     Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _FingerprintData.  Abort!", __FILE__, __LINE__, json_string);
-                 }
-
-             memset(FingerprintData, 0, sizeof(_FingerprintData));
-             Parse_Fingerprint( DecodeAlert, FingerprintData );
-
-             fingerprint_return = false;
-
-             if ( FingerprintData->ret == true )
-                 {
-
-                     fingerprint_return = FingerprintData->ret;
-
-                     Fingerprint_IP_JSON( DecodeAlert, fingerprint_IP_JSON, sizeof(fingerprint_IP_JSON));
-                     Output_Fingerprint_IP( DecodeAlert, fingerprint_IP_JSON);
-
-                     Fingerprint_EVENT_JSON( DecodeAlert, FingerprintData, fingerprint_EVENT_JSON, sizeof(fingerprint_EVENT_JSON));
-                     Output_Fingerprint_EVENT( DecodeAlert, FingerprintData, fingerprint_EVENT_JSON );
-
-                 }
-
-             free(FingerprintData);
-             free(DecodeAlert);
-         }
-    */
-#endif
-
-#ifdef HAVE_LIBHIREDIS
-
-    /*
-        if ( fingerprint_return == false && MeerOutput->redis_enabled == true && MeerOutput->redis_alert == true )
-            {
-                JSON_To_Redis( json_string, "alert" );
-            }
-
-    	*/
-#endif
-
-#ifdef HAVE_LIBHIREDIS
-
-    /*
-        if ( MeerOutput->redis_enabled == true )
-            {
-
-                if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true )
-                    {
-
-                        struct _DecodeDHCP *DecodeDHCP;   /* event_type: dhcp */
-    /*                    DecodeDHCP = (struct _DecodeDHCP *) malloc(sizeof(_DecodeDHCP));
-
-                        if ( DecodeDHCP == NULL )
-                            {
-                                Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _DecodeDHCP.  Abort!", __FILE__, __LINE__, json_string);
-                            }
-
-                        memset(DecodeDHCP, 0, sizeof(_DecodeDHCP));
-
-                        Decode_JSON_DHCP( json_obj, json_string, DecodeDHCP );
-
-                        Fingerprint_DHCP_JSON( DecodeDHCP, fingerprint_DHCP_JSON, sizeof(fingerprint_DHCP_JSON));
-                        Output_Fingerprint_DHCP ( DecodeDHCP, fingerprint_DHCP_JSON );
-
-                        free(DecodeDHCP);
-                    }
-
-            }
-    */
 #endif
 
     if ( MeerOutput->pipe_enabled == true )

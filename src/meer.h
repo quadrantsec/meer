@@ -94,8 +94,6 @@ struct _MeerConfig
 
     bool health;
     bool fingerprint;
-    char fingerprint_log[256];
-    FILE *fingerprint_log_fd;
 
     bool client_stats;
     uint8_t client_stats_type;
@@ -307,7 +305,6 @@ struct _MeerOutput
     bool file_dns;
     bool file_fileinfo;
     bool file_dhcp;
-//    bool file_bluedot;
     bool file_rdp;
     bool file_sip;
     bool file_ftp;

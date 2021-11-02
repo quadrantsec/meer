@@ -50,7 +50,6 @@ libjson-c is required for Meer to function!
 
 #include "decode-json-alert.h"
 
-//extern struct _MeerCounters *MeerCounters;
 extern struct _MeerConfig *MeerConfig;
 
 struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json_string )
@@ -86,17 +85,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
     bool has_alert = false;
     char new_ip[64];
-
-    /*
-    #ifdef HAVE_LIBMAXMINDDB
-
-        char geoip_src_json[1024] = { 0 };
-        char geoip_dest_json[1024] = { 0 };
-        char tmp_geoip[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-
-    #endif
-    */
-
 
     Alert_Return_Struct = (struct _DecodeAlert *) malloc(sizeof(_DecodeAlert));
 
@@ -179,7 +167,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
     Alert_Return_Struct->tls_fingerprint[0] = '\0';
     Alert_Return_Struct->tls_serial = 0;
 
-
     /* SSH */
 
     Alert_Return_Struct->has_ssh_server = false;
@@ -197,9 +184,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
     Alert_Return_Struct->email_to[0] = '\0';
     Alert_Return_Struct->email_cc[0] = '\0';
     Alert_Return_Struct->email_attachment[0] = '\0';
-
-
-
 
     /* Base information from JSON */
 
@@ -306,28 +290,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
-    /*
-    if ( MeerConfig->bluedot == true )
-        {
-
-            if ( json_object_object_get_ex(json_obj, "bluedot", &tmp))
-                {
-
-                    if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
-                        {
-
-    //                            MeerCounters->BluedotCount++;
-
-                            Alert_Return_Struct->has_bluedot = true;
-                            Alert_Return_Struct->bluedot = (char *)json_object_get_string(tmp);
-
-
-                        }
-                }
-
-        }
-    */
-
     /* Extract "alert" information */
 
     if (json_object_object_get_ex(json_obj, "alert", &tmp))
@@ -377,7 +339,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
                     strlcpy(Alert_Return_Struct->alert_metadata, (char *)json_object_get_string(tmp_alert), sizeof(Alert_Return_Struct->alert_metadata));
                     Alert_Return_Struct->alert_has_metadata = true;
-//                    MeerCounters->MetadataCount++;
 
                 }
 
@@ -385,10 +346,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
-    /* Decode flow data */
-
-//    if ( MeerConfig->flow == true )
-//        {
 
     if ( json_object_object_get_ex(json_obj, "flow", &tmp))
         {
@@ -396,8 +353,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
             if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                 {
-
-//                            MeerCounters->FlowCount++;
 
                     json_obj_flow = json_tokener_parse(json_object_get_string(tmp));
 
@@ -433,9 +388,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
                 }
         }
 
-//        }
-
-//    if ( MeerConfig->http == true && !strcmp( Alert_Return_Struct->app_proto, "http" ))
     if ( !strcmp( Alert_Return_Struct->app_proto, "http" ) )
         {
 
@@ -446,8 +398,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
                     if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                         {
-
-//                            MeerCounters->HTTPCount++;
 
                             json_obj_http = json_tokener_parse(json_object_get_string(tmp));
 
@@ -509,7 +459,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
     /* Proto is still "smtp",  email is a secondary part */
 
-//    if ( MeerConfig->email == true && !strcmp( Alert_Return_Struct->app_proto, "smtp" ))
     if ( !strcmp( Alert_Return_Struct->app_proto, "smtp" ) )
         {
 
@@ -519,8 +468,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
                 if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                     {
-
-//                        MeerCounters->EmailCount++;
 
                         json_obj_email = json_tokener_parse(json_object_get_string(tmp));
 
@@ -549,7 +496,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
-//    if ( MeerConfig->smtp == true && !strcmp( Alert_Return_Struct->app_proto, "smtp" ))
     if ( !strcmp( Alert_Return_Struct->app_proto, "smtp" ))
         {
 
@@ -559,8 +505,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
                 if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                     {
-
-//                        MeerCounters->SMTPCount++;
 
                         json_obj_smtp = json_tokener_parse(json_object_get_string(tmp));
 
@@ -585,7 +529,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
-//    if ( MeerConfig->tls == true && !strcmp( Alert_Return_Struct->app_proto, "tls" ))
     if ( !strcmp( Alert_Return_Struct->app_proto, "tls" ))
         {
 
@@ -596,8 +539,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
                     if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                         {
-
-//                            MeerCounters->TLSCount++;
 
                             json_obj_tls = json_tokener_parse(json_object_get_string(tmp));
 
@@ -653,7 +594,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
         }
 
-//    if ( MeerConfig->ssh == true && !strcmp( Alert_Return_Struct->app_proto, "ssh" ))
     if ( !strcmp( Alert_Return_Struct->app_proto, "ssh" ))
         {
 
@@ -662,8 +602,6 @@ struct _DecodeAlert *Decode_JSON_Alert( struct json_object *json_obj, char *json
 
                     if ( Validate_JSON_String( (char *)json_object_get_string(tmp) ) == 0 )
                         {
-
-//                            MeerCounters->SSHCount++;
 
                             json_obj_ssh_server = json_tokener_parse(json_object_get_string(tmp));
 

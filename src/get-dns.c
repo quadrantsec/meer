@@ -29,9 +29,7 @@
 
 #include "meer-def.h"
 #include "meer.h"
-
 #include "util-dns.h"
-
 
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerCounters *MeerCounters;

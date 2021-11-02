@@ -77,18 +77,13 @@ void Load_YAML_Config( char *yaml_file )
 
     char last_pass[128] = { 0 };
 
-
-//#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
     char *ptr1 = NULL;
     char *ptr2 = NULL;
     char tmp[512] = { 0 };
 
     bool routing = false;
 
-//#endif
-
-    /* For fingerprint */
+    /* For SQL "health checks" */
 
     MeerHealth = (struct _MeerHealth *) malloc(sizeof(_MeerHealth));
 
@@ -101,14 +96,6 @@ void Load_YAML_Config( char *yaml_file )
 
     /* Init MeerConfig values */
 
-    MeerConfig->interface[0] = '\0';
-    MeerConfig->hostname[0] = '\0';
-    MeerConfig->runas[0] = '\0';
-    MeerConfig->classification_file[0] = '\0';
-    MeerConfig->waldo_file[0] = '\0';
-    MeerConfig->follow_file[0] = '\0';
-    MeerConfig->lock_file[0] = '\0';
-    MeerConfig->fingerprint_log[0] = '\0';
     MeerConfig->fingerprint = false;
 
     strlcpy(MeerConfig->meer_log, MEER_LOG, sizeof(MeerConfig->meer_log));
@@ -127,11 +114,6 @@ void Load_YAML_Config( char *yaml_file )
 
     MeerOutput->sql_enabled = false;
     MeerOutput->sql_debug = false;
-    MeerOutput->sql_server[0] = '\0';
-    MeerOutput->sql_port = 0;
-    MeerOutput->sql_username[0] = '\0';
-    MeerOutput->sql_password[0] = '\0';
-    MeerOutput->sql_database[0] = '\0';
     MeerOutput->sql_extra_data = true;
     MeerOutput->sql_reconnect = true;
     MeerOutput->sql_reconnect_time = SQL_RECONNECT_TIME;
@@ -142,8 +124,6 @@ void Load_YAML_Config( char *yaml_file )
 
     MeerOutput->redis_enabled = false;
     MeerOutput->redis_port = 6379;
-    MeerOutput->redis_password[0] = '\0';
-    MeerOutput->redis_key[0] = '\0';
     MeerOutput->redis_batch = 1;
 
     strlcpy(MeerOutput->redis_server, "127.0.0.1", sizeof(MeerOutput->redis_server));
@@ -160,8 +140,6 @@ void Load_YAML_Config( char *yaml_file )
 
     MeerConfig->client_stats = false;
     MeerConfig->oui = false;
-
-
 
     MeerOutput->pipe_size =  DEFAULT_PIPE_SIZE;
 
@@ -192,8 +170,7 @@ void Load_YAML_Config( char *yaml_file )
             if (!yaml_parser_parse(&parser, &event))
                 {
 
-                    /* Useful YAML vars: parser.context_mark.line+1, parser.context_mark.column+1, parser.problem, parser.problem_mark.line+1,
-                       parser.problem_mark.column+1 */
+                    /* Useful YAML vars: parser.context_mark.line+1, parser.context_mark.column+1, parser.problem, parser.problem_mark.line+1, parser.problem_mark.column+1 */
 
                     Meer_Log(ERROR, "[%s, line %d] libyam parse error at line %d in '%s'", __FILE__, __LINE__, parser.problem_mark.line+1, yaml_file);
                 }
@@ -336,13 +313,6 @@ void Load_YAML_Config( char *yaml_file )
                                     strlcpy(MeerConfig->classification_file, value, sizeof(MeerConfig->classification_file));
                                 }
 
-                            /*
-                                                        else if ( !strcmp(last_pass, "gen-msg-map" ))
-                                                            {
-                                                                strlcpy(MeerConfig->genmsgmap_file, value, sizeof(MeerConfig->genmsgmap_file));
-                                                            }
-                            */
-
                             else if ( !strcmp(last_pass, "waldo-file" ) || !strcmp(last_pass, "waldo_file" ) )
                                 {
                                     strlcpy(MeerConfig->waldo_file, value, sizeof(MeerConfig->waldo_file));
@@ -416,102 +386,6 @@ void Load_YAML_Config( char *yaml_file )
                                     strlcpy(MeerConfig->oui_filename, value, sizeof(MeerConfig->oui_filename));
                                 }
 
-                            /*
-                                                        else if ( !strcmp(last_pass, "metadata" ) )
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerConfig->metadata = true;
-                                                                    }
-
-                                                            }
-
-
-                                                        else if ( !strcmp(last_pass, "smtp" ) )
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerConfig->smtp = true;
-                                                                    }
-
-                                                            }
-
-                                                        else if ( !strcmp(last_pass, "email" ) )
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerConfig->email = true;
-                                                                    }
-
-                                                            }
-
-                                                        else if ( !strcmp(last_pass, "flow" ) )
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerConfig->flow = true;
-                                                                    }
-
-                                                            }
-
-                                                        else if ( !strcmp(last_pass, "http" ) )
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerConfig->http = true;
-                                                                    }
-
-                                                            }
-
-                                                        else if ( !strcmp(last_pass, "tls" ) )
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerConfig->tls = true;
-                                                                    }
-
-                                                            }
-
-                                                        else if ( !strcmp(last_pass, "ssh" ) )
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerConfig->ssh = true;
-                                                                    }
-
-                                                            }
-
-                                                        else if ( !strcmp(last_pass, "json" ) )
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerConfig->json = true;
-                                                                    }
-
-                                                            }
-
-                            */
-                            /*
-                                    else if ( !strcmp(last_pass, "bluedot" ) )
-                                        {
-
-                                            if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                {
-                                                    MeerConfig->bluedot = true;
-                                                }
-
-                                        }
-
-                            */
-
                             else if ( !strcmp(last_pass, "fingerprint" ) )
                                 {
 
@@ -521,13 +395,6 @@ void Load_YAML_Config( char *yaml_file )
                                         }
 
                                 }
-
-                            else if ( !strcmp(last_pass, "fingerprint_log" ) && MeerConfig->fingerprint == true )
-                                {
-
-                                    strlcpy(MeerConfig->fingerprint_log, value, sizeof(MeerConfig->fingerprint_log));
-                                }
-
 
                             else if ( !strcmp(last_pass, "fingerprint_networks" )  && MeerConfig->fingerprint == true )
                                 {

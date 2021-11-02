@@ -40,7 +40,7 @@ extern struct _MeerOutput *MeerOutput;
 void Statistics( void )
 {
 
-    // DO JSON PER SEC!
+    /* Idea:  Add "JSON per/sec"? */
 
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, "--[ Meer Statistics ]---------------------------------------");
@@ -78,16 +78,10 @@ void Statistics( void )
 
 
 
-    //Meer_Log(NORMAL, " Waldo Postion : %" PRIu64 "", MeerWaldo->position);
-    //Meer_Log(NORMAL, " JSON          : %" PRIu64 "", MeerCounters->JSONCount);
-    //Meer_Log(NORMAL, " Invalid JSON  : %" PRIu64 " (%.3f%%)", MeerCounters->InvalidJSONCount, CalcPct(MeerCounters->JSONCount,MeerCounters->InvalidJSONCount));
-    //Meer_Log(NORMAL, " Flow          : %" PRIu64 "", MeerCounters->FlowCount);
-    //Meer_Log(NORMAL, " HTTP          : %" PRIu64 "", MeerCounters->HTTPCount);
-    //Meer_Log(NORMAL, " TLS           : %" PRIu64 "", MeerCounters->TLSCount);
-    //Meer_Log(NORMAL, " SSH           : %" PRIu64 "", MeerCounters->SSHCount);
-    //Meer_Log(NORMAL, " SMTP          : %" PRIu64 "", MeerCounters->SMTPCount);
-    //Meer_Log(NORMAL, " Email         : %" PRIu64 "", MeerCounters->EmailCount);
-    //Meer_Log(NORMAL, " Metadata      : %" PRIu64 "", MeerCounters->MetadataCount);
+    Meer_Log(NORMAL, "");
+    Meer_Log(NORMAL, " Waldo Postion : %" PRIu64 "", MeerWaldo->position);
+//    Meer_Log(NORMAL, " JSON          : %" PRIu64 "", MeerCounters->JSONCount);
+//    Meer_Log(NORMAL, " Invalid JSON  : %" PRIu64 " (%.3f%%)", MeerCounters->InvalidJSONCount, CalcPct(MeerCounters->JSONCount,MeerCounters->InvalidJSONCount));
 
 #ifdef BLUEDOT
     Meer_Log(NORMAL, " Bluedot       : %" PRIu64 "", MeerCounters->bluedot);

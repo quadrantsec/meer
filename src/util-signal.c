@@ -180,13 +180,6 @@ void Signal_Handler(int sig_num)
                     Meer_Log(NORMAL, "Last CID is : %" PRIu64 ".", MeerOutput->sql_last_cid);
                 }
 
-            if ( MeerConfig->fingerprint == true && MeerConfig->fingerprint_log[0] != '\0' )
-                {
-                    fflush(MeerConfig->fingerprint_log_fd);
-                    fclose(MeerConfig->fingerprint_log_fd);
-                }
-
-
             fsync(MeerConfig->waldo_fd);
             close(MeerConfig->waldo_fd);
 

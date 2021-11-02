@@ -73,8 +73,6 @@ void Load_Classifications( void )
             if ( MeerClass == NULL )
                 {
                     Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _Classifications. Abort!", __FILE__, __LINE__);
-
-
                 }
 
             Remove_Return(buf);

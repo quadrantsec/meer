@@ -46,7 +46,6 @@ extern struct _MeerWaldo *MeerWaldo;
 extern struct _MeerCounters *MeerCounters;
 extern struct _MeerHealth *MeerHealth;
 
-
 uint16_t redis_batch_count = 0;
 
 char redis_batch[MAX_REDIS_BATCH][10240 + PACKET_BUFFER_SIZE_DEFAULT];
