@@ -95,12 +95,6 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
             strlcpy( app_proto, json_object_get_string(tmp), sizeof(app_proto) );
         }
 
-    if ( app_proto[0] == '\0' )
-        {
-            Meer_Log(WARN, "[%s, line %d] Got a NULL app_proto?!?!", __FILE__, __LINE__);
-        }
-
-
     if (json_object_object_get_ex(json_obj, "flow_id", &tmp))
         {
             flow_id = json_object_get_int64(tmp);
@@ -133,7 +127,13 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     json_object_object_add(encode_json_fingerprint, "timestamp", json_object_new_string( timestamp ));
     json_object_object_add(encode_json_fingerprint, "flow_id", json_object_new_int64( flow_id ));
     json_object_object_add(encode_json_fingerprint, "src_ip", json_object_new_string( src_ip ));
+
+    /* Sagan doesn't have an "app_proto" */
+
+    if ( app_proto[0] != '\0' ) 
+    {
     json_object_object_add(encode_json_fingerprint, "app_proto", json_object_new_string( app_proto ));
+    }
 
 
     if (json_object_object_get_ex(json_obj, "src_dns", &tmp))
