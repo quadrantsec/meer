@@ -371,6 +371,20 @@ void Init_Output( void )
 
 #endif
 
+#ifdef HAVE_LIBMAXMINDDB
+
+    if ( MeerConfig->geoip == true )
+	 {
+
+		  Meer_Log(NORMAL, "--[ GeoIP information ]---------------------------------");
+		  Meer_Log(NORMAL, "");
+		  Meer_Log(NORMAL, "GeoIP           : %s", MeerConfig->geoip ? "enabled" : "disabled" );
+		  Meer_Log(NORMAL, "GeoIP database  : %s", MeerConfig->geoip_database );
+		  Meer_Log(NORMAL, "");
+	 }
+
+#endif   
+
     if ( MeerConfig->fingerprint == true )
         {
 
@@ -378,7 +392,6 @@ void Init_Output( void )
             Meer_Log(NORMAL, "");
             Meer_Log(NORMAL, "Fingerprinting : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "");
-
         }
 
 #ifdef WITH_BLUEDOT
