@@ -21,7 +21,7 @@ meer-core:
 
     hostname: "mysensor"  # Unique name for this sensor (no spaces)
     interface: "eth0"     # Can be anything.  Sagan "syslog", suricata "eth0".
-    description: "Mu awesome sensor!"   # Describe this sensor.
+    description: "My awesome sensor!"   # Describe this sensor.
 
     runas: "suricata"	  # User to "drop privileges" too. 
     #runas: "sagan"
@@ -112,7 +112,7 @@ meer-core:
     # when Meer, Suricata or Sagan have "died" unexpectedly.
     #########################################################################
 
-    health: enabled
+    health: disabled
     health_signatures: 20000001,20000002,20000003,20000004
 
 #############################################################################
@@ -131,7 +131,7 @@ output-plugins:
 
   sql:
 
-    enabled: yes
+    enabled: no
     driver: mysql        # "mysql" or "postgresql"
     debug: no
     server: 127.0.0.1

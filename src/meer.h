@@ -428,6 +428,7 @@ struct _MeerCounters
     uint_fast64_t unknown;
     uint_fast64_t bad;
     uint_fast64_t fingerprint;
+    uint_fast64_t client_stats;
 
     uint64_t DNSCount;
     uint64_t DNSCacheCount;

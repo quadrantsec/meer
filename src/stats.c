@@ -75,8 +75,7 @@ void Statistics( void )
     Meer_Log(NORMAL, " metadata      : %" PRIu64 " (%.3f%%)", MeerCounters->metadata, CalcPct( MeerCounters->total, MeerCounters->metadata ) );
     Meer_Log(NORMAL, " dnp3          : %" PRIu64 " (%.3f%%)", MeerCounters->dnp3, CalcPct( MeerCounters->total, MeerCounters->dnp3 ) );
     Meer_Log(NORMAL, " anomaly       : %" PRIu64 " (%.3f%%)", MeerCounters->anomaly, CalcPct( MeerCounters->total, MeerCounters->anomaly ) );
-
-
+    Meer_Log(NORMAL, " client_stats  : %" PRIu64 " (%.3f%%)", MeerCounters->client_stats, CalcPct( MeerCounters->total, MeerCounters->client_stats ) );
 
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, " Waldo Postion : %" PRIu64 "", MeerWaldo->position);

@@ -364,6 +364,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     json_object_put(encode_json);
     json_object_put(encode_json_fingerprint);
     json_object_put(encode_json_http);
+    json_object_put(json_obj_alert);
 
     snprintf(str, size, "%s", string);
 
