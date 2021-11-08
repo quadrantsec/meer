@@ -519,7 +519,7 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
 
 		    json_object_put(tmp);
                     json_object_put(json_obj_alert);
-                    json_object_put(json_obj_metadata);
+                    //json_object_put(json_obj_metadata);
 
                     return(ret);
 
@@ -531,7 +531,7 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
 
 		    json_object_put(tmp);
                     json_object_put(json_obj_alert);
-                    json_object_put(json_obj_metadata);
+                    //json_object_put(json_obj_metadata);
 
                     return(false);
 
@@ -541,7 +541,7 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
 
     json_object_put(tmp);
     json_object_put(json_obj_alert);
-    json_object_put(json_obj_metadata);
+//    json_object_put(json_obj_metadata);
 
     return(false);
 }

@@ -174,7 +174,6 @@ bool Decode_JSON( char *json_string )
 
                 }
 
-
             free(FingerprintData);
         }
 

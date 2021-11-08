@@ -79,7 +79,14 @@ void Drop_Priv(void)
 void Meer_Log (int type, const char *format,... )
 {
 
-    char buf[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+    char *buf = malloc((PACKET_BUFFER_SIZE_DEFAULT)*sizeof(char));
+
+    if ( buf == NULL )
+    	{
+	printf("Problem!\n");
+	exit(0);
+	}
+
     va_list ap;
 
     va_start(ap, format);
@@ -107,7 +114,7 @@ void Meer_Log (int type, const char *format,... )
             chr="D";
         }
 
-    vsnprintf(buf, sizeof(buf), format, ap);
+    vsnprintf(buf, PACKET_BUFFER_SIZE_DEFAULT, format, ap);
 
     if ( MeerConfig->meer_log_on == true )
         {
@@ -124,6 +131,8 @@ void Meer_Log (int type, const char *format,... )
         {
             exit(-11);
         }
+
+free(buf);
 
 }
 

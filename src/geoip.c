@@ -81,7 +81,6 @@ void GeoIP_Lookup( const char *ip_address, struct _GeoIP *GeoIP )
 
     unsigned char ip_convert[MAXIPBIT] = { 0 };
 
-
     IP2Bit( (char*)ip_address, ip_convert);
 
     if ( Is_Notroutable(ip_convert) )
