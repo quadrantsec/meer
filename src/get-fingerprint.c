@@ -360,7 +360,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     Redis_Writer( "SET", key, string, FingerprintData->expire );
 
 
-    json_object_put(tmp);
+    //json_object_put(tmp);
     json_object_put(encode_json);
     json_object_put(encode_json_fingerprint);
     json_object_put(encode_json_http);
@@ -539,9 +539,9 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
 
         }
 
-    json_object_put(tmp);
+//    json_object_put(tmp);
     json_object_put(json_obj_alert);
-//    json_object_put(json_obj_metadata);
+    json_object_put(json_obj_metadata);
 
     return(false);
 }
@@ -701,7 +701,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
 
 
     json_object_put(json_obj_fingerprint);
-    json_object_put(tmp);
+//    json_object_put(tmp);
 
     snprintf(str, size, "%s", new_json_string);
 
