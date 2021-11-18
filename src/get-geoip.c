@@ -221,7 +221,7 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
         }
 
-    json_object_put(tmp);
+//    json_object_put(tmp);
 
     snprintf(str, size, "%s", new_json_string);
 

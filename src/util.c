@@ -676,6 +676,20 @@ bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size )
             return(true);
         }
 
+    /* Some applications like to put 10.1.1.X */
+
+    if ( ( orig_ip[ strlen(orig_ip) - 1 ] == 'X' ) || ( orig_ip[ strlen(orig_ip) - 1 ] == 'x' ) )
+        {
+
+            strlcpy(dumb_ip_return, orig_ip, sizeof(dumb_ip_return));
+            dumb_ip_return[ strlen(dumb_ip_return) - 1 ] = '0';
+            dumb_ip_return[ strlen(dumb_ip_return) ] = '\0';
+
+            snprintf(str, size, "%s", dumb_ip_return);
+            return(true);
+        }
+
+
 
     return(false);
 }
