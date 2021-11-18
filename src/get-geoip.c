@@ -42,9 +42,26 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
     struct json_object *tmp = NULL;
 
-    char tmp_geoip[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-    char *return_ptr = NULL;
+    char *tmp_geoip = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( tmp_geoip == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
+    char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( new_json_string == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
+//    char tmp_geoip[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+
+//    char *return_ptr = NULL;
 
     char src_ip[64] = { 0 };
     char dest_ip[64] = { 0 };
@@ -63,7 +80,7 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
         }
 
 
-    strlcpy( new_json_string, json_string, PACKET_BUFFER_SIZE_DEFAULT);
+    strlcpy( new_json_string, json_string, MeerConfig->payload_buffer_size);
 
     /*************************************************/
     /* Add any GeoIP data for the source/destination */
@@ -204,8 +221,8 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
             new_json_string[ strlen(new_json_string) -2 ] = '\0';
             snprintf(tmp_geoip, sizeof(tmp_geoip), "%s, \"geoip_src\": %s", new_json_string, geoip_src_json);
 
-            strlcpy(new_json_string, tmp_geoip, PACKET_BUFFER_SIZE_DEFAULT);
-            strlcat(new_json_string, " }", PACKET_BUFFER_SIZE_DEFAULT);
+            strlcpy(new_json_string, tmp_geoip, MeerConfig->payload_buffer_size);
+            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
 
         }
 
@@ -216,12 +233,15 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
             snprintf(tmp_geoip, sizeof(tmp_geoip), "%s, \"geoip_dest\": %s", new_json_string, geoip_dest_json);
 
-            strlcpy(new_json_string, tmp_geoip, PACKET_BUFFER_SIZE_DEFAULT);
-            strlcat(new_json_string, " }", PACKET_BUFFER_SIZE_DEFAULT);
+            strlcpy(new_json_string, tmp_geoip, MeerConfig->payload_buffer_size);
+            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
 
         }
 
 //    json_object_put(tmp);
+
+    free(tmp_geoip);
+    free(new_json_string);
 
     snprintf(str, size, "%s", new_json_string);
 

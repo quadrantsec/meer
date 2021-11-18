@@ -58,8 +58,8 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     struct json_object *encode_json_http = NULL;
     encode_json_http = json_object_new_object();
 
-    char string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-    char http[PACKET_BUFFER_SIZE_DEFAULT / 2] = { 0 };
+//    char string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char http[PACKET_BUFFER_SIZE_DEFAULT / 2] = { 0 };
 
     char src_ip[64] = { 0 };
     char timestamp[32] = { 0 };
@@ -69,6 +69,22 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     uint64_t signature_id = 0;
 
     char key[128] = { 0 };
+
+    char *string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( string == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
+    char *http = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( http == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
 
     if (json_object_object_get_ex(json_obj, "src_ip", &tmp))
         {
@@ -113,7 +129,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     json_object *jip = json_object_new_string( src_ip );
     json_object_object_add(encode_json,"ip", jip);
 
-    snprintf(string, PACKET_BUFFER_SIZE_DEFAULT, "%s", json_object_to_json_string(encode_json));
+    snprintf(string, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string(encode_json));
     string[ sizeof(string) - 1] = '\0';
 
     snprintf(key, sizeof(key), "%s|ip|%s", FINGERPRINT_REDIS_KEY, src_ip);
@@ -337,30 +353,42 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
                         }
                 }
 
-            snprintf(http, PACKET_BUFFER_SIZE_DEFAULT, "%s", json_object_to_json_string_ext(encode_json_http, JSON_C_TO_STRING_PLAIN));
+            snprintf(http, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string_ext(encode_json_http, JSON_C_TO_STRING_PLAIN));
         }
 
-    snprintf(string, PACKET_BUFFER_SIZE_DEFAULT, "%s", json_object_to_json_string_ext(encode_json_fingerprint, JSON_C_TO_STRING_PLAIN));
+    snprintf(string, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string_ext(encode_json_fingerprint, JSON_C_TO_STRING_PLAIN));
 
 
     if ( http[0] != '\0' )
         {
 
-            char new_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+            //char new_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+
+            char *new_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+            if ( new_string == NULL )
+                {
+                    fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+                    exit(-1);
+                }
 
             string[ strlen(string) - 1 ] = '\0' ;
-            snprintf(new_string, PACKET_BUFFER_SIZE_DEFAULT, "%s, \"http\": %s}", string, http);
+            snprintf(new_string, MeerConfig->payload_buffer_size, "%s, \"http\": %s}", string, http);
             new_string[ sizeof(new_string) - 1] = '\0';
 
-            strlcpy(string, new_string, PACKET_BUFFER_SIZE_DEFAULT);
+            strlcpy(string, new_string, MeerConfig->payload_buffer_size);
+            free( new_string );
 
         }
 
     snprintf(key, sizeof(key), "%s|event|%s|%" PRIu64 "", FINGERPRINT_REDIS_KEY, src_ip, signature_id);
     Redis_Writer( "SET", key, string, FingerprintData->expire );
 
-
     //json_object_put(tmp);
+
+    free( string );
+    free( http );
+
     json_object_put(encode_json);
     json_object_put(encode_json_fingerprint);
     json_object_put(encode_json_http);
@@ -565,17 +593,41 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
     char dest_ip[64] = { 0 };
 
     char tmp_command[256] = { 0 };
-    char tmp_redis[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
-    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-    char final_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+    char *tmp_redis = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( tmp_redis == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
+    char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( new_json_string == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
+    char *final_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( final_json_string == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
+//    char tmp_redis[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char final_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
     redisReply *reply;
 
     struct json_object *tmp = NULL;
     struct json_object *json_obj_fingerprint = NULL;
 
-    strlcpy( new_json_string, json_string, PACKET_BUFFER_SIZE_DEFAULT);
+    strlcpy( new_json_string, json_string, MeerConfig->payload_buffer_size);
 
     if (json_object_object_get_ex(json_obj, "src_ip", &tmp))
         {
@@ -634,7 +686,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
                 {
 
                     snprintf(tmp_command, sizeof(tmp_command), "GET %s|dhcp|%s", FINGERPRINT_REDIS_KEY, tmp_ip);
-                    Redis_Reader(tmp_command, tmp_redis, sizeof(tmp_redis));
+                    Redis_Reader(tmp_command, tmp_redis, MeerConfig->payload_buffer_size);
 
                     if ( tmp_redis[0] != '\0' )
                         {
@@ -643,12 +695,12 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
 
                             /* Append DHCP JSON */
 
-                            snprintf(final_json_string, PACKET_BUFFER_SIZE_DEFAULT, "%s, \"fingerprint_dhcp_%s\": %s }", new_json_string, tmp_type, tmp_redis);
+                            snprintf(final_json_string, MeerConfig->payload_buffer_size, "%s, \"fingerprint_dhcp_%s\": %s }", new_json_string, tmp_type, tmp_redis);
 
                             /* Copy final_json_string to new_json_string in case we have more modifications
                                to make */
 
-                            strlcpy(new_json_string, final_json_string, PACKET_BUFFER_SIZE_DEFAULT);
+                            strlcpy(new_json_string, final_json_string, MeerConfig->payload_buffer_size);
 
                             reply = redisCommand(MeerOutput->c_redis, "SCAN 0 MATCH %s|event|%s|* count 1000000", FINGERPRINT_REDIS_KEY, tmp_ip);
                             key_count = reply->element[1]->elements;
@@ -664,7 +716,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
                                             redisReply *kr = reply->element[1]->element[i];
                                             snprintf(tmp_command, sizeof(tmp_command), "GET %s", kr->str);
 
-                                            Redis_Reader(tmp_command, tmp_redis, PACKET_BUFFER_SIZE_DEFAULT);
+                                            Redis_Reader(tmp_command, tmp_redis, MeerConfig->payload_buffer_size);
 
                                             /* Validate our JSON ! */
 
@@ -683,13 +735,13 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
 
                                                     new_json_string[ strlen(new_json_string) - 2 ] = '\0'; /* Snip */
 
-                                                    snprintf(final_json_string, PACKET_BUFFER_SIZE_DEFAULT, "%s, \"fingerprint_%s_%d\": %s }", new_json_string, tmp_type, i, json_object_get_string(tmp) );
+                                                    snprintf(final_json_string, MeerConfig->payload_buffer_size, "%s, \"fingerprint_%s_%d\": %s }", new_json_string, tmp_type, i, json_object_get_string(tmp) );
 
 
                                                     /* Copy final_json_string to new_json_string in case we have more modifications
                                                        to make */
 
-                                                    strlcpy(new_json_string, final_json_string, PACKET_BUFFER_SIZE_DEFAULT);
+                                                    strlcpy(new_json_string, final_json_string, MeerConfig->payload_buffer_size);
 
                                                 }
                                         }
@@ -699,6 +751,10 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
 
         }  /* for (a = 0; a < 2; a++ ) */
 
+
+    free(tmp_redis);
+    free(new_json_string);
+    free(final_json_string);
 
     json_object_put(json_obj_fingerprint);
 //    json_object_put(tmp);

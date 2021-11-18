@@ -100,6 +100,7 @@ void Load_YAML_Config( char *yaml_file )
 
     strlcpy(MeerConfig->meer_log, MEER_LOG, sizeof(MeerConfig->meer_log));
     strlcpy(MeerConfig->description, MEER_DESC, sizeof( MeerConfig->description ));
+    MeerConfig->payload_buffer_size = PACKET_BUFFER_SIZE_DEFAULT;
 
     MeerOutput = (struct _MeerOutput *) malloc(sizeof(_MeerOutput));
 
@@ -331,6 +332,37 @@ void Load_YAML_Config( char *yaml_file )
                             else if ( !strcmp(last_pass, "follow-eve" ) || !strcmp(last_pass, "follow_eve" ) )
                                 {
                                     strlcpy(MeerConfig->follow_file, value, sizeof(MeerConfig->follow_file));
+                                }
+
+                            else if ( !strcmp(last_pass, "payload-buffer-size" ) )
+                                {
+
+
+                                    if ( ( value[ strlen(value) - 2 ] != 'k' || value[ strlen(value) - 1 ] != 'b' ) &&
+                                            ( value[ strlen(value) - 2 ] != 'm' || value[ strlen(value) - 1 ] != 'b' ) &&
+                                            ( value[ strlen(value) - 2 ] != 'g' || value[ strlen(value) - 1 ] != 'b' ) )
+                                        {
+                                            Meer_Log(ERROR, "[%s, line %d] The 'payload-buffer-size' has an invalid size.  It needs to be kb, mb or gb.", __FILE__, __LINE__);
+                                        }
+
+                                    strlcpy(tmp, value, sizeof(value));
+                                    tmp[ strlen(tmp) - 2 ] = '\0';		/* Remove kb, mb, gb */
+
+                                    if ( value[ strlen(value) - 2 ] == 'k' && value[ strlen(value) - 1 ] == 'b' )
+                                        {
+                                            MeerConfig->payload_buffer_size = atoi(tmp) * 1024;
+                                        }
+
+                                    else if ( value[ strlen(value) - 2 ] == 'm' && value[ strlen(value) - 1 ] == 'b' )
+                                        {
+                                            MeerConfig->payload_buffer_size = atoi(tmp) * 1024 * 1024;
+                                        }
+
+                                    else if ( value[ strlen(value) - 2 ] == 'g' && value[ strlen(value) - 1 ] == 'b' )
+                                        {
+                                            MeerConfig->payload_buffer_size = atoi(tmp) * 1024 * 1024 * 1024;
+                                        }
+
                                 }
 
                             else if ( !strcmp(last_pass, "dns" ))

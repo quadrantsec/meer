@@ -77,28 +77,48 @@ bool Decode_JSON( char *json_string )
 
     bool fingerprint_return = false;
 
-    char event_type[32] = { 0 }; 
+    char event_type[32] = { 0 };
     char flow_id[32] = { 0 };
     char src_ip[64] = { 0 };
-    char dest_ip[64] = { 0 }; 
+    char dest_ip[64] = { 0 };
 
     char fixed_ip[64] = { 0 };
 
-    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
-#ifdef HAVE_LIBHIREDIS
+    char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
 
-    char fingerprint_IP_JSON[1024] = { 0 };
-    char fingerprint_EVENT_JSON[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-    char fingerprint_DHCP_JSON[2048] = { 0 };
+    if ( new_json_string == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
 
-#endif
+
+//#ifdef HAVE_LIBHIREDIS
+
+//    char fingerprint_IP_JSON[1024] = { 0 };
+    //char fingerprint_EVENT_JSON[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char fingerprint_DHCP_JSON[2048] = { 0 };
+
+    /*
+        char *fingerprint_EVENT_JSON = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+        if ( fingerprint_EVENT_JSON == NULL )
+            {
+                fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+                exit(-1);
+            }
+    	*/
+
+//#endif
 
     /* We should have gotten a valid string! */
 
     if ( json_string == NULL )
         {
             MeerCounters->bad++;
+            free(new_json_string);
             return(false);
         }
 
@@ -108,6 +128,7 @@ bool Decode_JSON( char *json_string )
         {
             MeerCounters->bad++;
             Meer_Log(WARN, "Unable t json_tokener_parse: %s", json_string);
+            free(new_json_string);
             return(false);
         }
 
@@ -121,22 +142,24 @@ bool Decode_JSON( char *json_string )
     if (json_object_object_get_ex(json_obj, "event_type", &tmp))
         {
 //            event_type = (char *)json_object_get_string(tmp);
-	      strlcpy(event_type, json_object_get_string(tmp), sizeof( event_type ) );
+            strlcpy(event_type, json_object_get_string(tmp), sizeof( event_type ) );
         }
     else
         {
             MeerCounters->bad++;
+            free(new_json_string);
             return(false);
         }
 
     if (json_object_object_get_ex(json_obj, "flow_id", &tmp))
         {
 //            flow_id = (char *)json_object_get_string(tmp);
-	      strlcpy( flow_id, json_object_get_string(tmp), sizeof( flow_id ) );
+            strlcpy( flow_id, json_object_get_string(tmp), sizeof( flow_id ) );
         }
     else
         {
             MeerCounters->bad++;
+            free(new_json_string);
             return(false);
         }
 
@@ -145,23 +168,25 @@ bool Decode_JSON( char *json_string )
 
     if (json_object_object_get_ex(json_obj, "src_ip", &tmp))
         {
-	    strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
+            strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
         }
     else
         {
             Meer_Log(WARN, "[%s, line %d] No 'src_ip' address could be found.  Skipping.....", __FILE__, __LINE__ );
             MeerCounters->bad++;
+            free(new_json_string);
             return(false);
         }
 
     if (json_object_object_get_ex(json_obj, "dest_ip", &tmp))
         {
-	    strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+            strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
         }
     else
         {
             Meer_Log(WARN, "[%s, line %d] No 'dest_ip' address could be found.  Skipping.....", __FILE__, __LINE__ );
             MeerCounters->bad++;
+            free(new_json_string);
             return(false);
         }
 
@@ -172,7 +197,7 @@ bool Decode_JSON( char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] Invalid 'src_ip' found in flow_id %s. Attempting to 'fix'.", __FILE__, __LINE__, flow_id);
 
-	    // DEBUG:  We already know we're going to copy stuff around.  put "orig" json here?
+            // DEBUG:  We already know we're going to copy stuff around.  put "orig" json here?
 
             if ( Try_And_Fix_IP( src_ip, fixed_ip, sizeof( fixed_ip)) == true )
                 {
@@ -187,12 +212,12 @@ bool Decode_JSON( char *json_string )
                     json_object *jsrc_ip = json_object_new_string( fixed_ip );
                     json_object_object_add(json_obj,"src_ip", jsrc_ip);
 
-                    strlcpy( new_json_string, json_object_to_json_string(json_obj), PACKET_BUFFER_SIZE_DEFAULT);
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
                     json_string = new_json_string;
 
-		    Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad src_ip '%s' to '%s'.", __FILE__, __LINE__, src_ip, fixed_ip ); 
-		    //src_ip = fixed_ip;
-		    strlcpy( src_ip, fixed_ip, sizeof( src_ip ) ); 
+                    Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad src_ip '%s' to '%s'.", __FILE__, __LINE__, src_ip, fixed_ip );
+                    //src_ip = fixed_ip;
+                    strlcpy( src_ip, fixed_ip, sizeof( src_ip ) );
 
                 }
             else
@@ -208,13 +233,13 @@ bool Decode_JSON( char *json_string )
                     json_object *jsrc_ip = json_object_new_string(BAD_IP);
                     json_object_object_add(json_obj,"src_ip", jsrc_ip);
 
-                    strlcpy( new_json_string, json_object_to_json_string(json_obj), PACKET_BUFFER_SIZE_DEFAULT);
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
                     json_string = new_json_string;
 
-		    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing src_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, src_ip, BAD_IP);
+                    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing src_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, src_ip, BAD_IP);
 
-		    //src_ip = BAD_IP; 
-		    strlcpy( src_ip, BAD_IP, sizeof( src_ip ) );
+                    //src_ip = BAD_IP;
+                    strlcpy( src_ip, BAD_IP, sizeof( src_ip ) );
 
                 }
         }
@@ -238,12 +263,12 @@ bool Decode_JSON( char *json_string )
                     json_object *jdest_ip = json_object_new_string( fixed_ip );
                     json_object_object_add(json_obj,"dest_ip", jdest_ip);
 
-                    strlcpy( new_json_string, json_object_to_json_string(json_obj), PACKET_BUFFER_SIZE_DEFAULT);
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
                     json_string = new_json_string;
 
-		    Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad dest_ip '%s' to '%s'.", __FILE__, __LINE__, dest_ip, fixed_ip ); 
-		    //dest_ip = fixed_ip;
-		    strlcpy( dest_ip, fixed_ip, sizeof( dest_ip ) );
+                    Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad dest_ip '%s' to '%s'.", __FILE__, __LINE__, dest_ip, fixed_ip );
+                    //dest_ip = fixed_ip;
+                    strlcpy( dest_ip, fixed_ip, sizeof( dest_ip ) );
 
                 }
             else
@@ -259,13 +284,13 @@ bool Decode_JSON( char *json_string )
                     json_object *jdest_ip = json_object_new_string(BAD_IP);
                     json_object_object_add(json_obj,"dest_ip", jdest_ip);
 
-                    strlcpy( new_json_string, json_object_to_json_string(json_obj), PACKET_BUFFER_SIZE_DEFAULT);
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
                     json_string = new_json_string;
 
-		    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing dest_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, dest_ip, BAD_IP);
+                    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing dest_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, dest_ip, BAD_IP);
 
-		    //dest_ip = BAD_IP; 
-		    strlcpy( dest_ip, BAD_IP, sizeof( dest_ip ) );
+                    //dest_ip = BAD_IP;
+                    strlcpy( dest_ip, BAD_IP, sizeof( dest_ip ) );
 
                 }
         }
@@ -306,7 +331,7 @@ bool Decode_JSON( char *json_string )
 
                     /* This is a standard "alert".  Add any "fingerprint" JSON to the event */
 
-                    Get_Fingerprint( json_obj, json_string, new_json_string, PACKET_BUFFER_SIZE_DEFAULT );
+                    Get_Fingerprint( json_obj, json_string, new_json_string, MeerConfig->payload_buffer_size );
                     json_string = new_json_string;
                 }
             else
@@ -315,11 +340,11 @@ bool Decode_JSON( char *json_string )
                     /* This is a fingerprint event,  change the event_type and build out new JSON */
 
                     //event_type = "fingerprint";
-		    strlcpy( event_type, "fingerprint", sizeof(event_type) );
+                    strlcpy( event_type, "fingerprint", sizeof(event_type) );
 
                     /* Write Fingerprint data to Redis (for future use) */
 
-                    Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string, PACKET_BUFFER_SIZE_DEFAULT);
+                    Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string, MeerConfig->payload_buffer_size );
                     json_string = new_json_string;
 
                 }
@@ -337,7 +362,7 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->geoip == true )
         {
-            Get_GeoIP( json_obj, json_string, new_json_string, PACKET_BUFFER_SIZE_DEFAULT );
+            Get_GeoIP( json_obj, json_string, new_json_string, MeerConfig->payload_buffer_size );
             json_string = new_json_string;
         }
 
@@ -347,7 +372,7 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->oui == true && !strcmp( event_type, "dhcp"  ) )
         {
-            Get_OUI( json_obj, new_json_string, PACKET_BUFFER_SIZE_DEFAULT );
+            Get_OUI( json_obj, new_json_string, MeerConfig->payload_buffer_size );
             json_string = new_json_string;
         }
 
@@ -422,6 +447,7 @@ bool Decode_JSON( char *json_string )
     /* Delete json-c _root_ objects */
 
     json_object_put(json_obj);
+    free(new_json_string);
 
     return 0;
 }

@@ -41,6 +41,7 @@
 
 extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
+extern struct _MeerConfig *MeerConfig;
 
 bool External( const char *json_string )
 {
@@ -49,7 +50,16 @@ bool External( const char *json_string )
     int out[2];
     int pid;
     int n;
-    char buf[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char buf[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+
+    char *buf = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( buf == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
 
     if( File_Check( MeerOutput->external_program ) != 1 )
         {

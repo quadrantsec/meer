@@ -1427,7 +1427,16 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
 {
 
 
-    char tmp[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+    //char tmp[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+
+    char *tmp = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( tmp == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
     char index_name[512] = { 0 };
 
     Elasticsearch_Get_Index(index_name, sizeof(index_name), event_type);
@@ -1468,6 +1477,7 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
 
         }
 
+    free(tmp);
     return(true);
 }
 

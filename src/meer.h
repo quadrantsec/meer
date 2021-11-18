@@ -61,6 +61,8 @@ struct _MeerConfig
     char runas[32];
     char description[128];
 
+    uint64_t payload_buffer_size;
+
     bool daemonize;
     bool quiet;
 

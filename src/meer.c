@@ -111,12 +111,23 @@ int main (int argc, char *argv[])
     bool skip_flag = 0;
     bool wait_flag = false;
 
-    char buf[BUFFER_SIZE + PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char buf[BUFFER_SIZE + PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char *buf = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
 
     uint64_t linecount = 0;
     uint64_t old_size = 0;
 
     FILE *meer_log_fd_test;
+
+    /*
+        char *buf = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+        if ( buf == NULL )
+        	{
+    	fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory for buf! Abort!\n", __FILE__, __LINE__);
+    	exit(-1);
+    	}
+    	*/
 
     MeerConfig = (struct _MeerConfig *) malloc(sizeof(_MeerConfig));
 
@@ -177,6 +188,14 @@ int main (int argc, char *argv[])
 
     Load_YAML_Config(MeerConfig->yaml_file);
 
+    char *buf = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( buf == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory for buf! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
     if (( MeerConfig->meer_log_fd = fopen(MeerConfig->meer_log, "a" )) == NULL )
         {
             Meer_Log(ERROR, "Cannot open Meer log file %s! [%s]. Abort!", MeerConfig->meer_log, strerror(errno));
@@ -193,6 +212,7 @@ int main (int argc, char *argv[])
     Meer_Log(NORMAL, "");
 
     Meer_Log(NORMAL, "Meer's PID is %d", getpid() );
+    Meer_Log(NORMAL, "Meer's buffer size is %" PRIu64 " bytes.", MeerConfig->payload_buffer_size);
     Drop_Priv();
 
     CheckLockFile();
@@ -205,8 +225,6 @@ int main (int argc, char *argv[])
         }
 
     Load_Classifications();
-
-    Meer_Log(NORMAL, "");
 
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, "Fingerprint support    : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );
@@ -351,7 +369,7 @@ int main (int argc, char *argv[])
 
             Meer_Log(NORMAL, "Skipping to record %" PRIu64 " in %s", MeerWaldo->position, MeerConfig->follow_file);
 
-            while( (fgets(buf, sizeof(buf), fd_file) != NULL ) && linecount < MeerWaldo->position )
+            while( (fgets(buf, MeerConfig->payload_buffer_size, fd_file) != NULL ) && linecount < MeerWaldo->position )
                 {
 
                     linecount++;
@@ -381,12 +399,12 @@ int main (int argc, char *argv[])
 
         }
 
-    while(fgets(buf, sizeof(buf), fd_file) != NULL)
+    while(fgets(buf, MeerConfig->payload_buffer_size, fd_file) != NULL)
         {
 
-            if ( Validate_JSON_String( (char*)buf ) == 0 )
+            if ( Validate_JSON_String( buf ) == 0 )
                 {
-                    Decode_JSON( (char*)buf );
+                    Decode_JSON( buf );
                 }
 
             MeerWaldo->position++;
@@ -460,14 +478,14 @@ int main (int argc, char *argv[])
 
                     clearerr( fd_file );
 
-                    while(fgets(buf, sizeof(buf), fd_file) != NULL)
+                    while(fgets(buf, MeerConfig->payload_buffer_size, fd_file) != NULL)
                         {
 
-                            skip_flag = Validate_JSON_String( (char*)buf );
+                            skip_flag = Validate_JSON_String( buf );
 
                             if ( skip_flag == 0 )
                                 {
-                                    Decode_JSON( (char*)buf);
+                                    Decode_JSON( buf);
                                 }
 
                             MeerWaldo->position++;

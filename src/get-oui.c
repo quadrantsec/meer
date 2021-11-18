@@ -76,8 +76,26 @@ void Get_OUI( struct json_object *json_obj, char *str, size_t size )
 
                     struct json_object *jobj_obj_new;
                     jobj_obj_new = json_object_new_object();
-                    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-                    char final_json[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+
+
+                    //char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+                    //char final_json[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+
+                    char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+                    if ( new_json_string == NULL )
+                        {
+                            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+                            exit(-1);
+                        }
+
+                    char *final_json = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+
+                    if ( final_json == NULL )
+                        {
+                            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+                            exit(-1);
+                        }
 
                     const char *timestamp = NULL;
                     uint64_t flow_id = 0;
@@ -165,15 +183,17 @@ void Get_OUI( struct json_object *json_obj, char *str, size_t size )
 
                     /* Tie everything back together */
 
-                    strlcpy(new_json_string, json_object_to_json_string(jobj_obj_new), PACKET_BUFFER_SIZE_DEFAULT);
+                    strlcpy(new_json_string, json_object_to_json_string(jobj_obj_new), MeerConfig->payload_buffer_size);
                     new_json_string[ strlen(new_json_string) -2 ] = '\0';
 
-                    snprintf(final_json, PACKET_BUFFER_SIZE_DEFAULT, "%s, \"dhcp\": %s }", new_json_string, json_object_to_json_string(json_obj_dhcp) );
+                    snprintf(final_json, MeerConfig->payload_buffer_size, "%s, \"dhcp\": %s }", new_json_string, json_object_to_json_string(json_obj_dhcp) );
                     final_json[ sizeof(final_json) - 1] = '\0';
 
                     json_object_put(json_obj_dhcp);
                     snprintf(str, size, "%s\n", final_json);
 
+                    free( new_json_string );
+                    free( final_json );
                     return;
 
                 }
