@@ -46,10 +46,10 @@ char *dest_port;
 char *proto;
 
 char dhcp_type[16];
-char dhcp_id[32];
-char dhcp_client_mac[20];
-char dhcp_assigned_ip[MAXIP];
-char dhcp_oui[128];
+    char dhcp_id[32];
+    char dhcp_client_mac[20];
+    char dhcp_assigned_ip[MAXIP];
+    char dhcp_oui[128];
 
 };
 

@@ -82,10 +82,10 @@ void Meer_Log (int type, const char *format,... )
     char *buf = malloc((PACKET_BUFFER_SIZE_DEFAULT)*sizeof(char));
 
     if ( buf == NULL )
-    	{
-	printf("Problem!\n");
-	exit(0);
-	}
+        {
+            printf("Problem!\n");
+            exit(0);
+        }
 
     va_list ap;
 
@@ -132,7 +132,7 @@ void Meer_Log (int type, const char *format,... )
             exit(-11);
         }
 
-free(buf);
+    free(buf);
 
 }
 
@@ -648,6 +648,34 @@ bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size )
 
         }
 
+    /* Some applications like to put 10.1.1.XXX */
+
+    if ( ( orig_ip[ strlen(orig_ip) - 1 ] == 'X' && orig_ip[ strlen(orig_ip) - 2 ] == 'X' && orig_ip[ strlen(orig_ip) - 3 ] == 'X' ) ||
+            ( orig_ip[ strlen(orig_ip) - 1 ] == 'x' && orig_ip[ strlen(orig_ip) - 2 ] == 'x' && orig_ip[ strlen(orig_ip) - 3 ] == 'x' ) )
+        {
+
+            strlcpy(dumb_ip_return, orig_ip, sizeof(dumb_ip_return));
+            dumb_ip_return[ strlen(dumb_ip_return) - 3 ] = '0';
+            dumb_ip_return[ strlen(dumb_ip_return) - 2 ] = '\0';
+
+            snprintf(str, size, "%s", dumb_ip_return);
+            return(true);
+        }
+
+    /* Some applications like to put 10.1.1.XX */
+
+    if ( ( orig_ip[ strlen(orig_ip) - 1 ] == 'X' && orig_ip[ strlen(orig_ip) - 2 ] == 'X' ) ||
+            ( orig_ip[ strlen(orig_ip) - 1 ] == 'x' && orig_ip[ strlen(orig_ip) - 2 ] == 'x' ) )
+        {
+
+            strlcpy(dumb_ip_return, orig_ip, sizeof(dumb_ip_return));
+            dumb_ip_return[ strlen(dumb_ip_return) - 2 ] = '0';
+            dumb_ip_return[ strlen(dumb_ip_return) - 1 ] = '\0';
+
+            snprintf(str, size, "%s", dumb_ip_return);
+            return(true);
+        }
+
 
     return(false);
 }
@@ -656,7 +684,7 @@ bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size )
 /****************************************************************
  * String replacement function.  Used for things like $RULE_PATH
  ****************************************************************/
-
+/*
 void Replace_String(const char *in_str, char *orig, char *rep, char *str, size_t size)
 {
 
@@ -676,5 +704,6 @@ void Replace_String(const char *in_str, char *orig, char *rep, char *str, size_t
     snprintf(str, size, "%s", buffer);
 
 }
+*/
 
 

@@ -28,7 +28,6 @@
 #include <json-c/json.h>
 #endif
 
-
 #ifndef HAVE_LIBJSON_C
 libjson-c is required for Meer to function!
 #endif
@@ -49,6 +48,7 @@ libjson-c is required for Meer to function!
 
 #include "meer.h"
 #include "meer-def.h"
+#include "util.h"
 #include "output.h"
 #include "get-dns.h"
 #include "get-oui.h"
@@ -78,6 +78,13 @@ bool Decode_JSON( char *json_string )
     bool fingerprint_return = false;
 
     char *event_type = NULL;
+    char *flow_id = NULL;
+    char *src_ip = NULL;
+    char *dest_ip = NULL;
+
+    char fixed_ip[64] = { 0 };
+
+    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
 #ifdef HAVE_LIBHIREDIS
 
@@ -121,6 +128,132 @@ bool Decode_JSON( char *json_string )
             return(false);
         }
 
+    if (json_object_object_get_ex(json_obj, "flow_id", &tmp))
+        {
+            flow_id = (char *)json_object_get_string(tmp);
+        }
+    else
+        {
+            MeerCounters->bad++;
+            return(false);
+        }
+
+
+    /* More sanity checks on src_ip/dest_ip - Some applications screw this up (*cough* Microsoft). */
+
+    if (json_object_object_get_ex(json_obj, "src_ip", &tmp))
+        {
+            src_ip = (char *)json_object_get_string(tmp);
+        }
+    else
+        {
+            Meer_Log(WARN, "[%s, line %d] No 'src_ip' address could be found.  Skipping.....", __FILE__, __LINE__ );
+            MeerCounters->bad++;
+            return(false);
+        }
+
+    /* Validate src_ip address */
+
+    if ( !Is_IP(src_ip, IPv4) && !Is_IP(src_ip, IPv6 ) )
+        {
+            Meer_Log(WARN, "[%s, line %d] Invalid 'src_ip' found in flow_id %s. Attempting to 'fix'.", __FILE__, __LINE__, flow_id);
+
+	    // DEBUG:  We already know we're going to copy stuff around.  put "orig" json here?
+
+            if ( Try_And_Fix_IP( src_ip, fixed_ip, sizeof( fixed_ip)) == true )
+                {
+
+                    /* Store the "original" IP address */
+
+                    json_object *jsrc_ip_orig = json_object_new_string(src_ip);
+                    json_object_object_add(json_obj,"original_src_ip", jsrc_ip_orig);
+
+                    /* Copy over the "fixed" value */
+
+                    json_object *jsrc_ip = json_object_new_string( fixed_ip );
+                    json_object_object_add(json_obj,"src_ip", jsrc_ip);
+
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), PACKET_BUFFER_SIZE_DEFAULT);
+                    json_string = new_json_string;
+
+		    Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad src_ip '%s' to '%s'.", __FILE__, __LINE__, src_ip, fixed_ip ); 
+		    src_ip = fixed_ip;
+
+                }
+            else
+                {
+
+                    /* Store the "orignal" IP address as original_src_ip (the bad IP) */
+
+                    json_object *jsrc_ip_orig = json_object_new_string(src_ip);
+                    json_object_object_add(json_obj,"original_src_ip", jsrc_ip_orig);
+
+                    /* Over write the src_ip with the BAD_IP value */
+
+                    json_object *jsrc_ip = json_object_new_string(BAD_IP);
+                    json_object_object_add(json_obj,"src_ip", jsrc_ip);
+
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), PACKET_BUFFER_SIZE_DEFAULT);
+                    json_string = new_json_string;
+
+		    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing src_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, src_ip, BAD_IP);
+
+		    src_ip = BAD_IP; 
+
+                }
+        }
+
+    /* Validate dest_ip address */
+
+    if ( !Is_IP(dest_ip, IPv4) && !Is_IP(dest_ip, IPv6 ) )
+        {
+            Meer_Log(WARN, "[%s, line %d] Invalid 'dest_ip' found in flow_id %s. Attempting to 'fix'.", __FILE__, __LINE__, flow_id);
+
+            if ( Try_And_Fix_IP( dest_ip, fixed_ip, sizeof( fixed_ip)) == true )
+                {
+
+                    /* Store the "original" IP address */
+
+                    json_object *jdest_ip_orig = json_object_new_string(dest_ip);
+                    json_object_object_add(json_obj,"original_dest_ip", jdest_ip_orig);
+
+                    /* Copy over the "fixed" value */
+
+                    json_object *jdest_ip = json_object_new_string( fixed_ip );
+                    json_object_object_add(json_obj,"dest_ip", jdest_ip);
+
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), PACKET_BUFFER_SIZE_DEFAULT);
+                    json_string = new_json_string;
+
+		    Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad dest_ip '%s' to '%s'.", __FILE__, __LINE__, dest_ip, fixed_ip ); 
+		    dest_ip = fixed_ip;
+
+                }
+            else
+                {
+
+                    /* Store the "orignal" IP address as original_dest_ip (the bad IP) */
+
+                    json_object *jdest_ip_orig = json_object_new_string(dest_ip);
+                    json_object_object_add(json_obj,"original_dest_ip", jdest_ip_orig);
+
+                    /* Over write the dest_ip with the BAD_IP value */
+
+                    json_object *jdest_ip = json_object_new_string(BAD_IP);
+                    json_object_object_add(json_obj,"dest_ip", jdest_ip);
+
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), PACKET_BUFFER_SIZE_DEFAULT);
+                    json_string = new_json_string;
+
+		    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing dest_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, dest_ip, BAD_IP);
+
+		    dest_ip = BAD_IP; 
+
+                }
+        }
+
+
+
     /* Do we want to add DNS to the JSON? */
 
     if ( MeerConfig->dns == true )
@@ -155,7 +288,6 @@ bool Decode_JSON( char *json_string )
 
                     /* This is a standard "alert".  Add any "fingerprint" JSON to the event */
 
-                    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
                     Get_Fingerprint( json_obj, json_string, new_json_string, PACKET_BUFFER_SIZE_DEFAULT );
                     json_string = new_json_string;
                 }
@@ -168,7 +300,6 @@ bool Decode_JSON( char *json_string )
 
                     /* Write Fingerprint data to Redis (for future use) */
 
-                    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
                     Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string, PACKET_BUFFER_SIZE_DEFAULT);
                     json_string = new_json_string;
 
@@ -187,7 +318,6 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->geoip == true )
         {
-            char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
             Get_GeoIP( json_obj, json_string, new_json_string, PACKET_BUFFER_SIZE_DEFAULT );
             json_string = new_json_string;
         }
@@ -198,7 +328,6 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->oui == true && !strcmp( event_type, "dhcp"  ) )
         {
-            char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
             Get_OUI( json_obj, new_json_string, PACKET_BUFFER_SIZE_DEFAULT );
             json_string = new_json_string;
         }

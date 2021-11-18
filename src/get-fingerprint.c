@@ -130,10 +130,10 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     /* Sagan doesn't have an "app_proto" */
 
-    if ( app_proto[0] != '\0' ) 
-    {
-    json_object_object_add(encode_json_fingerprint, "app_proto", json_object_new_string( app_proto ));
-    }
+    if ( app_proto[0] != '\0' )
+        {
+            json_object_object_add(encode_json_fingerprint, "app_proto", json_object_new_string( app_proto ));
+        }
 
 
     if (json_object_object_get_ex(json_obj, "src_dns", &tmp))
@@ -517,7 +517,7 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
                                 }
                         }
 
-		    json_object_put(tmp);
+                    json_object_put(tmp);
                     json_object_put(json_obj_alert);
                     //json_object_put(json_obj_metadata);
 
@@ -529,7 +529,7 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
 
                     /* No metadat a found at all */
 
-		    json_object_put(tmp);
+                    json_object_put(tmp);
                     json_object_put(json_obj_alert);
                     //json_object_put(json_obj_metadata);
 
