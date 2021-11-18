@@ -77,10 +77,10 @@ bool Decode_JSON( char *json_string )
 
     bool fingerprint_return = false;
 
-    char *event_type = NULL;
-    char *flow_id = NULL;
-    char *src_ip = NULL;
-    char *dest_ip = NULL;
+    char event_type[32] = { 0 }; 
+    char flow_id[32] = { 0 };
+    char src_ip[64] = { 0 };
+    char dest_ip[64] = { 0 }; 
 
     char fixed_ip[64] = { 0 };
 
@@ -120,7 +120,8 @@ bool Decode_JSON( char *json_string )
 
     if (json_object_object_get_ex(json_obj, "event_type", &tmp))
         {
-            event_type = (char *)json_object_get_string(tmp);
+//            event_type = (char *)json_object_get_string(tmp);
+	      strlcpy(event_type, json_object_get_string(tmp), sizeof( event_type ) );
         }
     else
         {
@@ -130,7 +131,8 @@ bool Decode_JSON( char *json_string )
 
     if (json_object_object_get_ex(json_obj, "flow_id", &tmp))
         {
-            flow_id = (char *)json_object_get_string(tmp);
+//            flow_id = (char *)json_object_get_string(tmp);
+	      strlcpy( flow_id, json_object_get_string(tmp), sizeof( flow_id ) );
         }
     else
         {
@@ -143,7 +145,7 @@ bool Decode_JSON( char *json_string )
 
     if (json_object_object_get_ex(json_obj, "src_ip", &tmp))
         {
-            src_ip = (char *)json_object_get_string(tmp);
+	    strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
         }
     else
         {
@@ -151,6 +153,18 @@ bool Decode_JSON( char *json_string )
             MeerCounters->bad++;
             return(false);
         }
+
+    if (json_object_object_get_ex(json_obj, "dest_ip", &tmp))
+        {
+	    strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+        }
+    else
+        {
+            Meer_Log(WARN, "[%s, line %d] No 'dest_ip' address could be found.  Skipping.....", __FILE__, __LINE__ );
+            MeerCounters->bad++;
+            return(false);
+        }
+
 
     /* Validate src_ip address */
 
@@ -177,7 +191,8 @@ bool Decode_JSON( char *json_string )
                     json_string = new_json_string;
 
 		    Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad src_ip '%s' to '%s'.", __FILE__, __LINE__, src_ip, fixed_ip ); 
-		    src_ip = fixed_ip;
+		    //src_ip = fixed_ip;
+		    strlcpy( src_ip, fixed_ip, sizeof( src_ip ) ); 
 
                 }
             else
@@ -198,7 +213,8 @@ bool Decode_JSON( char *json_string )
 
 		    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing src_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, src_ip, BAD_IP);
 
-		    src_ip = BAD_IP; 
+		    //src_ip = BAD_IP; 
+		    strlcpy( src_ip, BAD_IP, sizeof( src_ip ) );
 
                 }
         }
@@ -226,7 +242,8 @@ bool Decode_JSON( char *json_string )
                     json_string = new_json_string;
 
 		    Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad dest_ip '%s' to '%s'.", __FILE__, __LINE__, dest_ip, fixed_ip ); 
-		    dest_ip = fixed_ip;
+		    //dest_ip = fixed_ip;
+		    strlcpy( dest_ip, fixed_ip, sizeof( dest_ip ) );
 
                 }
             else
@@ -247,7 +264,8 @@ bool Decode_JSON( char *json_string )
 
 		    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing dest_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, dest_ip, BAD_IP);
 
-		    dest_ip = BAD_IP; 
+		    //dest_ip = BAD_IP; 
+		    strlcpy( dest_ip, BAD_IP, sizeof( dest_ip ) );
 
                 }
         }
@@ -296,7 +314,8 @@ bool Decode_JSON( char *json_string )
 
                     /* This is a fingerprint event,  change the event_type and build out new JSON */
 
-                    event_type = "fingerprint";
+                    //event_type = "fingerprint";
+		    strlcpy( event_type, "fingerprint", sizeof(event_type) );
 
                     /* Write Fingerprint data to Redis (for future use) */
 
