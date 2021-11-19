@@ -240,10 +240,11 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
 //    json_object_put(tmp);
 
+    snprintf(str, size, "%s", new_json_string);
+
     free(tmp_geoip);
     free(new_json_string);
 
-    snprintf(str, size, "%s", new_json_string);
 
 }
 

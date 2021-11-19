@@ -752,14 +752,13 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
         }  /* for (a = 0; a < 2; a++ ) */
 
 
+    snprintf(str, size, "%s", new_json_string);
+
+    json_object_put(json_obj_fingerprint);
+
     free(tmp_redis);
     free(new_json_string);
     free(final_json_string);
-
-    json_object_put(json_obj_fingerprint);
-//    json_object_put(tmp);
-
-    snprintf(str, size, "%s", new_json_string);
 
 }
 
