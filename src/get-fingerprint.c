@@ -67,9 +67,9 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     char key[128] = { 0 };
 
-    char *string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    char *string_f = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
 
-    if ( string == NULL )
+    if ( string_f == NULL )
         {
             fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
             exit(-1);
@@ -126,13 +126,13 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     json_object *jip = json_object_new_string( src_ip );
     json_object_object_add(encode_json,"ip", jip);
 
-    snprintf(string, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string(encode_json));
-    string[ sizeof(string) - 1] = '\0';
+    snprintf(string_f, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string(encode_json));
+    string_f[ MeerConfig->payload_buffer_size - 1] = '\0';
 
     snprintf(key, sizeof(key), "%s|ip|%s", FINGERPRINT_REDIS_KEY, src_ip);
     key[ sizeof(key) - 1] = '\0';
 
-    Redis_Writer( "SET", key, string, FINGERPRINT_IP_REDIS_EXPIRE);
+    Redis_Writer( "SET", key, string_f, FINGERPRINT_IP_REDIS_EXPIRE);
 
     /* Write out fingerprint|event|{IP} key */
 
@@ -353,13 +353,11 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
             snprintf(http, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string_ext(encode_json_http, JSON_C_TO_STRING_PLAIN));
         }
 
-    snprintf(string, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string_ext(encode_json_fingerprint, JSON_C_TO_STRING_PLAIN));
+    snprintf(string_f, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string_ext(encode_json_fingerprint, JSON_C_TO_STRING_PLAIN));
 
 
     if ( http[0] != '\0' )
         {
-
-            //char new_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
             char *new_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
 
@@ -369,27 +367,29 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
                     exit(-1);
                 }
 
-            string[ strlen(string) - 1 ] = '\0' ;
-            snprintf(new_string, MeerConfig->payload_buffer_size, "%s, \"http\": %s}", string, http);
-            new_string[ sizeof(new_string) - 1] = '\0';
+            string_f[ MeerConfig->payload_buffer_size - 1 ] = '\0' ;
+            snprintf(new_string, MeerConfig->payload_buffer_size, "%s, \"http\": %s}", string_f, http);
+            new_string[ MeerConfig->payload_buffer_size - 1] = '\0';
 
-            strlcpy(string, new_string, MeerConfig->payload_buffer_size);
+            strlcpy(string_f, new_string, MeerConfig->payload_buffer_size);
             free( new_string );
 
         }
 
     snprintf(key, sizeof(key), "%s|event|%s|%" PRIu64 "", FINGERPRINT_REDIS_KEY, src_ip, signature_id);
-    Redis_Writer( "SET", key, string, FingerprintData->expire );
-
-    free( string );
-    free( http );
+    Redis_Writer( "SET", key, string_f, FingerprintData->expire );
 
     json_object_put(encode_json);
     json_object_put(encode_json_fingerprint);
     json_object_put(encode_json_http);
     json_object_put(json_obj_alert);
 
-    snprintf(str, MeerConfig->payload_buffer_size, "%s", string);
+    snprintf(str, MeerConfig->payload_buffer_size, "%s", string_f);
+
+    free( string_f );
+    free( http );
+
+
 
 }
 

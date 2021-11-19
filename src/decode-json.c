@@ -257,6 +257,8 @@ bool Decode_JSON( char *json_string )
                 }
         }
 
+
+
     /* Do we want to add DNS to the JSON? */
 
     if ( MeerConfig->dns == true )
@@ -321,7 +323,7 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->geoip == true )
         {
-            Get_GeoIP( json_obj, json_string, new_json_string, MeerConfig->payload_buffer_size );
+            Get_GeoIP( json_obj, json_string, new_json_string );
             json_string = new_json_string;
         }
 

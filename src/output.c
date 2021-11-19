@@ -179,6 +179,7 @@ void Init_Output( void )
 
             /* Connect to redis database */
 
+	    Redis_Init();			/* Init memory, etc */
             Redis_Connect();
 
             strlcpy(redis_command, "PING", sizeof(redis_command));
