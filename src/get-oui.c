@@ -35,7 +35,7 @@
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerCounters *MeerCounters;
 
-void Get_OUI( struct json_object *json_obj, char *str, size_t size )
+void Get_OUI( struct json_object *json_obj, char *str )
 {
 
     struct json_object *tmp = NULL;
@@ -190,7 +190,7 @@ void Get_OUI( struct json_object *json_obj, char *str, size_t size )
                     final_json[ sizeof(final_json) - 1] = '\0';
 
                     json_object_put(json_obj_dhcp);
-                    snprintf(str, size, "%s\n", final_json);
+                    snprintf(str, MeerConfig->payload_buffer_size, "%s\n", final_json);
 
                     free( new_json_string );
                     free( final_json );
@@ -200,7 +200,7 @@ void Get_OUI( struct json_object *json_obj, char *str, size_t size )
 
         }
 
-    snprintf(str, size, "%s", (char*)json_object_to_json_string(json_obj) );
+    snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj) );
 
 }
 

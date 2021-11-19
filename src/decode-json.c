@@ -331,7 +331,7 @@ bool Decode_JSON( char *json_string )
 
                     /* This is a standard "alert".  Add any "fingerprint" JSON to the event */
 
-                    Get_Fingerprint( json_obj, json_string, new_json_string, MeerConfig->payload_buffer_size );
+                    Get_Fingerprint( json_obj, json_string, new_json_string );
                     json_string = new_json_string;
                 }
             else
@@ -344,7 +344,7 @@ bool Decode_JSON( char *json_string )
 
                     /* Write Fingerprint data to Redis (for future use) */
 
-                    Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string, MeerConfig->payload_buffer_size );
+                    Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
                     json_string = new_json_string;
 
                 }
@@ -372,7 +372,7 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->oui == true && !strcmp( event_type, "dhcp"  ) )
         {
-            Get_OUI( json_obj, new_json_string, MeerConfig->payload_buffer_size );
+            Get_OUI( json_obj, new_json_string );
             json_string = new_json_string;
         }
 

@@ -18,5 +18,5 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-void Get_OUI( struct json_object *json_obj, char *str, size_t size );
+void Get_OUI( struct json_object *json_obj, char *str );
 

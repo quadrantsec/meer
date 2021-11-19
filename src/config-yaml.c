@@ -583,109 +583,6 @@ void Load_YAML_Config( char *yaml_file )
                                     strlcpy(MeerOutput->sql_reference_file, value, sizeof(MeerOutput->sql_reference_file));
                                 }
 
-                            /*
-                                                        if ( !strcmp(last_pass, "metadata" ))
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_metadata = true;
-                                                                    }
-
-                                                            }
-
-                                                        if ( !strcmp(last_pass, "smtp" ))
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_smtp = true;
-                                                                    }
-
-                                                            }
-
-                                                        if ( !strcmp(last_pass, "email" ))
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_email = true;
-                                                                    }
-
-                                                            }
-
-
-                                                        if ( !strcmp(last_pass, "flow" ))
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_flow = true;
-                                                                    }
-
-                                                            }
-
-                                                        if ( !strcmp(last_pass, "http" ))
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_http = true;
-                                                                    }
-
-                                                            }
-
-                                                        if ( !strcmp(last_pass, "ssh" ))
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_ssh = true;
-                                                                    }
-
-                                                            }
-
-                                                        if ( !strcmp(last_pass, "tls" ))
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_tls = true;
-                                                                    }
-
-                                                            }
-
-                                                        if ( !strcmp(last_pass, "json" ))
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_json = true;
-                                                                    }
-
-                                                            }
-
-                                                        if ( !strcmp(last_pass, "stats" ))
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_stats = true;
-                                                                    }
-
-                                                            }
-
-                                                        else if ( !strcmp(last_pass, "bluedot" ) )
-                                                            {
-
-                                                                if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                                                    {
-                                                                        MeerOutput->sql_bluedot = true;
-                                                                    }
-
-                                                            }
-                            */
-
                             else if ( !strcmp(last_pass, "debug" ) && MeerOutput->sql_enabled == true )
                                 {
 
@@ -694,7 +591,6 @@ void Load_YAML_Config( char *yaml_file )
                                             MeerOutput->sql_debug = true;
                                         }
                                 }
-
 
                             else if ( !strcmp(last_pass, "server" ) && MeerOutput->sql_enabled == true )
                                 {

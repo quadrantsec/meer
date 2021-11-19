@@ -42,7 +42,7 @@ extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
 extern struct _Fingerprint_Networks *Fingerprint_Networks;
 
-void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintData *FingerprintData, char *str, size_t size)
+void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintData *FingerprintData, char *str)
 {
 
     struct json_object *tmp = NULL;
@@ -394,7 +394,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     json_object_put(encode_json_http);
     json_object_put(json_obj_alert);
 
-    snprintf(str, size, "%s", string);
+    snprintf(str, MeerConfig->payload_buffer_size, "%s", string);
 
 }
 
@@ -574,7 +574,7 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
     return(false);
 }
 
-void Get_Fingerprint( struct json_object *json_obj, const char *json_string, char *str, size_t size )
+void Get_Fingerprint( struct json_object *json_obj, const char *json_string, char *str )
 {
 
     bool valid_fingerprint_net = false;
@@ -752,7 +752,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
         }  /* for (a = 0; a < 2; a++ ) */
 
 
-    snprintf(str, size, "%s", new_json_string);
+    snprintf(str, MeerConfig->payload_buffer_size, "%s", new_json_string);
 
     json_object_put(json_obj_fingerprint);
 
