@@ -18,6 +18,7 @@
 */
 
 void Redis_Init ( void );
+void Redis_Close ( void );
 void Redis_Connect( void );
 void Redis_Reader ( char *redis_command, char *str, size_t size );
 bool Redis_Writer ( const char *command, const char *key, const char *value, int expire );

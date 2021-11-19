@@ -49,11 +49,13 @@
 #ifdef WITH_ELASTICSEARCH
 #include <output-plugins/elasticsearch.h>
 #include <curl/curl.h>
-
 bool elasticsearch_death = false;
 uint8_t elasticsearch_death_count = 0;
-
 extern uint_fast16_t elastic_proc_running;
+#endif
+
+#ifdef HAVE_LIBHIREDIS
+#include <output-plugins/redis.h>
 #endif
 
 extern struct _MeerWaldo *MeerWaldo;
@@ -135,6 +137,16 @@ void Signal_Handler(int sig_num)
                 }
 
 #endif
+
+#ifdef HAVE_LIBHIREDIS
+
+		if ( MeerOutput->redis_enabled == true )
+			{
+			Redis_Close();
+			}
+
+#endif
+
 
 #ifdef WITH_ELASTICSEARCH
 
