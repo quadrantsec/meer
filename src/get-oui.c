@@ -67,8 +67,12 @@ void Get_OUI( struct json_object *json_obj, char *str )
                         }
                     else
                         {
+
+                            /* No vender found.  Clean up and return orig JSON string */
+
                             json_object_put(json_obj_dhcp);
-                            //return ( (char*)json_object_to_json_string(json_obj) );
+                            snprintf(str, MeerConfig->payload_buffer_size, "%s\n", json_object_to_json_string(json_obj));
+                            return;
                         }
 
 
@@ -76,10 +80,6 @@ void Get_OUI( struct json_object *json_obj, char *str )
 
                     struct json_object *jobj_obj_new;
                     jobj_obj_new = json_object_new_object();
-
-
-                    //char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-                    //char final_json[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
                     char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
 

@@ -111,23 +111,10 @@ int main (int argc, char *argv[])
     bool skip_flag = 0;
     bool wait_flag = false;
 
-//    char buf[BUFFER_SIZE + PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-//    char *buf = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
-
     uint64_t linecount = 0;
     uint64_t old_size = 0;
 
     FILE *meer_log_fd_test;
-
-    /*
-        char *buf = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
-
-        if ( buf == NULL )
-        	{
-    	fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory for buf! Abort!\n", __FILE__, __LINE__);
-    	exit(-1);
-    	}
-    	*/
 
     MeerConfig = (struct _MeerConfig *) malloc(sizeof(_MeerConfig));
 
@@ -147,8 +134,6 @@ int main (int argc, char *argv[])
 
             switch(c)
                 {
-
-//                    if (c == -1) break;
 
                 case 'c':
                     strlcpy(MeerConfig->yaml_file,optarg,sizeof(MeerConfig->yaml_file) - 1);

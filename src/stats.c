@@ -80,7 +80,7 @@ void Statistics( void )
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, " Waldo Postion : %" PRIu64 "", MeerWaldo->position);
 //    Meer_Log(NORMAL, " JSON          : %" PRIu64 "", MeerCounters->JSONCount);
-//    Meer_Log(NORMAL, " Invalid JSON  : %" PRIu64 " (%.3f%%)", MeerCounters->InvalidJSONCount, CalcPct(MeerCounters->JSONCount,MeerCounters->InvalidJSONCount));
+//    Meer_Log(NORMAL, " Invalid JSON  : %" PRIu64 " (%.3f%%)", MeerCounters->bad, CalcPct(MeerCounters->JSONCount,MeerCounters->bad));
 
 #ifdef BLUEDOT
     Meer_Log(NORMAL, " Bluedot       : %" PRIu64 "", MeerCounters->bluedot);

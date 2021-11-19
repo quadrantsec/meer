@@ -58,9 +58,6 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     struct json_object *encode_json_http = NULL;
     encode_json_http = json_object_new_object();
 
-//    char string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-//    char http[PACKET_BUFFER_SIZE_DEFAULT / 2] = { 0 };
-
     char src_ip[64] = { 0 };
     char timestamp[32] = { 0 };
     char app_proto[32] = { 0 };
@@ -384,8 +381,6 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     snprintf(key, sizeof(key), "%s|event|%s|%" PRIu64 "", FINGERPRINT_REDIS_KEY, src_ip, signature_id);
     Redis_Writer( "SET", key, string, FingerprintData->expire );
 
-    //json_object_put(tmp);
-
     free( string );
     free( http );
 
@@ -545,9 +540,8 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
                                 }
                         }
 
-                    json_object_put(tmp);
+//                    json_object_put(tmp);
                     json_object_put(json_obj_alert);
-                    //json_object_put(json_obj_metadata);
 
                     return(ret);
 
@@ -555,11 +549,10 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
             else
                 {
 
-                    /* No metadat a found at all */
+                    /* No metadata a found */
 
-                    json_object_put(tmp);
+//                    json_object_put(tmp);
                     json_object_put(json_obj_alert);
-                    //json_object_put(json_obj_metadata);
 
                     return(false);
 
@@ -567,7 +560,6 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
 
         }
 
-//    json_object_put(tmp);
     json_object_put(json_obj_alert);
     json_object_put(json_obj_metadata);
 
@@ -617,10 +609,6 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
             fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
             exit(-1);
         }
-
-//    char tmp_redis[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-//    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-//    char final_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
     redisReply *reply;
 

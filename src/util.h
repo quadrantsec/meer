@@ -56,5 +56,4 @@ uint32_t Djb2_Hash(char *str);
 void Convert_ISO8601_For_SQL( char *time, char *str, size_t size );
 bool Is_Notroutable ( unsigned char *ip );
 bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size );
-//void Replace_String(const char *in_str, char *orig, char *rep, char *str, size_t size);
 

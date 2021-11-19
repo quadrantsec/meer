@@ -84,8 +84,6 @@ bool Decode_JSON( char *json_string )
 
     char fixed_ip[64] = { 0 };
 
-//    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-
     char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
 
     if ( new_json_string == NULL )
@@ -93,25 +91,6 @@ bool Decode_JSON( char *json_string )
             fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
             exit(-1);
         }
-
-
-//#ifdef HAVE_LIBHIREDIS
-
-//    char fingerprint_IP_JSON[1024] = { 0 };
-    //char fingerprint_EVENT_JSON[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-//    char fingerprint_DHCP_JSON[2048] = { 0 };
-
-    /*
-        char *fingerprint_EVENT_JSON = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
-
-        if ( fingerprint_EVENT_JSON == NULL )
-            {
-                fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
-                exit(-1);
-            }
-    	*/
-
-//#endif
 
     /* We should have gotten a valid string! */
 
@@ -141,7 +120,6 @@ bool Decode_JSON( char *json_string )
 
     if (json_object_object_get_ex(json_obj, "event_type", &tmp))
         {
-//            event_type = (char *)json_object_get_string(tmp);
             strlcpy(event_type, json_object_get_string(tmp), sizeof( event_type ) );
         }
     else
@@ -153,7 +131,6 @@ bool Decode_JSON( char *json_string )
 
     if (json_object_object_get_ex(json_obj, "flow_id", &tmp))
         {
-//            flow_id = (char *)json_object_get_string(tmp);
             strlcpy( flow_id, json_object_get_string(tmp), sizeof( flow_id ) );
         }
     else
@@ -197,15 +174,13 @@ bool Decode_JSON( char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] Invalid 'src_ip' found in flow_id %s. Attempting to 'fix'.", __FILE__, __LINE__, flow_id);
 
-            // DEBUG:  We already know we're going to copy stuff around.  put "orig" json here?
+            /* Store the "original" IP address */
+
+            json_object *jsrc_ip_orig = json_object_new_string(src_ip);
+            json_object_object_add(json_obj,"original_src_ip", jsrc_ip_orig);
 
             if ( Try_And_Fix_IP( src_ip, fixed_ip, sizeof( fixed_ip)) == true )
                 {
-
-                    /* Store the "original" IP address */
-
-                    json_object *jsrc_ip_orig = json_object_new_string(src_ip);
-                    json_object_object_add(json_obj,"original_src_ip", jsrc_ip_orig);
 
                     /* Copy over the "fixed" value */
 
@@ -216,17 +191,11 @@ bool Decode_JSON( char *json_string )
                     json_string = new_json_string;
 
                     Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad src_ip '%s' to '%s'.", __FILE__, __LINE__, src_ip, fixed_ip );
-                    //src_ip = fixed_ip;
                     strlcpy( src_ip, fixed_ip, sizeof( src_ip ) );
 
                 }
             else
                 {
-
-                    /* Store the "orignal" IP address as original_src_ip (the bad IP) */
-
-                    json_object *jsrc_ip_orig = json_object_new_string(src_ip);
-                    json_object_object_add(json_obj,"original_src_ip", jsrc_ip_orig);
 
                     /* Over write the src_ip with the BAD_IP value */
 
@@ -238,7 +207,6 @@ bool Decode_JSON( char *json_string )
 
                     Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing src_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, src_ip, BAD_IP);
 
-                    //src_ip = BAD_IP;
                     strlcpy( src_ip, BAD_IP, sizeof( src_ip ) );
 
                 }
@@ -250,13 +218,14 @@ bool Decode_JSON( char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] Invalid 'dest_ip' found in flow_id %s. Attempting to 'fix'.", __FILE__, __LINE__, flow_id);
 
+            /* Store the "original" IP address */
+
+            json_object *jdest_ip_orig = json_object_new_string(dest_ip);
+            json_object_object_add(json_obj,"original_dest_ip", jdest_ip_orig);
+
+
             if ( Try_And_Fix_IP( dest_ip, fixed_ip, sizeof( fixed_ip)) == true )
                 {
-
-                    /* Store the "original" IP address */
-
-                    json_object *jdest_ip_orig = json_object_new_string(dest_ip);
-                    json_object_object_add(json_obj,"original_dest_ip", jdest_ip_orig);
 
                     /* Copy over the "fixed" value */
 
@@ -267,17 +236,11 @@ bool Decode_JSON( char *json_string )
                     json_string = new_json_string;
 
                     Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad dest_ip '%s' to '%s'.", __FILE__, __LINE__, dest_ip, fixed_ip );
-                    //dest_ip = fixed_ip;
                     strlcpy( dest_ip, fixed_ip, sizeof( dest_ip ) );
 
                 }
             else
                 {
-
-                    /* Store the "orignal" IP address as original_dest_ip (the bad IP) */
-
-                    json_object *jdest_ip_orig = json_object_new_string(dest_ip);
-                    json_object_object_add(json_obj,"original_dest_ip", jdest_ip_orig);
 
                     /* Over write the dest_ip with the BAD_IP value */
 
@@ -289,13 +252,10 @@ bool Decode_JSON( char *json_string )
 
                     Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing dest_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, dest_ip, BAD_IP);
 
-                    //dest_ip = BAD_IP;
                     strlcpy( dest_ip, BAD_IP, sizeof( dest_ip ) );
 
                 }
         }
-
-
 
     /* Do we want to add DNS to the JSON? */
 
@@ -339,7 +299,6 @@ bool Decode_JSON( char *json_string )
 
                     /* This is a fingerprint event,  change the event_type and build out new JSON */
 
-                    //event_type = "fingerprint";
                     strlcpy( event_type, "fingerprint", sizeof(event_type) );
 
                     /* Write Fingerprint data to Redis (for future use) */

@@ -1426,9 +1426,6 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type )
 bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
 {
 
-
-    //char tmp[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-
     char *tmp = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
 
     if ( tmp == NULL )

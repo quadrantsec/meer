@@ -50,7 +50,6 @@ bool External( const char *json_string )
     int out[2];
     int pid;
     int n;
-//    char buf[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
 
     char *buf = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
 

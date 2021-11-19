@@ -694,30 +694,3 @@ bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size )
     return(false);
 }
 
-
-/****************************************************************
- * String replacement function.  Used for things like $RULE_PATH
- ****************************************************************/
-/*
-void Replace_String(const char *in_str, char *orig, char *rep, char *str, size_t size)
-{
-
-    char buffer[4096] = { 0 };
-    char *p = NULL;
-
-    if(!(p = strstr(in_str, orig)))
-        {
-            snprintf(str, size, "%s", in_str);
-            return;
-        }
-
-    strlcpy(buffer, in_str, p-in_str);
-    buffer[p-in_str] = '\0';
-    sprintf(buffer+(p-in_str), "%s%s", rep, p+strlen(orig));
-
-    snprintf(str, size, "%s", buffer);
-
-}
-*/
-
-

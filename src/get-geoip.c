@@ -58,11 +58,6 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
             exit(-1);
         }
 
-//    char tmp_geoip[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-//    char new_json_string[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-
-//    char *return_ptr = NULL;
-
     char src_ip[64] = { 0 };
     char dest_ip[64] = { 0 };
 
@@ -211,7 +206,6 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
                 }
 
             json_object_put(jobj_geoip);
-//            json_object_put(tmp);
             free(GeoIP);
         }
 
@@ -238,13 +232,10 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
         }
 
-//    json_object_put(tmp);
-
     snprintf(str, size, "%s", new_json_string);
 
     free(tmp_geoip);
     free(new_json_string);
-
 
 }
 
