@@ -189,7 +189,9 @@ void Get_OUI( struct json_object *json_obj, char *str )
                     snprintf(final_json, MeerConfig->payload_buffer_size, "%s, \"dhcp\": %s }", new_json_string, json_object_to_json_string(json_obj_dhcp) );
                     final_json[ sizeof(final_json) - 1] = '\0';
 
+                    json_object_put(jobj_obj_new);
                     json_object_put(json_obj_dhcp);
+
                     snprintf(str, MeerConfig->payload_buffer_size, "%s\n", final_json);
 
                     free( new_json_string );

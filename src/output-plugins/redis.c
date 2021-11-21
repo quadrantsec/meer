@@ -56,38 +56,36 @@ char **redis_batch_key;
 void Redis_Close( void )
 {
 
-uint8_t i = 0;
+    uint8_t i = 0;
+
+    for (i = 0;  i < MAX_REDIS_BATCH; i++ )
+        {
+            free(redis_batch[i]);
+            free(redis_batch_key[i]);
+        }
 
 
-for (i = 0;  i < MAX_REDIS_BATCH; i++ )
-	{
-	free(redis_batch[i]);
-	free(redis_batch_key[i]);
-	}
-
-
-free(redis_batch);
-free(redis_batch_key);
-
+    free(redis_batch);
+    free(redis_batch_key);
 
 }
 
 void Redis_Init ( void )
 {
 
-uint8_t i = 0; 
+    uint8_t i = 0;
 
-redis_batch = malloc(sizeof(char*) * MAX_REDIS_BATCH); 
-redis_batch_key = malloc(sizeof(char*) * MAX_REDIS_BATCH);
+    redis_batch = malloc(sizeof(char*) * MAX_REDIS_BATCH);
+    redis_batch_key = malloc(sizeof(char*) * MAX_REDIS_BATCH);
 
-memset(redis_batch, 0, (sizeof(char*) * MAX_REDIS_BATCH));
-memset(redis_batch_key, 0, (sizeof(char*) * MAX_REDIS_BATCH));
+    memset(redis_batch, 0, (sizeof(char*) * MAX_REDIS_BATCH));
+    memset(redis_batch_key, 0, (sizeof(char*) * MAX_REDIS_BATCH));
 
-for (i = 0;  i < MAX_REDIS_BATCH; i++ )
-	{
-	redis_batch[i] = malloc( (MeerConfig->payload_buffer_size)*sizeof(char)); 
-	redis_batch_key[i] = malloc( (MAX_REDIS_KEY_SIZE)*sizeof(char)); 
-	}
+    for (i = 0;  i < MAX_REDIS_BATCH; i++ )
+        {
+            redis_batch[i] = malloc( (MeerConfig->payload_buffer_size)*sizeof(char));
+            redis_batch_key[i] = malloc( (MAX_REDIS_KEY_SIZE)*sizeof(char));
+        }
 }
 
 void Redis_Connect( void )

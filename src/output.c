@@ -81,8 +81,12 @@ pthread_mutex_t MeerElasticMutex=PTHREAD_MUTEX_INITIALIZER;
 uint_fast16_t elastic_proc_msgslot = 0;
 uint_fast16_t elastic_proc_running = 0;
 
-char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
-char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
+//char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
+
+extern char *big_batch;
+extern char *big_batch_THREAD;
+
+//char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
 
 extern uint16_t elasticsearch_batch_count;
 
@@ -179,7 +183,7 @@ void Init_Output( void )
 
             /* Connect to redis database */
 
-	    Redis_Init();			/* Init memory, etc */
+            Redis_Init();			/* Init memory, etc */
             Redis_Connect();
 
             strlcpy(redis_command, "PING", sizeof(redis_command));
@@ -1439,8 +1443,9 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
 
     Elasticsearch_Get_Index(index_name, sizeof(index_name), event_type);
 
-    snprintf(tmp, sizeof(tmp), "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
-    strlcat(big_batch, tmp, sizeof(big_batch) );
+    snprintf(tmp, MeerConfig->payload_buffer_size, "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
+
+    strlcat(big_batch, tmp, MeerConfig->payload_buffer_size); //  * MeerOutput->elasticsearch_batch ) );
     elasticsearch_batch_count++;
 
     /* Once we hit the batch size,  submit it. */
@@ -1454,13 +1459,11 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
                     sleep(5);
                 }
 
-
             /* Submit the batch ! */
 
             pthread_mutex_lock(&MeerElasticMutex);
 
-            strlcpy(big_batch_THREAD, big_batch, sizeof(big_batch_THREAD));
-
+            strlcpy( big_batch_THREAD, big_batch, ( MeerConfig->payload_buffer_size * MeerOutput->elasticsearch_batch ) );
             elastic_proc_msgslot++;
 
             __atomic_add_fetch(&elastic_proc_running, 1, __ATOMIC_SEQ_CST);

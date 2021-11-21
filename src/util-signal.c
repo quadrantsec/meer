@@ -52,6 +52,8 @@
 bool elasticsearch_death = false;
 uint8_t elasticsearch_death_count = 0;
 extern uint_fast16_t elastic_proc_running;
+extern char *big_batch;
+extern char *big_batch_THREAD;
 #endif
 
 #ifdef HAVE_LIBHIREDIS
@@ -140,10 +142,10 @@ void Signal_Handler(int sig_num)
 
 #ifdef HAVE_LIBHIREDIS
 
-		if ( MeerOutput->redis_enabled == true )
-			{
-			Redis_Close();
-			}
+            if ( MeerOutput->redis_enabled == true )
+                {
+                    Redis_Close();
+                }
 
 #endif
 
@@ -170,7 +172,15 @@ void Signal_Handler(int sig_num)
                             elasticsearch_death_count++;
 
                             curl_global_cleanup();
+
                         }
+
+                    if ( elastic_proc_running == 0 )
+                        {
+                            free( big_batch );
+                            free( big_batch_THREAD);
+                        }
+
 
                 }
 

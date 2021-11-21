@@ -49,9 +49,11 @@ extern bool elasticsearch_death;
 
 CURL *curl;
 
+/* Globals for Elasticsearch threads */
+
 uint16_t elasticsearch_batch_count = 0;
-extern char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000];
-extern char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000];
+char *big_batch;
+char *big_batch_THREAD;
 
 extern pthread_cond_t MeerElasticWork;
 extern pthread_mutex_t MeerElasticMutex;
@@ -91,6 +93,22 @@ void Elasticsearch_Init( void )
     pthread_attr_t thread_elasticsearch_attr;
     pthread_attr_init(&thread_elasticsearch_attr);
     pthread_attr_setdetachstate(&thread_elasticsearch_attr,  PTHREAD_CREATE_DETACHED);
+
+    big_batch = malloc( (MeerConfig->payload_buffer_size * MeerOutput->elasticsearch_batch )*sizeof(char));
+
+    if ( big_batch == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
+
+    big_batch_THREAD = malloc( (MeerConfig->payload_buffer_size * MeerOutput->elasticsearch_batch )*sizeof(char));
+
+    if ( big_batch_THREAD == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
 
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, "Spawning %d Elasticsearch threads.", MeerOutput->elasticsearch_threads);
@@ -226,7 +244,15 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
 void Elasticsearch( void )
 {
 
-    char big_batch_LOCAL[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+//    char big_batch_LOCAL[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
+
+    char *big_batch_LOCAL = malloc( (MeerConfig->payload_buffer_size)*sizeof(char));
+
+    if ( big_batch_LOCAL == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
 
     struct MemoryStruct chunk;    /* Large JSON returns from Elastic */
 
@@ -299,7 +325,7 @@ void Elasticsearch( void )
             /* Copy the latest batch! */
 
             elastic_proc_msgslot--;
-            strlcpy(big_batch_LOCAL, big_batch_THREAD, sizeof(big_batch_LOCAL));
+            strlcpy(big_batch_LOCAL, big_batch_THREAD, ( MeerConfig->payload_buffer_size * MeerOutput->elasticsearch_batch ) );
 
             pthread_mutex_unlock(&MeerElasticMutex);
 
@@ -342,6 +368,8 @@ void Elasticsearch( void )
                                 {
 
                                     Meer_Log(WARN, "[%s, line %d] Failure inserting into Elasticsearch! Result codes: %s", __FILE__, __LINE__, chunk.memory);
+
+//				      printf("-> %s\n", json_object_get_string(json_tmp));
                                 }
 
                         }
