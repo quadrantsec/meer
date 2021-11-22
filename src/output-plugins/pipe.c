@@ -50,6 +50,17 @@ void Pipe_Write ( const char *json_string )
             return;
         }
 
+    /* Sack on newline */
+
+    ret = write(MeerOutput->pipe_fd, "\n", 1);
+
+    if ( ret < 0 )
+        {
+            Meer_Log(WARN, "Could not write pipe. Error: %s", strerror(errno));
+            return;
+        }
+
+
     MeerCounters->JSONPipeWrites++;
 
 }
