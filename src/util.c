@@ -337,55 +337,21 @@ bool Validate_JSON_String( const char *validate_in_string )
     return 0;
 }
 
-/*****************************
- * CalcPct (Taken from Snort)
- *****************************/
-
-double CalcPct_Down(uint64_t cnt, uint64_t total)
-{
-
-    if ( total == 0 )
-        {
-            return(0);
-        }
-
-    double pct = 0.0;
-
-    pct = (double)cnt / (( (double)cnt + (double)total ) / 100 );
-
-    return pct;
-}
-
+/**************************************************
+ * CalcPct - Calculate percent between to numbers
+ *************************************************/
 
 double CalcPct(uint64_t cnt, uint64_t total)
 {
 
+    double pct = 0.0;
+
     if ( total == 0 )
         {
             return(0);
         }
 
-    double pct = 0.0;
-
-    if ( cnt == 0 && total == 0 )
-        {
-            return (double)0.0;
-        }
-
-    if ( cnt == total )
-        {
-            return (double)100.0;
-        }
-
-    if ( cnt < total )
-        {
-            pct = (double)cnt / (double)total;
-            pct *= 100.0;
-        }
-    else
-        {
-            pct = 100 - ( (double)total / (double)cnt ) ;
-        }
+    pct = ( (double)cnt / (double)total ) * 100;
 
     return pct;
 }
