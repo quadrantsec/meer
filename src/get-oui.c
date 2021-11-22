@@ -81,7 +81,7 @@ void Get_OUI( struct json_object *json_obj, char *str )
                     struct json_object *jobj_obj_new;
                     jobj_obj_new = json_object_new_object();
 
-                    char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+                    char *new_json_string = malloc( MeerConfig->payload_buffer_size );
 
                     if ( new_json_string == NULL )
                         {
@@ -89,13 +89,17 @@ void Get_OUI( struct json_object *json_obj, char *str )
                             exit(-1);
                         }
 
-                    char *final_json = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+                    memset(new_json_string, 0, MeerConfig->payload_buffer_size);
+
+                    char *final_json = malloc(MeerConfig->payload_buffer_size);
 
                     if ( final_json == NULL )
                         {
                             fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
                             exit(-1);
                         }
+
+                    memset(final_json, 0, MeerConfig->payload_buffer_size);
 
                     const char *timestamp = NULL;
                     uint64_t flow_id = 0;

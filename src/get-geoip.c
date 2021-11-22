@@ -42,7 +42,7 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
     struct json_object *tmp = NULL;
 
-    char *tmp_geoip = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    char *tmp_geoip = malloc( MeerConfig->payload_buffer_size );
 
     if ( tmp_geoip == NULL )
         {
@@ -50,13 +50,17 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
             exit(-1);
         }
 
-    char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    memset(tmp_geoip, 0, MeerConfig->payload_buffer_size);
+
+    char *new_json_string = malloc(MeerConfig->payload_buffer_size);
 
     if ( new_json_string == NULL )
         {
             fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
             exit(-1);
         }
+
+    memset(new_json_string, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
     char src_ip[64] = { 0 };
     char dest_ip[64] = { 0 };
@@ -84,11 +88,10 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
     if ( src_ip[0] != '\0' && dest_ip[0] != '\0' )
         {
 
-            struct _GeoIP *GeoIP;
-
             struct json_object *jobj_geoip;
             jobj_geoip = json_object_new_object();
 
+            struct _GeoIP *GeoIP;
             GeoIP = malloc(sizeof(_GeoIP));
 
             if ( GeoIP == NULL )

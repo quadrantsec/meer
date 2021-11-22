@@ -67,7 +67,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     char key[128] = { 0 };
 
-    char *string_f = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    char *string_f = malloc(MeerConfig->payload_buffer_size);
 
     if ( string_f == NULL )
         {
@@ -75,13 +75,17 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
             exit(-1);
         }
 
-    char *http = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    memset(string_f, 0, MeerConfig->payload_buffer_size);
+
+    char *http = malloc(MeerConfig->payload_buffer_size);
 
     if ( http == NULL )
         {
             fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
             exit(-1);
         }
+
+    memset(http, 0, MeerConfig->payload_buffer_size);
 
     if (json_object_object_get_ex(json_obj, "src_ip", &tmp))
         {
@@ -359,13 +363,15 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     if ( http[0] != '\0' )
         {
 
-            char *new_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+            char *new_string = malloc(MeerConfig->payload_buffer_size);
 
             if ( new_string == NULL )
                 {
                     fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
                     exit(-1);
                 }
+
+            memset(new_string, 0, MeerConfig->payload_buffer_size);
 
             string_f[ MeerConfig->payload_buffer_size - 1 ] = '\0' ;
             snprintf(new_string, MeerConfig->payload_buffer_size, "%s, \"http\": %s}", string_f, http);
@@ -586,7 +592,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
 
     char tmp_command[256] = { 0 };
 
-    char *tmp_redis = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    char *tmp_redis = malloc(MeerConfig->payload_buffer_size);
 
     if ( tmp_redis == NULL )
         {
@@ -594,7 +600,9 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
             exit(-1);
         }
 
-    char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    memset(tmp_redis, 0, MeerConfig->payload_buffer_size );
+
+    char *new_json_string = malloc( MeerConfig->payload_buffer_size);
 
     if ( new_json_string == NULL )
         {
@@ -602,13 +610,15 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
             exit(-1);
         }
 
-    char *final_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    char *final_json_string = malloc( MeerConfig->payload_buffer_size );
 
     if ( final_json_string == NULL )
         {
             fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
             exit(-1);
         }
+
+    memset(final_json_string, 0, MeerConfig->payload_buffer_size);
 
     redisReply *reply;
 

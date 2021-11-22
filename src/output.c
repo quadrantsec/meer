@@ -1431,13 +1431,15 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type )
 bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
 {
 
-    char *tmp = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    char *tmp = malloc(MeerConfig->payload_buffer_size);
 
     if ( tmp == NULL )
         {
             fprintf(stderr, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
             exit(-1);
         }
+
+    memset(tmp, 0, MeerConfig->payload_buffer_size);
 
     char index_name[512] = { 0 };
 

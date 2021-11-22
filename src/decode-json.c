@@ -84,13 +84,15 @@ bool Decode_JSON( char *json_string )
 
     char fixed_ip[64] = { 0 };
 
-    char *new_json_string = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    char *new_json_string = malloc( MeerConfig->payload_buffer_size);
 
     if ( new_json_string == NULL )
         {
             fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
             exit(-1);
         }
+
+    memset(new_json_string, 0, MeerConfig->payload_buffer_size);
 
     /* We should have gotten a valid string! */
 

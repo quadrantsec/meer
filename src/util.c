@@ -79,13 +79,15 @@ void Drop_Priv(void)
 void Meer_Log (int type, const char *format,... )
 {
 
-    char *buf = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    char *buf = malloc( MeerConfig->payload_buffer_size );
 
     if ( buf == NULL )
         {
             fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory for Meer_Log()! Abort!\n", __FILE__, __LINE__);
             exit(-1);
         }
+
+    memset(buf, 0, MeerConfig->payload_buffer_size);
 
     va_list ap;
 

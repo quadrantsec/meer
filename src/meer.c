@@ -173,13 +173,15 @@ int main (int argc, char *argv[])
 
     Load_YAML_Config(MeerConfig->yaml_file);
 
-    char *buf = malloc((MeerConfig->payload_buffer_size)*sizeof(char));
+    char *buf = malloc(MeerConfig->payload_buffer_size);
 
     if ( buf == NULL )
         {
             fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory for buf! Abort!\n", __FILE__, __LINE__);
             exit(-1);
         }
+
+    memset(buf, 0, MeerConfig->payload_buffer_size);
 
     if (( MeerConfig->meer_log_fd = fopen(MeerConfig->meer_log, "a" )) == NULL )
         {
