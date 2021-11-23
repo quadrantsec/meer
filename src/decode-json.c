@@ -40,7 +40,6 @@ libjson-c is required for Meer to function!
 
 #include "decode-json.h"
 #include "decode-json-alert.h"
-#include "decode-json-dhcp.h"
 #include "decode-output-json-client-stats.h"
 
 #include "output-plugins/pipe.h"
@@ -268,6 +267,14 @@ bool Decode_JSON( char *json_string )
             json_string = Get_DNS( json_obj );
         }
 
+    /* Add OUI / Mac data */
+
+    if ( MeerConfig->oui == true && !strcmp( event_type, "dhcp"  ) )
+        {
+            Get_OUI( json_obj, new_json_string );
+            json_string = new_json_string;
+        }
+
 #ifdef HAVE_LIBHIREDIS
 
     /* We do "fingerprint" checks early on because we might want to switch the
@@ -315,6 +322,11 @@ bool Decode_JSON( char *json_string )
             free(FingerprintData);
         }
 
+    if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
+        {
+            Fingerprint_DHCP ( json_obj, json_string );
+        }
+
 #endif
 
     Counters( event_type );
@@ -330,14 +342,6 @@ bool Decode_JSON( char *json_string )
         }
 
 #endif
-
-    /* Add OUI / Mac data */
-
-    if ( MeerConfig->oui == true && !strcmp( event_type, "dhcp"  ) )
-        {
-            Get_OUI( json_obj, new_json_string );
-            json_string = new_json_string;
-        }
 
 #if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
 

@@ -42,6 +42,60 @@ extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
 extern struct _Fingerprint_Networks *Fingerprint_Networks;
 
+void Fingerprint_DHCP ( struct json_object *json_obj, const char *json_string )
+{
+
+// !strcmp(assigned_ip, "0.0.0.0" ) && strcmp(DecodeDHCP->dest_ip, "255.255.255.255") )
+
+    struct json_object *tmp = NULL;
+
+    struct json_object *json_obj_dhcp = NULL;
+    struct json_object *tmp_dhcp = NULL;
+
+    char key[512] = { 0 };
+
+    char *assigned_ip = NULL;
+    char *dest_ip = NULL;
+
+    char *dhcp = NULL;
+
+    if (json_object_object_get_ex(json_obj, "dest_ip", &tmp))
+        {
+            dest_ip = (char *)json_object_get_string(tmp);
+        }
+
+
+    if (json_object_object_get_ex(json_obj, "dhcp", &tmp))
+        {
+
+            dhcp = (char *)json_object_get_string(tmp);
+
+            if ( Validate_JSON_String( dhcp ) == 0 )
+                {
+
+                    json_obj_dhcp = json_tokener_parse(dhcp);
+
+                    if (json_object_object_get_ex(json_obj_dhcp, "assigned_ip", &tmp_dhcp))
+                        {
+                            assigned_ip = (char *)json_object_get_string(tmp_dhcp);
+                        }
+                }
+        }
+
+    if ( !strcmp(assigned_ip, "0.0.0.0" ) && strcmp(dest_ip, "255.255.255.255") )
+        {
+            assigned_ip = dest_ip;
+        }
+
+    snprintf(key, sizeof(key), "%s|dhcp|%s", FINGERPRINT_REDIS_KEY, assigned_ip);
+    Redis_Writer( "SET", key, json_string, FINGERPRINT_DHCP_REDIS_EXPIRE );
+
+
+    free(json_obj_dhcp );
+
+}
+
+
 void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintData *FingerprintData, char *str)
 {
 
@@ -394,8 +448,6 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     free( string_f );
     free( http );
-
-
 
 }
 
