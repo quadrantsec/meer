@@ -98,6 +98,7 @@ bool Decode_JSON( char *json_string )
     if ( json_string == NULL )
         {
             MeerCounters->bad++;
+	    json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -108,6 +109,7 @@ bool Decode_JSON( char *json_string )
         {
             MeerCounters->bad++;
             Meer_Log(WARN, "Unable t json_tokener_parse: %s", json_string);
+	    json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -126,6 +128,7 @@ bool Decode_JSON( char *json_string )
     else
         {
             MeerCounters->bad++;
+	    json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -137,10 +140,10 @@ bool Decode_JSON( char *json_string )
     else
         {
             MeerCounters->bad++;
+	    json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
-
 
     /* More sanity checks on src_ip/dest_ip - Some applications screw this up (*cough* Microsoft). */
 
@@ -152,6 +155,7 @@ bool Decode_JSON( char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] No 'src_ip' address could be found.  Skipping.....", __FILE__, __LINE__ );
             MeerCounters->bad++;
+	    json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -164,6 +168,7 @@ bool Decode_JSON( char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] No 'dest_ip' address could be found.  Skipping.....", __FILE__, __LINE__ );
             MeerCounters->bad++;
+	    json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
