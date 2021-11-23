@@ -135,6 +135,8 @@ char *MySQL_DB_Query( char *sql )
             while( ( row = mysql_fetch_row(res) ) )
                 {
                     snprintf(tmp, sizeof(tmp), "%s", row[0]);
+		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+
                     re=tmp;
                 }
         }
@@ -166,6 +168,8 @@ void MySQL_Escape_String( char *sql, char *str, size_t size )
     tmp[len] = '\0';
 
     snprintf(str, size, "%s", tmp);
+    str[ size - 1 ] = '\0'; 
+
     return;
 
 }

@@ -49,6 +49,7 @@ void PG_Connect( void )
     char pgconnect[2048] = { 0 };
 
     snprintf(pgconnect, sizeof(pgconnect), "hostaddr = '%s' port = '%d' dbname = '%s' user = '%s' password = '%s' connect_timeout = '%d'", MeerOutput->sql_server,  MeerOutput->sql_port, MeerOutput->sql_database, MeerOutput->sql_username, MeerOutput->sql_password, MeerOutput->sql_reconnect );
+    pgconnect[ sizeof(pgconnect) - 1 ] = '\0';
 
     MeerOutput->psql = PQconnectdb(pgconnect);
 
@@ -133,6 +134,8 @@ void PG_Escape_String( char *sql, char *str, size_t size )
 
     PQescapeLiteral(MeerOutput->psql, (const char *)sql, size);
     snprintf(str, size, "%s", tmp);
+    str[ size - 1 ] = '\0'; 
+
     return;
 
 

@@ -217,6 +217,7 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
             new_json_string[ strlen(new_json_string) -2 ] = '\0';
             snprintf(tmp_geoip, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src_json);
+	    tmp_geoip[ MeerConfig->payload_buffer_size - 1] = '\0'; 
 
             strlcpy(new_json_string, tmp_geoip, MeerConfig->payload_buffer_size);
             strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
@@ -226,9 +227,10 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
     if ( geoip_dest_json[0] != '\0' )
         {
 
-            new_json_string[ strlen(new_json_string) -2 ] = '\0';
+            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
 
             snprintf(tmp_geoip, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest_json);
+	    tmp_geoip[ MeerConfig->payload_buffer_size - 1] = '\0';
 
             strlcpy(new_json_string, tmp_geoip, MeerConfig->payload_buffer_size);
             strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
@@ -236,6 +238,7 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
         }
 
     snprintf(str, MeerConfig->payload_buffer_size, "%s", new_json_string);
+    str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
     free(tmp_geoip);
     free(new_json_string);

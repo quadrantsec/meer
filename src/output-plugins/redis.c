@@ -296,6 +296,7 @@ void JSON_To_Redis ( const char *json_string, const char *key )
                         {
 
                             snprintf(tk2, sizeof(tk2), "%s|%s|%s|%" PRIu64 "", tk1, MeerConfig->hostname, MeerConfig->interface, MeerWaldo->position);
+			    tk2[ sizeof(tk2) - 1 ] = '\0'; 
 
 #ifdef BLUEDOT
 
@@ -307,6 +308,7 @@ void JSON_To_Redis ( const char *json_string, const char *key )
                             if ( MeerOutput->sql_enabled == true )
                                 {
                                     snprintf(tk2, sizeof(tk2), "%s:%d:% " PRIu64 "", tk1, MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid - 1 );
+				    tk2[ sizeof(tk2) - 1 ] = '\0'; 
                                 }
 #endif
                         }

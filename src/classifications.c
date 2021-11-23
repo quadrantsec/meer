@@ -122,12 +122,17 @@ int Class_Lookup( const char *class, char *str, size_t size )
             if (!strcmp(class, MeerClass[i].description))
                 {
                     snprintf(str, size, "%s", MeerClass[i].classtype);
+		    str[size-1] = '\0'; 
                     return 0;
                 }
         }
 
 
     snprintf(str, sizeof("UNKNOWN"), "UNKNOWN");
+    snprintf(str, 7, "UNKNOWN");
+    str[8] = '\0';
+
+
     return -1;
 
 }

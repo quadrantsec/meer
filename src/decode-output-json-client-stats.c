@@ -103,7 +103,7 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
 
     /* IP Address */
 
-    if (json_object_object_get_ex(json_obj, "ip_address", &tmp))
+    if (json_object_object_get_ex(json_obj, "src_ip", &tmp))
         {
             cs_ipaddr = (char *)json_object_get_string(tmp);
         }
@@ -182,6 +182,8 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
             // snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s|%s|%s",cs_ipaddr, dns, cs_timestamp );
 
             snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s",cs_ipaddr );
+	    redis_prefix[ sizeof(redis_prefix) - 1 ] = '\0'; 
+
             Redis_Writer( "SET", redis_prefix, (char*)json_object_to_json_string(encode_json), 0);
 
         }

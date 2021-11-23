@@ -791,12 +791,15 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
                     snprintf(tmp, sizeof(tmp),
                              "UPDATE sensor SET events_count = events_count+1 WHERE sid = %d",
                              MeerOutput->sql_sensor_id);
+		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+
                     (void)SQL_DB_Query(tmp);
                     MeerCounters->UPDATECount++;
 
                     snprintf(tmp, sizeof(tmp),
                              "UPDATE signature SET events_count = events_count+1 WHERE sig_id = %u",
                              signature_id );
+		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
                     (void)SQL_DB_Query(tmp);
                     MeerCounters->UPDATECount++;
@@ -807,6 +810,7 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
                     strftime(convert_time, sizeof(convert_time),"%F %T",&tm_);
 
                     snprintf(tmp, sizeof(tmp), "UPDATE sensor SET last_event=%d WHERE sid=%d", (int)mktime(&tm_), MeerOutput->sql_sensor_id);
+		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
                     SQL_DB_Query( (char*)tmp );
 
@@ -829,6 +833,7 @@ bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
                     strftime(convert_time, sizeof(convert_time),"%F %T",&tm_);
 
                     snprintf(tmp, sizeof(tmp), "UPDATE sensor SET health=%d WHERE sid=%d", (int)mktime(&tm_), MeerOutput->sql_sensor_id);
+		    tmp[ sizeof(tmp) - 1 ] = '\0';
 
                     SQL_DB_Query( (char*)tmp );
 
@@ -1445,6 +1450,7 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
     Elasticsearch_Get_Index(index_name, sizeof(index_name), event_type);
 
     snprintf(tmp, MeerConfig->payload_buffer_size, "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
+    tmp[ MeerConfig->payload_buffer_size - 1 ] = '\0'; 
 
     strlcat(big_batch, tmp, MeerConfig->payload_buffer_size); //  * MeerOutput->elasticsearch_batch ) );
     elasticsearch_batch_count++;

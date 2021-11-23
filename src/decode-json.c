@@ -258,8 +258,6 @@ bool Decode_JSON( char *json_string )
                 }
         }
 
-
-
     /* Do we want to add DNS to the JSON? */
 
     if ( MeerConfig->dns == true )

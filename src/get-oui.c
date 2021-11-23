@@ -72,6 +72,8 @@ void Get_OUI( struct json_object *json_obj, char *str )
 
                             json_object_put(json_obj_dhcp);
                             snprintf(str, MeerConfig->payload_buffer_size, "%s\n", json_object_to_json_string(json_obj));
+			    str[ MeerConfig->payload_buffer_size - 1] = '\0'; 
+
                             return;
                         }
 
@@ -197,6 +199,7 @@ void Get_OUI( struct json_object *json_obj, char *str )
                     json_object_put(json_obj_dhcp);
 
                     snprintf(str, MeerConfig->payload_buffer_size, "%s\n", final_json);
+		    str[ MeerConfig->payload_buffer_size - 1] = '\0' ; 
 
                     free( new_json_string );
                     free( final_json );
@@ -207,6 +210,7 @@ void Get_OUI( struct json_object *json_obj, char *str )
         }
 
     snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj) );
+    str[ MeerConfig->payload_buffer_size - 1 ] = '\0'; 
 
 }
 

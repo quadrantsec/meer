@@ -74,6 +74,7 @@ void DNS_Lookup_Reverse( char *host, char *str, size_t size )
                             MeerCounters->DNSCacheCount++;
 
                             snprintf(str, size, "%s", DnsCache[i].reverse);
+			    str[ size - 1 ] ='\0'; 
                             return;
 
                         }
@@ -97,6 +98,8 @@ void DNS_Lookup_Reverse( char *host, char *str, size_t size )
                             MeerCounters->DNSCount++;
 
                             snprintf(str, size, "%s", DnsCache[i].reverse);
+			    str[ size - 1 ] = '0'; 
+
                             return;
                         }
 
@@ -125,6 +128,7 @@ void DNS_Lookup_Reverse( char *host, char *str, size_t size )
     MeerCounters->DNSCount++;
 
     snprintf(str, size, "%s", host_r);
+    str[ size - 1 ] = '\0'; 
 
 }
 
@@ -168,6 +172,8 @@ int DNS_Lookup_Forward( const char *host, char *str, size_t size )
     freeaddrinfo(res);
 
     snprintf(str, size, "%s", ipstr);
+    str[ size - 1 ] = '\0'; 
+
     return 0;
 }
 

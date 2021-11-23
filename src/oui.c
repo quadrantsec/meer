@@ -158,6 +158,7 @@ void OUI_Lookup ( char *mac, char *str, size_t size )
     /* Our new search string */
 
     snprintf(search_string, sizeof(search_string), "%s:%s:%s", s1, s2, s3);
+    search_string[ sizeof(search_string) - 1 ] = '\0';
 
     /* See if we can find the MAC address */
 
@@ -173,11 +174,13 @@ void OUI_Lookup ( char *mac, char *str, size_t size )
                     if ( MF_Struct[i].long_manfact[0] != '0' )
                         {
                             snprintf(str, size, "%s", MF_Struct[i].long_manfact);
+			    str[ size - 1 ] = '\0'; 
                             return;
                         }
                     else
                         {
                             snprintf(str, size, "%s", MF_Struct[i].short_manfact);
+			    str[ size - 1 ] = '\0'; 
                             return;
                         }
 

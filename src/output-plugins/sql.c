@@ -83,6 +83,7 @@ uint32_t SQL_Get_Sensor_ID( void )
     snprintf(tmp, sizeof(tmp),
              "SELECT sid FROM sensor WHERE hostname='%s:%s' AND interface='%s' AND detail=1 AND encoding='0'",
              MeerConfig->hostname, MeerConfig->interface, MeerConfig->interface);
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     results=SQL_DB_Query(tmp);
     MeerCounters->SELECTCount++;
@@ -100,6 +101,7 @@ uint32_t SQL_Get_Sensor_ID( void )
     snprintf(tmp, sizeof(tmp),
              "INSERT INTO sensor (hostname, interface, filter, detail, encoding, last_cid) VALUES ('%s:%s', '%s', NULL, '1', '0', '0')",
              MeerConfig->hostname, MeerConfig->interface, MeerConfig->interface);
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -122,6 +124,7 @@ uint64_t SQL_Get_Last_CID( void )
     int  last_cid = 0;
 
     snprintf(tmp, sizeof(tmp), "SELECT last_cid FROM sensor WHERE sid=%d ", MeerOutput->sql_sensor_id);
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     results=SQL_DB_Query(tmp);
     MeerCounters->SELECTCount++;
@@ -205,6 +208,7 @@ void SQL_Record_Last_CID ( void )
     snprintf(tmp, sizeof(tmp),
              "UPDATE sensor SET last_cid='%" PRIu64 "' WHERE sid=%d AND hostname='%s:%s' AND interface='%s' AND detail=1",
              MeerOutput->sql_last_cid, MeerOutput->sql_sensor_id, MeerConfig->hostname, MeerConfig->interface, MeerConfig->interface);
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->UPDATECount++;
@@ -240,6 +244,8 @@ int SQL_Get_Class_ID ( struct _DecodeAlert *DecodeAlert )
     Class_Lookup( DecodeAlert->alert_category, class, sizeof(class) );
 
     snprintf(tmp, sizeof(tmp), "SELECT sig_class_id from sig_class where sig_class_name='%s'", class);
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+
     results = SQL_DB_Query(tmp);
     MeerCounters->SELECTCount++;
 
@@ -249,6 +255,8 @@ int SQL_Get_Class_ID ( struct _DecodeAlert *DecodeAlert )
         {
 
             snprintf(tmp, sizeof(tmp),  "INSERT INTO sig_class(sig_class_id, sig_class_name) VALUES (DEFAULT, '%s')", class);
+	    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+
             (void)SQL_DB_Query(tmp);
             MeerCounters->INSERTCount++;
 
@@ -305,6 +313,7 @@ int SQL_Get_Signature_ID ( struct _DecodeAlert *DecodeAlert, int class_id )
 
     snprintf(tmp, sizeof(tmp), "SELECT sig_id FROM signature WHERE sig_name='%s' AND sig_rev=%d AND sig_sid=%" PRIu64 "",
              e_alert_signature, DecodeAlert->alert_rev, DecodeAlert->alert_signature_id);
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     results = SQL_DB_Query(tmp);
     MeerCounters->SELECTCount++;
@@ -315,6 +324,7 @@ int SQL_Get_Signature_ID ( struct _DecodeAlert *DecodeAlert, int class_id )
             snprintf(tmp, sizeof(tmp), "INSERT INTO signature (sig_name,sig_class_id,sig_priority,sig_rev,sig_sid,sig_gid) "
                      "VALUES ('%s',%d,%d,%d,%" PRIu64 ",1)", e_alert_signature, class_id, sig_priority,
                      DecodeAlert->alert_rev, DecodeAlert->alert_signature_id);
+	    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
             (void)SQL_DB_Query(tmp);
             MeerCounters->INSERTCount++;
@@ -349,6 +359,7 @@ void SQL_Insert_Event ( struct _DecodeAlert *DecodeAlert, int signature_id )
     char tmp[MAX_SQL_QUERY];
 
     snprintf(tmp, sizeof(tmp), "INSERT INTO event(sid,cid,signature,timestamp,app_proto,flow_id) VALUES ('%d','%" PRIu64 "',%d,'%s','%s',%s)", MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, signature_id, DecodeAlert->converted_timestamp, DecodeAlert->app_proto, DecodeAlert->flowid );
+    tmp[ sizeof(tmp) - 1 ] = '\0';
 
 
     (void)SQL_DB_Query(tmp);
@@ -394,6 +405,7 @@ void SQL_Insert_Header ( struct _DecodeAlert *DecodeAlert )
     snprintf(tmp, sizeof(tmp),
              "INSERT INTO iphdr ( sid, cid,ip_src,ip_dst,ip_src_t,ip_dst_t,ip_ver,ip_proto,ip_hlen,ip_tos,ip_len,ip_id,ip_flags,ip_off,ip_ttl,ip_csum) VALUES (%d,%" PRIu64 ",%" PRIu32 ",%" PRIu32 ",'%s','%s',%u,%u,0,0,0,0,0,0,0,0)",
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, htonl(*src_ip_u32), htonl(*dst_ip_u32), DecodeAlert->src_ip, DecodeAlert->dest_ip, DecodeAlert->ip_version, proto );
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -404,6 +416,7 @@ void SQL_Insert_Header ( struct _DecodeAlert *DecodeAlert )
             snprintf(tmp, sizeof(tmp),
                      "INSERT INTO tcphdr (sid,cid,tcp_sport,tcp_dport,tcp_seq,tcp_ack,tcp_off,tcp_res,tcp_flags,tcp_win,tcp_csum,tcp_urp) VALUES (%d,%" PRIu64 ",%s,%s,0,0,0,0,0,0,0,0)",
                      MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, DecodeAlert->src_port, DecodeAlert->dest_port  );
+	    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
             (void)SQL_DB_Query(tmp);
             MeerCounters->INSERTCount++;
@@ -416,6 +429,7 @@ void SQL_Insert_Header ( struct _DecodeAlert *DecodeAlert )
             snprintf(tmp, sizeof(tmp),
                      "INSERT INTO udphdr (sid,cid,udp_sport,udp_dport,udp_len,udp_csum) VALUES (%d,%" PRIu64 ",%s,%s,0,0)",
                      MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, DecodeAlert->src_port, DecodeAlert->dest_port );
+	    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
             (void)SQL_DB_Query(tmp);
             MeerCounters->INSERTCount++;
@@ -427,6 +441,7 @@ void SQL_Insert_Header ( struct _DecodeAlert *DecodeAlert )
 
             snprintf(tmp, sizeof(tmp), "INSERT INTO icmphdr (sid,cid,icmp_type,icmp_code,icmp_csum,icmp_id,icmp_seq) VALUES (%d,%" PRIu64 ",%s,%s,0,0,0)",
                      MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, DecodeAlert->icmp_type, DecodeAlert->icmp_code );
+	    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
             (void)SQL_DB_Query(tmp);
             MeerCounters->INSERTCount++;
@@ -451,6 +466,7 @@ void SQL_Insert_Payload ( struct _DecodeAlert *DecodeAlert )
     snprintf(tmp, sizeof(tmp),
              "INSERT INTO data(sid, cid, data_payload) VALUES (%d,%" PRIu64 ",'%s')",
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, hex_encode );
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -483,6 +499,7 @@ void SQL_Insert_DNS ( struct _DecodeAlert *DecodeAlert )
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid,
              e_src_host,
              e_dest_host );
+    tmp[ sizof(tmp) - 1 ] = '\0'; 
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -522,6 +539,7 @@ void SQL_Insert_Syslog_Data ( struct _DecodeAlert *DecodeAlert )
     snprintf(tmp, sizeof(tmp),
              "INSERT INTO syslog_data (sid,cid,facility,priority,level,program) VALUES (%d,%" PRIu64 ",'%s','%s','%s','%s')",
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, e_facility, e_priority, e_level, e_program);
+    tmp[ sizeof(tmp) - 1 ] = '\0';
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -548,6 +566,8 @@ void SQL_Insert_Extra_Data ( struct _DecodeAlert *DecodeAlert )
                      MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, EXTRA_ORIGNAL_CLIENT_IPV4,
                      (int)strlen( DecodeAlert->xff ), DecodeAlert->xff);
 
+	    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+
             (void)SQL_DB_Query(tmp);
             MeerCounters->INSERTCount++;
 
@@ -561,6 +581,8 @@ void SQL_Insert_Extra_Data ( struct _DecodeAlert *DecodeAlert )
                      MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, EXTRA_IPV6_SOURCE_ADDRESS,
                      (int)strlen( DecodeAlert->src_ip ), DecodeAlert->src_ip);
 
+	    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+
             (void)SQL_DB_Query(tmp);
             MeerCounters->INSERTCount++;
 
@@ -568,6 +590,8 @@ void SQL_Insert_Extra_Data ( struct _DecodeAlert *DecodeAlert )
                      "INSERT INTO extra (sid,cid,type,datatype,len,data) VALUES (%d,%" PRIu64 ",%d,1,%d,'%s')",
                      MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, EXTRA_IPV6_DESTINATION_ADDRESS,
                      (int)strlen( DecodeAlert->dest_ip ), DecodeAlert->dest_ip);
+
+	    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
             (void)SQL_DB_Query(tmp);
             MeerCounters->INSERTCount++;
@@ -587,6 +611,8 @@ void SQL_Insert_Extra_Data ( struct _DecodeAlert *DecodeAlert )
                              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, EXTRA_HTTP_HOSTNAME,
                              (int)strlen( e_http_hostname ), e_http_hostname );
 
+		    tmp[ sizeof(tmp) - 1 ] = '\0';
+
                     (void)SQL_DB_Query(tmp);
                     MeerCounters->INSERTCount++;
 
@@ -601,6 +627,8 @@ void SQL_Insert_Extra_Data ( struct _DecodeAlert *DecodeAlert )
                              "INSERT INTO extra (sid,cid,type,datatype,len,data) VALUES (%d,%" PRIu64 ",%d,1,%d,'%s')",
                              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, EXTRA_HTTP_URI,
                              (int)strlen( e_http_url ), e_http_url);
+
+		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
                     (void)SQL_DB_Query(tmp);
                     MeerCounters->INSERTCount++;
@@ -622,6 +650,8 @@ void SQL_Insert_Extra_Data ( struct _DecodeAlert *DecodeAlert )
                              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, EXTRA_SMTP_FILENAME,
                              (int)strlen( e_http_hostname ), e_email_attachment );
 
+		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+
                     (void)SQL_DB_Query(tmp);
                     MeerCounters->INSERTCount++;
 
@@ -637,6 +667,8 @@ void SQL_Insert_Extra_Data ( struct _DecodeAlert *DecodeAlert )
                              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, EXTRA_SMTP_RCPT_TO,
                              (int)strlen( e_smtp_rcpt_to ), e_smtp_rcpt_to );
 
+		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+
                     (void)SQL_DB_Query(tmp);
                     MeerCounters->INSERTCount++;
 
@@ -650,6 +682,8 @@ void SQL_Insert_Extra_Data ( struct _DecodeAlert *DecodeAlert )
                     snprintf(tmp, sizeof(tmp),
                              "INSERT INTO extra (sid,cid,type,datatype,len,data) VALUES (%d,%" PRIu64 ",%d,1,%d,'%s')",                             MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid, EXTRA_SMTP_MAIL_FROM,
                              (int)strlen( e_smtp_mail_from ), e_smtp_mail_from );
+
+		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
                     (void)SQL_DB_Query(tmp);
                     MeerCounters->INSERTCount++;
@@ -674,6 +708,8 @@ void SQL_Insert_Flow ( struct _DecodeAlert *DecodeAlert )
              DecodeAlert->flow_bytes_toserver,
              DecodeAlert->flow_bytes_toclient,
              DecodeAlert->flow_start_timestamp_converted );
+
+    tmp[ sizeof(tmp) - 1 ] = '\0';
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -719,6 +755,8 @@ void SQL_Insert_HTTP ( struct _DecodeAlert *DecodeAlert )
 
              DecodeAlert->http_status,
              DecodeAlert->http_length );
+
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -772,6 +810,8 @@ void SQL_Insert_TLS ( struct _DecodeAlert *DecodeAlert )
              e_tls_notbefore,
              e_tls_notafter );
 
+    tmp[ sizeof(tmp) - 1 ] = '\0';
+
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
 
@@ -814,6 +854,8 @@ void SQL_Insert_SSH ( struct _DecodeAlert *DecodeAlert, unsigned char type )
              table,MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid,
              proto, e_software );
 
+    tmp[ sizeof(tmp) - 1 ] = '\0'l
+
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
 
@@ -832,6 +874,8 @@ void SQL_Insert_Metadata ( struct _DecodeAlert *DecodeAlert )
              "VALUES (%d,%" PRIu64 ",'%s')",
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid,
              e_alert_metadata);
+
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -852,6 +896,8 @@ void SQL_Insert_JSON ( struct _DecodeAlert *DecodeAlert )
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid,
              e_json);
 
+    tmp[ sizeof(tmp) - 1 ] = '\0'
+
     (void)SQL_DB_Query(tmp);
 
 //    MeerCounters->JSONCount++;
@@ -871,9 +917,10 @@ void SQL_Insert_Stats ( char *json_stats, const char *timestamp, const char *hos
              "INSERT INTO stats (hostname,timestamp,stats) "
              "VALUES ('%s', '%s', '%s')", hostname, timestamp, e_stats);
 
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+
     (void)SQL_DB_Query(tmp);
 
-//    MeerCounters->JSONCount++;
     MeerCounters->INSERTCount++;
 
 }
@@ -892,9 +939,10 @@ void SQL_Insert_Normalize ( struct _DecodeAlert *DecodeAlert )
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid,
              e_normalize);
 
+    tmp[ sizeof(tmp) - 1 ] = '\0';
+
     (void)SQL_DB_Query(tmp);
 
-//    MeerCounters->JSONCount++;
     MeerCounters->INSERTCount++;
 
 }
@@ -915,6 +963,8 @@ void SQL_Insert_Bluedot ( struct _DecodeAlert *DecodeAlert )
              "VALUES (%d,%" PRIu64 ",'%s')",
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid,
              e_bluedot);
+
+    tmp[ sizeof(tmp) - 1 ] = '\0';
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -941,6 +991,8 @@ void SQL_Insert_SMTP ( struct _DecodeAlert *DecodeAlert )
              e_helo,
              e_mail_from,
              e_rcpt_to);
+
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     (void)SQL_DB_Query(tmp);
 
@@ -974,6 +1026,8 @@ void SQL_Insert_Email ( struct _DecodeAlert *DecodeAlert )
              e_to,
              e_cc,
              e_attachment);
+
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     (void)SQL_DB_Query(tmp);
 
@@ -1034,6 +1088,8 @@ int SQL_Legacy_Reference_Handler ( struct _DecodeAlert *DecodeAlert )
                              "SELECT ref_system_id FROM reference_system WHERE ref_system_name='%s'",
                              sid_map_tmp);
 
+		    tmp[ sizeof(tmp) - 1 ] = '\0';
+
                     results=SQL_DB_Query(tmp);
 
                     MeerCounters->SELECTCount++;
@@ -1044,6 +1100,8 @@ int SQL_Legacy_Reference_Handler ( struct _DecodeAlert *DecodeAlert )
                             snprintf(tmp, sizeof(tmp),
                                      "INSERT INTO reference_system (ref_system_name) VALUES ('%s')",
                                      sid_map_tmp);
+
+			    tmp[ sizeof(tmp) - 1 ] = '\0';
 
                             (void)SQL_DB_Query(tmp);
                             MeerCounters->INSERTCount++;
@@ -1060,6 +1118,8 @@ int SQL_Legacy_Reference_Handler ( struct _DecodeAlert *DecodeAlert )
                              "SELECT ref_id FROM reference WHERE ref_system_id=%d AND ref_tag='%s'",
                              ref_system_id, sid_map_tmp);
 
+		    tmp[ sizeof(tmp) - 1 ] = '\0';
+
                     results=SQL_DB_Query(tmp);
                     MeerCounters->SELECTCount++;
 
@@ -1069,6 +1129,8 @@ int SQL_Legacy_Reference_Handler ( struct _DecodeAlert *DecodeAlert )
                             snprintf(tmp, sizeof(tmp),
                                      "INSERT INTO reference (ref_system_id,ref_tag) VALUES (%d, '%s')",
                                      ref_system_id, sid_map_tmp);
+
+			    tmp[ sizeof(tmp) - 1 ] = '\0';
 
                             (void)SQL_DB_Query(tmp);
                             MeerCounters->INSERTCount++;
@@ -1085,6 +1147,8 @@ int SQL_Legacy_Reference_Handler ( struct _DecodeAlert *DecodeAlert )
                              "SELECT sig_id FROM sig_reference WHERE sig_id=%d AND ref_id=%d",
                              sig_id, ref_id);
 
+		    tmp[ sizeof(tmp) - 1 ] = '\0';
+
                     results=SQL_DB_Query(tmp);
                     MeerCounters->SELECTCount++;
 
@@ -1094,6 +1158,8 @@ int SQL_Legacy_Reference_Handler ( struct _DecodeAlert *DecodeAlert )
                             snprintf(tmp, sizeof(tmp),
                                      "INSERT INTO sig_reference (sig_id,ref_seq,ref_id) VALUES (%d,%d,%d)",
                                      sig_id, i, ref_id);
+
+			    tmp[ sizeof(tmp) - 1 ] = '\0';
 
                             (void)SQL_DB_Query(tmp);
                             MeerCounters->INSERTCount++;
@@ -1132,6 +1198,8 @@ int SQL_Get_Sig_ID( struct _DecodeAlert *DecodeAlert )
              "SELECT sig_class_id FROM sig_class WHERE sig_class_name='%s'",
              e_class_tmp);
 
+    tmp[ sizeof(tmp) - 1 ] = '\0';
+
     results=SQL_DB_Query(tmp);
     MeerCounters->SELECTCount++;
 
@@ -1141,6 +1209,8 @@ int SQL_Get_Sig_ID( struct _DecodeAlert *DecodeAlert )
             snprintf(tmp, sizeof(tmp),
                      "INSERT INTO sig_class (sig_class_name) VALUES ('%s')",
                      e_class_tmp);
+
+	    tmp[ sizeof(tmp) - 1 ] = '\0';
 
             results=SQL_DB_Query(tmp);
             MeerCounters->INSERTCount++;
