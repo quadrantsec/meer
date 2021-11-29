@@ -19,27 +19,22 @@ Meer is meant to be modular and simple. This project does not aim to replicate a
 
 # Output Plugins:
 
-* MySQL/MariaDB output - This output plugin stores data to a database similar to Snort/Barnyard2.  This makes is backward compatible with Snorby,  Sguil, BASE, etc. The database schema has been extended to record other alert metadata like ‘flow’, ‘http’, ‘smtp’, ‘tls’, ‘ssh’ and other information.  This extra data can be extremely useful for security analysts.   This output plug in supports features I’ve done in my fork of Barnyard2 known as Barnyard2-Extra (https://github.com/beave/barnyard2-extra). For example; reverse DNS/PTR lookups,  “health” checks and “extra data” (for example XFF HTTP headers).   Meer uses internal SQL “caching” to make it more efficient when interacting with databases. 
-
-* PostreSQL - Works exactly the same as the MySQL/MariaDB output but for PostgreSQL
-
 * Redis - Meer can write store data to a Redis database similar to Suricata (list/lpush, rpush, channel/publish or set).
+
+* "elasticsearch" support - This allows Meer to write Sagan & Suricata EVE (JSON) data to Elasticseach search.
 
 * "external" support - This allows you to call your own program.  When an event happens and if the signature specifies the option,  Meer will 'call' your program.  The EVE/JSON is handed to your program via stdin.  This can be useful to build custom firewall routines, customer reactions to events,  custom ways to store data, etc. 
 
 * "pipe" support - This allows Meer to write EVE/JSON data to a Unix "named pipe" or FIFO.  Meer acts as a pipe "writer" and you can have a consumer (reader) on the other side of the "pipe".  For example,  you might use a program like "Sagan" (https://sagan.io) to analyze the data received via a named pipe.
 
-* "elasticsearch" support - This allows Meer to write Sagan & Suricata EVE (JSON) data to Elasticseach search. 
-
 # Current Features:
 
+* Meer can "enrich" EVE/JSON data!  For example,  Meer can add DNS records,  do OUI (hardware manufacturer) on MAC addresses,  add GeoIP data and more!
 * Meer is written in C and has a very small memory footprint (only several meg of RAM).  It also CPU efficient. 
 * Fast startup times (under one second).  
 * Simple command line and configuration syntax.  Meer uses a YAML configurations similar to Suricata and Sagan. 
 * Out of the box IPv6 support. 
 * Meer can do reverse DNS/PTR record lookups.   Meer has an internal DNS cache system so to not overburden DNS servers with repeated queries. 
-* MySQL/MariaDB output is backward compatible with legacy Snort/Barnyard2 database.
-* MySQL/MariaDB internal SQL “caching” makes Meer interactions with databases more efficient. 
 * Supports "fingerprint" rule set.  These are special Suricata & Sagan signatures that allow you to collect data about devices in your network and store them in a Redis database.  See https://github.com/quadrantsec/fingerprint-rules for more information.
 * Supports "client stats" for Meer when injecting Sagan EVE/JSON data.  This allows give you statistics about who and what is sending Sagan data within an environment. 
 
