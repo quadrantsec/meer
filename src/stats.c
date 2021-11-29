@@ -119,6 +119,8 @@ void Statistics( void )
 
         }
 
+#endif
+
     if ( MeerOutput->pipe_enabled == true )
         {
 
@@ -142,6 +144,5 @@ void Statistics( void )
 
     Meer_Log(NORMAL, "");
 
-#endif
 
 }
