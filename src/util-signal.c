@@ -32,19 +32,8 @@
 #include "meer.h"
 #include "meer-def.h"
 #include "config-yaml.h"
-#include "decode-json-alert.h"
 #include "lockfile.h"
 #include "stats.h"
-
-#include "output-plugins/sql.h"
-
-#ifdef HAVE_LIBMYSQLCLIENT
-#include "output-plugins/mysql.h"
-#endif
-
-#ifdef HAVE_LIBPQ
-#include "output-plugins/postgresql.h"
-#endif
 
 #ifdef WITH_ELASTICSEARCH
 #include <output-plugins/elasticsearch.h>
@@ -85,60 +74,6 @@ void Signal_Handler(int sig_num)
                     close(MeerOutput->pipe_fd);
 
                 }
-
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
-            close(MeerConfig->waldo_fd);
-
-            if ( MeerOutput->sql_enabled == true )
-                {
-
-#ifdef HAVE_LIBMYSQLCLIENT
-
-                    if ( MeerOutput->sql_driver == DB_MYSQL )
-                        {
-
-                            /* If we're in the middle of a transaction,  commit/rollback */
-
-                            if ( MeerOutput->sql_transaction == true )
-                                {
-                                    MySQL_DB_Query("COMMIT");
-                                    MySQL_DB_Query("ROLLBACK");
-                                }
-
-                            MeerOutput->sql_last_cid++;
-                            SQL_Record_Last_CID();
-                            sleep(1);
-                            mysql_close(MeerOutput->mysql_dbh);
-                        }
-
-
-#endif
-
-#ifdef HAVE_LIBPQ
-
-                    if ( MeerOutput->sql_driver == DB_POSTGRESQL )
-                        {
-
-                            /* If we're in the middle of a transaction,  commit/rollback */
-
-                            if ( MeerOutput->sql_transaction == true )
-                                {
-                                    PG_DB_Query("COMMIT");
-                                    PG_DB_Query("ROLLBACK");
-                                }
-
-                            MeerOutput->sql_last_cid++;
-                            SQL_Record_Last_CID();
-                            sleep(1);
-                            PQfinish(MeerOutput->psql);
-                        }
-
-#endif
-
-                }
-
-#endif
 
 #ifdef HAVE_LIBHIREDIS
 
@@ -196,11 +131,6 @@ void Signal_Handler(int sig_num)
             Remove_Lock_File();
 
             Statistics();
-
-            if ( MeerOutput->sql_enabled == true )
-                {
-                    Meer_Log(NORMAL, "Last CID is : %" PRIu64 ".", MeerOutput->sql_last_cid);
-                }
 
             fsync(MeerConfig->waldo_fd);
             close(MeerConfig->waldo_fd);

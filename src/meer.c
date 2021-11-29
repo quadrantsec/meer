@@ -46,17 +46,13 @@
 
 #include "meer.h"
 #include "meer-def.h"
-#include "decode-json-alert.h"
 
 #include "util.h"
 #include "util-signal.h"
 #include "config-yaml.h"
 #include "lockfile.h"
-#include "references.h"
-#include "classifications.h"
 #include "waldo.h"
 #include "output.h"
-#include "sid-map.h"
 #include "usage.h"
 #include "oui.h"
 
@@ -204,22 +200,13 @@ int main (int argc, char *argv[])
 
     CheckLockFile();
 
-    MeerConfig->endian = Check_Endian();
-
     if ( MeerConfig->oui == true )
         {
             Load_OUI();
         }
 
-    Load_Classifications();
-
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, "Fingerprint support    : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );
-
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-    Meer_Log(NORMAL, "Health updates         : %s", MeerConfig->health ? "enabled" : "disabled" );
-#endif
-
     Meer_Log(NORMAL, "");
 
 #ifdef HAVE_LIBMAXMINDDB

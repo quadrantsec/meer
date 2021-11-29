@@ -38,7 +38,6 @@
 #include "lockfile.h"
 #include "config-yaml.h"
 #include "decode-output-json-client-stats.h"
-#include "decode-json-alert.h"
 
 #define MAX_REDIS_KEY_SIZE 128
 
@@ -296,21 +295,8 @@ void JSON_To_Redis ( const char *json_string, const char *key )
                         {
 
                             snprintf(tk2, sizeof(tk2), "%s|%s|%s|%" PRIu64 "", tk1, MeerConfig->hostname, MeerConfig->interface, MeerWaldo->position);
-			    tk2[ sizeof(tk2) - 1 ] = '\0'; 
+                            tk2[ sizeof(tk2) - 1 ] = '\0';
 
-#ifdef BLUEDOT
-
-                            /* The "MeerOutput->sql_last_cid - 1" is an UGLY temp kludge.
-                            SQL takes place _before redis_.  This means the CID++ before
-                               the Redis insert can happen.   So we "roll" back the CID++
-                               for our Redis insert  - bleh */
-
-                            if ( MeerOutput->sql_enabled == true )
-                                {
-                                    snprintf(tk2, sizeof(tk2), "%s:%d:% " PRIu64 "", tk1, MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid - 1 );
-				    tk2[ sizeof(tk2) - 1 ] = '\0'; 
-                                }
-#endif
                         }
 
                     Redis_Writer ( MeerOutput->redis_command, tk2, redis_batch[i], 0 );

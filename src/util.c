@@ -238,19 +238,6 @@ bool Mask2Bit(int mask, unsigned char *out)
 
 }
 
-
-bool Check_Endian()
-{
-    int i = 1;
-
-    char *p = (char *) &i;
-
-    if (p[0] == 1)  /* Lowest address contains the least significant byte */
-        return 0;   /* Little endian */
-    else
-        return 1;   /* Big endian */
-}
-
 char *Hexify(char *xdata, int length)
 {
 
@@ -418,7 +405,7 @@ void Convert_ISO8601_For_SQL( char *time, char *str, size_t size )
     strftime(newtime,sizeof(newtime),"%F %T",&tm_);
 
     snprintf(str, size, "%s", newtime);
-    str[ size - 1 ] = '\0'; 
+    str[ size - 1 ] = '\0';
 }
 
 
@@ -613,7 +600,7 @@ bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size )
 
             dumb_ip_return[p+1] = '\0';
             snprintf(str, size, "%s", dumb_ip_return);
-	    str[ size - 1 ] = '\0'; 
+            str[ size - 1 ] = '\0';
 
 
             return(true);
@@ -631,7 +618,7 @@ bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size )
             dumb_ip_return[ strlen(dumb_ip_return) - 2 ] = '\0';
 
             snprintf(str, size, "%s", dumb_ip_return);
-	    str[ size - 1 ] = '\0'; 
+            str[ size - 1 ] = '\0';
 
 
             return(true);
@@ -648,7 +635,7 @@ bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size )
             dumb_ip_return[ strlen(dumb_ip_return) - 1 ] = '\0';
 
             snprintf(str, size, "%s", dumb_ip_return);
-	    str[ size - 1] = '\0'; 
+            str[ size - 1] = '\0';
 
             return(true);
         }
@@ -663,7 +650,7 @@ bool Try_And_Fix_IP ( char *orig_ip, char *str, size_t size )
             dumb_ip_return[ strlen(dumb_ip_return) ] = '\0';
 
             snprintf(str, size, "%s", dumb_ip_return);
-	    str[ size - 1 ] = '\0'; 
+            str[ size - 1 ] = '\0';
 
             return(true);
         }

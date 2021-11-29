@@ -88,7 +88,7 @@ void Fingerprint_DHCP ( struct json_object *json_obj, const char *json_string )
         }
 
     snprintf(key, sizeof(key), "%s|dhcp|%s", FINGERPRINT_REDIS_KEY, assigned_ip);
-    key[ sizeof( key ) - 1 ] = '\0'; 
+    key[ sizeof( key ) - 1 ] = '\0';
 
     Redis_Writer( "SET", key, json_string, FINGERPRINT_DHCP_REDIS_EXPIRE );
 
@@ -411,12 +411,12 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
                 }
 
             snprintf(http, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string_ext(encode_json_http, JSON_C_TO_STRING_PLAIN));
-	    http[  MeerConfig->payload_buffer_size - 1] = '\0'; 
+            http[  MeerConfig->payload_buffer_size - 1] = '\0';
 
         }
 
     snprintf(string_f, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string_ext(encode_json_fingerprint, JSON_C_TO_STRING_PLAIN));
-    string_f[ MeerConfig->payload_buffer_size ] = '\0'; 
+    string_f[ MeerConfig->payload_buffer_size ] = '\0';
 
 
     if ( http[0] != '\0' )
@@ -433,8 +433,8 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
             memset(new_string, 0, MeerConfig->payload_buffer_size);
 
             string_f[ MeerConfig->payload_buffer_size - 1 ] = '\0' ;
-            
-	    snprintf(new_string, MeerConfig->payload_buffer_size, "%s, \"http\": %s}", string_f, http);
+
+            snprintf(new_string, MeerConfig->payload_buffer_size, "%s, \"http\": %s}", string_f, http);
             new_string[ MeerConfig->payload_buffer_size - 1] = '\0';
 
             strlcpy(string_f, new_string, MeerConfig->payload_buffer_size);
@@ -443,7 +443,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
         }
 
     snprintf(key, sizeof(key), "%s|event|%s|%" PRIu64 "", FINGERPRINT_REDIS_KEY, src_ip, signature_id);
-    key[ sizeof(key) -1 ] = '\0'; 
+    key[ sizeof(key) -1 ] = '\0';
 
     Redis_Writer( "SET", key, string_f, FingerprintData->expire );
 
@@ -745,7 +745,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
                 {
 
                     snprintf(tmp_command, sizeof(tmp_command), "GET %s|dhcp|%s", FINGERPRINT_REDIS_KEY, tmp_ip);
-		    tmp_command[ sizeof(tmp_command) - 1 ] = '\0'; 
+                    tmp_command[ sizeof(tmp_command) - 1 ] = '\0';
 
                     Redis_Reader(tmp_command, tmp_redis, MeerConfig->payload_buffer_size);
 
@@ -758,7 +758,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
 
                             snprintf(final_json_string, MeerConfig->payload_buffer_size, "%s, \"fingerprint_dhcp_%s\": %s }", new_json_string, tmp_type, tmp_redis);
 
-			    final_json_string[ MeerConfig->payload_buffer_size - 1 ] = '\0'; 
+                            final_json_string[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
                             /* Copy final_json_string to new_json_string in case we have more modifications
                                to make */
@@ -778,7 +778,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
 
                                             redisReply *kr = reply->element[1]->element[i];
                                             snprintf(tmp_command, sizeof(tmp_command), "GET %s", kr->str);
-					    tmp_command[ sizeof(tmp_command) - 1 ] = '\0';
+                                            tmp_command[ sizeof(tmp_command) - 1 ] = '\0';
 
                                             Redis_Reader(tmp_command, tmp_redis, MeerConfig->payload_buffer_size);
 
@@ -800,7 +800,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
                                                     new_json_string[ strlen(new_json_string) - 2 ] = '\0'; /* Snip */
 
                                                     snprintf(final_json_string, MeerConfig->payload_buffer_size, "%s, \"fingerprint_%s_%d\": %s }", new_json_string, tmp_type, i, json_object_get_string(tmp) );
-						    final_json_string[ MeerConfig->payload_buffer_size - 1 ] = '\0';
+                                                    final_json_string[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
 
                                                     /* Copy final_json_string to new_json_string in case we have more modifications
@@ -818,7 +818,7 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
 
 
     snprintf(str, MeerConfig->payload_buffer_size, "%s", new_json_string);
-    str[ MeerConfig->payload_buffer_size - 1 ] = '\0'; 
+    str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
     json_object_put(json_obj_fingerprint);
 

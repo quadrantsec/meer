@@ -39,7 +39,6 @@ libjson-c is required for Meer to function!
 #include <string.h>
 
 #include "decode-json.h"
-#include "decode-json-alert.h"
 #include "decode-output-json-client-stats.h"
 
 #include "output-plugins/pipe.h"
@@ -98,7 +97,7 @@ bool Decode_JSON( char *json_string )
     if ( json_string == NULL )
         {
             MeerCounters->bad++;
-	    json_object_put(json_obj);
+            json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -109,7 +108,7 @@ bool Decode_JSON( char *json_string )
         {
             MeerCounters->bad++;
             Meer_Log(WARN, "Unable t json_tokener_parse: %s", json_string);
-	    json_object_put(json_obj);
+            json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -128,7 +127,7 @@ bool Decode_JSON( char *json_string )
     else
         {
             MeerCounters->bad++;
-	    json_object_put(json_obj);
+            json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -140,7 +139,7 @@ bool Decode_JSON( char *json_string )
     else
         {
             MeerCounters->bad++;
-	    json_object_put(json_obj);
+            json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -155,7 +154,7 @@ bool Decode_JSON( char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] No 'src_ip' address could be found.  Skipping.....", __FILE__, __LINE__ );
             MeerCounters->bad++;
-	    json_object_put(json_obj);
+            json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -168,7 +167,7 @@ bool Decode_JSON( char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] No 'dest_ip' address could be found.  Skipping.....", __FILE__, __LINE__ );
             MeerCounters->bad++;
-	    json_object_put(json_obj);
+            json_object_put(json_obj);
             free(new_json_string);
             return(false);
         }
@@ -346,22 +345,6 @@ bool Decode_JSON( char *json_string )
 
 #endif
 
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
-    /* SQL is sort of a difficult output and we only store "alert"
-       event_types. We grab and store a bunch of JSON values and
-       store them in the struct DecodeAlert */
-
-    if ( !strcmp(event_type, "alert") && MeerOutput->sql_enabled == true )
-        {
-            struct _DecodeAlert *DecodeAlert;   /* event_type: alert */
-            DecodeAlert = Decode_JSON_Alert( json_obj, json_string );
-            Output_Alert_SQL( DecodeAlert );
-            free( DecodeAlert );
-        }
-
-#endif
-
     if ( MeerOutput->pipe_enabled == true )
         {
             Output_Pipe( json_string, event_type );
@@ -406,13 +389,6 @@ bool Decode_JSON( char *json_string )
         }
 
 #endif
-
-    /* Write "stats" to SQL database */
-
-    if ( !strcmp(event_type, "stats" ) && MeerOutput->sql_enabled == true)
-        {
-            Output_Stats( json_string );
-        }
 
     /* Delete json-c _root_ objects */
 

@@ -108,71 +108,11 @@ meer-core:
     geoip: disabled
     geoip_database: "/usr/local/share/GeoIP2/GeoLite2-City.mmdb"
 
-    #########################################################################
-    # health 
-    #
-    # "health" checks are a set of signatures that are triggered every so 
-    # often to ensure a sensor is up and operational.  When these events
-    # are triggered,  they are not stored into the database as normal alert
-    # data.  For example,  with MySQL/MariaDB output enabled, they update the 
-    # "sensor.health" table with the current epoch time.  Think of these
-    # events like a "ping" for your sensor.  This can be useful for detecting
-    # when Meer, Suricata or Sagan have "died" unexpectedly.
-    #########################################################################
-
-    health: disabled
-    health_signatures: 20000001,20000002,20000003,20000004
-
 #############################################################################
 # Output Plugins 
 #############################################################################
 
 output-plugins:
-
-  ###########################################################################
-  # sql
-  #
-  # This enabled MySQL/MariaDB or PostgreSQL output support.  This writes 
-  # Suricata & Sagan data into a "Barnyard2" like database schema.  This
-  # will likely go away in Meer 2.0
-  ###########################################################################
-
-  sql:
-
-    enabled: no
-    driver: mysql        # "mysql" or "postgresql"
-    debug: no
-    server: 127.0.0.1
-    port: 3306           # Change to 5432 for PostgreSQL 
-    username: "XXXX"
-    password: "XXXXXX"
-    database: "snort_test"
-
-    # Automatically reconnect to the database when disconnected.
-
-    reconnect: enabled
-    reconnect_time: 10 
-
-    # Store decoded JSON data that is similar to Unified2 "extra" data to the
-    # "extra" table.
-
-    extra_data: enabled
-
-    # If you would like Meer to mimic the legacy "reference" tables from
-    # Snort/Barnyard2, enable it here.  If your using more than one database
-    # to store Suricata or Sagan data, you'll likely want to leave this 
-    # disabled. The legacy reference system isn't very efficient and there's
-    # better ways to keep track of this data.  This is also a memory hog and
-    # performance killer.  See tools/reference_handler/reference_handler.pl to
-    # build a centralized reference table.  This will go away in Meer version
-    # 2.0.
-
-    reference_system: disabled
-    sid_file: "/etc/suricata/rules/sid-msg.map"	  # Created with "create-sidmap"
-    reference: "/etc/suricata/reference.config"
-
-    #sid_file: "/usr/local/etc/sagan-rules/sagan-sid-msg.map"
-    #reference: "/usr/local/etc/sagan-rules/reference.config"
 
   ###########################################################################
   # file

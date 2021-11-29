@@ -46,7 +46,6 @@ libjson-c is required for Meer to function!
 #include "meer.h"
 #include "meer-def.h"
 
-#include "decode-json-alert.h"
 #include "output-plugins/redis.h"
 #include "decode-output-json-client-stats.h"
 
@@ -182,7 +181,7 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
             // snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s|%s|%s",cs_ipaddr, dns, cs_timestamp );
 
             snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s",cs_ipaddr );
-	    redis_prefix[ sizeof(redis_prefix) - 1 ] = '\0'; 
+            redis_prefix[ sizeof(redis_prefix) - 1 ] = '\0';
 
             Redis_Writer( "SET", redis_prefix, (char*)json_object_to_json_string(encode_json), 0);
 

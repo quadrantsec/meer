@@ -10,82 +10,95 @@ Meers operations are mainly controlled by the ``meer.yaml`` file.  The configura
 
   meer-core:
 
-     core:
+  core:
 
-       hostname: "mysensor"  # Unique name for this sensor (no spaces)
-       interface: "eth0"     # Can be anything.  Sagan "syslog", suricata "eth0".
+    hostname: "mysensor"  # Unique name for this sensor (no spaces)
+    interface: "eth0"     # Can be anything.  Sagan "syslog", suricata "eth0".
 
-       description: "My awesome sensor!"   # Description of this sensor.  This 
-                                           # will be added to _all_ logs!
+    description: "My awesome sensor!"   # Description of this sensor.  This 
+                                        # will be added to _all_ logs!
 
-       payload-buffer-size: 1024kb         # This is the max size buffer that can
-                                           # be read in/written out.  It should
-                                           # match your payload-buffer-size in 
-                                           # Surcata or be larger.  Valid 
-                                           # Notations are "kb", "mb" and "gb".
+    payload-buffer-size: 1024kb         # This is the max size buffer that can
+                                        # be read in/written out.  It should
+                                        # match your payload-buffer-size in 
+                                        # Surcata or be larger.  Valid 
+                                        # Notations are "kb", "mb" and "gb".
 
-       runas: "suricata"     # User to "drop privileges" too.
-       #runas: "sagan"
+    runas: "suricata"     # User to "drop privileges" too. 
+    #runas: "sagan"
 
-       classification: "/etc/suricata/classification.config"
-       #classification: "/usr/local/etc/sagan-rules/classification.config"
+    classification: "/etc/suricata/classification.config"
+    #classification: "/usr/local/etc/sagan-rules/classification.config"
 
-       meer_log: "/var/log/meer/meer.log"   # Meer log file
+    meer_log: "/var/log/meer/meer.log"          # Meer log file
+    waldo_file: "/var/log/meer/meer.waldo"      # Where to store the last 
+                                                # position in the 
+                                                # "follow-eve" file. 
 
-       # Meer can decode various types of data from within an "alert".  This
-       # section enabled/disabled various JSON decoders.
+    lock_file: "/var/log/meer/meer.lck"         # To prevent dueling processes.
 
-       metadata: enabled
-       flow: enabled
-       http: enabled
-       tls: enabled
-       ssh: enabled
-       smtp: enabled
-       email: enabled
-       json: enabled       # Original JSON from EVE
+    follow_eve: "/var/log/suricata/alert.json"  # The Suricata/Sagan file to monitor
+    #follow-eve: "/var/log/sagan/alert.json"   
 
-       # This enables the "fingerprint" option.  When used in conjunction with the 
-       # "fingerprint.rules" (https://github.com/quadrantsec/fingerprint-rules), 
-       # this will record things like operating system type,  type of system it is
-       # (client/server), etc.  This data get routed differently and does not 
-       # generate "alerts". 
+   #########################################################################
+    # fingerprint
+    #
+    # This enables the "fingerprint" option.  When used in conjunction with the 
+    # "fingerprint.rules" (https://github.com/quadrantsec/fingerprint-rules), 
+    # this will record things like operating system type,  type of system it is
+    # (client/server), etc.  This data get routed differently and does not 
+    # generate "alerts". 
+    #########################################################################
 
-       fingerprint: enabled
-       fingerprint_log: "/tmp/fingerprint.eve"
+    fingerprint: enabled
+    fingerprint_networks: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
+    #########################################################################
+    # client_stats
+    #
+    # "client_stats" are specific to Sagan and allow Sagan/Meer to record
+    # information about systems sending Sagan data.  This has no affect on 
+    # Suricata. 
+    #########################################################################
 
-       # "client_stats" are specific to Sagan and allow Sagan/Meer to record
-       # informatin about systems sending Sagan data.  This has no affect on 
-       # Suricata. 
+    client_stats: disabled
 
-       client_stats: disabled
+    #########################################################################
+    # oui_lookup
+    #
+    # The "oui_lookup" allows Meer to lookup vender information based off
+    # a MAC address.  Information is stored in fingerprinting JSON.  The
+    # MAC/OUI database
+    #
+    # https://gitlab.com/wireshark/wireshark/raw/master/manuf
+    #########################################################################
 
-       # If "dns" is enabled, Meer will do reverse DNS (PTR) lookups of an IP.
-       # The "dns_cache" is the amount of time Meer should "cache" a PTR record.
-       # The DNS cache prevents Meer from doing repeated lookups of an
-       # already looked-up PTR record.  This reduces over-loading DNS servers.
+    oui_lookup: disabled
+    oui_filename: "/usr/local/etc/manuf"
 
-       dns: enabled
-       dns_cache: 900      # Time in seconds.
+   #########################################################################
+    # dns
+    #
+    # If "dns" is enabled, Meer will do reverse DNS (PTR) lookups of an IP. 
+    # The "dns_cache" is the amount of time Meer should "cache" a PTR record
+    # for.  The DNS cache prevents Meer from doing repeated lookups of an 
+    # already looked up PTR record.  This reduces overloading DNS servers.
+    #########################################################################
 
-       # "health" checks are a set of signatures that are triggered every so 
-       # often to ensure a sensor is up and operational.  When these events
-       # are triggered,  they are not stored into the database as normal alert
-       # data.  For example,  with MySQL/MariaDB output enabled, they update the 
-       # "sensor.health" table with the current epoch time.  Think of these
-       # events like a "ping" for your sensor.  This can be useful for detecting
-       # when Meer, Suricata, or Sagan have "died" unexpectedly.
+    dns: enabled
+    dns_cache: 900      # Time in seconds. 
 
-       health: enabled
-       health_signatures: 20000001,20000002,20000003,20000004
+    #########################################################################
+    # geoip
+    #
+    # If "geoip" is enabled, Meer will add GeoIP information (JSON) to 
+    # "alert" data.  You'll need to compile Meer with Maxmind's GeoIP
+    # support (--enable-geoip). Data that will be added,  when available, 
+    # includes ISO country code, city, subdivision, postal code, 
+    # timezone,  latitude and longitude. 
+    #########################################################################
 
-       waldo_file: "/var/log/meer/meer.waldo"      # Where to store the last 
-                                                   # position in the 
-                                                   # "follow-eve" file. 
-
-       lock_file: "/var/log/meer/meer.lck"         # To prevent dueling processes.
-
-       follow_eve: "/var/log/suricata/alert.json"  # The Suricata/Sagan file to monitor
-       #follow_eve: "/var/log/sagan/alert.json
+    geoip: disabled
+    geoip_database: "/usr/local/share/GeoIP2/GeoLite2-City.mmdb"
 
 
 'meer-core' options

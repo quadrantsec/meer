@@ -35,18 +35,15 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "decode-json-alert.h"
+#include <json-c/json.h>
 
 #include "meer.h"
 #include "meer-def.h"
 #include "util.h"
 #include "util-dns.h"
 #include "output.h"
-#include "references.h"
-#include "sid-map.h"
 #include "config-yaml.h"
 
-#include "output-plugins/sql.h"
 #include "output-plugins/pipe.h"
 #include "output-plugins/external.h"
 #include "output-plugins/pipe.h"
@@ -54,11 +51,6 @@
 
 #ifdef WITH_ELASTICSEARCH
 #include <output-plugins/elasticsearch.h>
-#endif
-
-#ifdef HAVE_LIBMYSQLCLIENT
-#include <mysql/mysql.h>
-MYSQL    *mysql;
 #endif
 
 #ifdef HAVE_LIBHIREDIS
@@ -331,49 +323,6 @@ void Init_Output( void )
             Meer_Log(NORMAL, "");
 
         }
-
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
-    MeerOutput->sql_transaction = false ;
-
-    if ( MeerOutput->sql_enabled )
-        {
-
-            Meer_Log(NORMAL, "--[ SQL information ]--------------------------------------------");
-            Meer_Log(NORMAL, "");
-
-            if ( MeerOutput->sql_driver == DB_MYSQL )
-                {
-                    Meer_Log(NORMAL, "SQL Driver: MySQL/MariaDB");
-                }
-
-            else if ( MeerOutput->sql_driver == DB_POSTGRESQL )
-                {
-                    Meer_Log(NORMAL, "SQL Driver: PostgreSQL");
-                }
-
-            Meer_Log(NORMAL, "Extra data: %s", MeerOutput->sql_extra_data ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Fingerprinting: %s", MeerOutput->sql_fingerprint ? "enabled" : "disabled" );
-
-            /* Legacy reference system */
-
-            Meer_Log(NORMAL, "Legacy Reference System: %s", MeerOutput->sql_reference_system ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "");
-
-            if ( MeerOutput->sql_reference_system )
-                {
-                    Load_References();
-                    Load_SID_Map();
-                    Meer_Log(NORMAL, "");
-                }
-
-            SQL_Connect();
-
-            MeerOutput->sql_sensor_id = SQL_Get_Sensor_ID();
-            MeerOutput->sql_last_cid = SQL_Get_Last_CID() + 1;
-        }
-
-#endif
 
 #ifdef HAVE_LIBMAXMINDDB
 
@@ -648,207 +597,6 @@ bool Output_Pipe ( const char *json_string, const char *event_type )
     return(false);
 
 }
-
-/****************************************************************************
- * Output_Alert_SQL - Sends decoded data to a MySQL/PostgreSQL database using
- * a similar format to Barnyard2 (with some extra data added in!)
- ****************************************************************************/
-
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
-bool Output_Alert_SQL ( struct _DecodeAlert *DecodeAlert )
-{
-
-    char tmp[MAX_SQL_QUERY] = { 0 };
-    char convert_time[16] = { 0 };
-    struct tm tm_;
-
-    bool health_flag = 0;
-    int i = 0;
-
-    if ( MeerOutput->sql_enabled )
-        {
-
-            int signature_id = 0;
-            int class_id = 0;
-
-            if ( MeerConfig->health == true )
-                {
-
-                    for (i = 0 ; i < MeerCounters->HealthCount; i++ )
-                        {
-
-                            if ( MeerHealth[i].health_signature == DecodeAlert->alert_signature_id )
-                                {
-                                    health_flag = 1;
-                                    break;
-                                }
-                        }
-
-                }
-
-
-            if ( health_flag == 0 )
-                {
-
-                    class_id = SQL_Get_Class_ID( DecodeAlert );
-
-                    SQL_DB_Query("START TRANSACTION");
-                    MeerOutput->sql_transaction = true;
-
-                    if ( MeerOutput->sql_reference_system == true )
-                        {
-
-                            signature_id = SQL_Legacy_Reference_Handler ( DecodeAlert );
-
-                            /* The SID doesn't have any reference data.  We just get it into the
-                                       signature table */
-
-                            if ( signature_id == 0 )
-                                {
-                                    signature_id = SQL_Get_Signature_ID( DecodeAlert, class_id );
-                                }
-
-                        }
-                    else
-                        {
-
-                            signature_id = SQL_Get_Signature_ID( DecodeAlert, class_id );
-
-                        }
-
-                    SQL_Insert_Event( DecodeAlert, signature_id );
-
-                    SQL_Insert_Header( DecodeAlert );
-
-                    SQL_Insert_Payload ( DecodeAlert );
-
-                    /* Not all events have "syslog data" (only Sagan). */
-
-                    if ( DecodeAlert->facility != NULL || DecodeAlert->priority != NULL ||
-                            DecodeAlert->level != NULL || DecodeAlert->program != NULL )
-                        {
-                            SQL_Insert_Syslog_Data( DecodeAlert );
-                        }
-
-                    SQL_Insert_JSON ( DecodeAlert );
-                    SQL_Insert_DNS ( DecodeAlert );
-
-                    /* We can have multiple "xff" fields in extra data */
-
-                    if ( MeerOutput->sql_extra_data == true )
-                        {
-                            SQL_Insert_Extra_Data ( DecodeAlert );
-                        }
-
-                    if ( DecodeAlert->has_normalize == true )
-                        {
-                            SQL_Insert_Normalize ( DecodeAlert );
-                        }
-
-                    if ( DecodeAlert->has_flow == true ) //&& MeerOutput->sql_flow == true )
-                        {
-                            SQL_Insert_Flow ( DecodeAlert );
-                        }
-
-                    if ( DecodeAlert->has_http == true ) // && MeerOutput->sql_http == true )
-                        {
-                            SQL_Insert_HTTP ( DecodeAlert );
-                        }
-
-                    if ( DecodeAlert->has_tls == true ) // && MeerOutput->sql_tls == true )
-                        {
-                            SQL_Insert_TLS ( DecodeAlert );
-                        }
-
-                    if ( DecodeAlert->has_ssh_server == true ) // && MeerOutput->sql_ssh == true )
-                        {
-                            SQL_Insert_SSH ( DecodeAlert, SSH_SERVER );
-                        }
-
-                    if ( DecodeAlert->has_ssh_client == true ) // && MeerOutput->sql_ssh == true )
-                        {
-                            SQL_Insert_SSH ( DecodeAlert, SSH_CLIENT );
-                        }
-
-                    if ( DecodeAlert->alert_has_metadata == true ) // && MeerOutput->sql_metadata == true )
-                        {
-                            SQL_Insert_Metadata ( DecodeAlert );
-                        }
-
-                    if ( DecodeAlert->has_smtp == true ) // && MeerOutput->sql_smtp == true )
-                        {
-                            SQL_Insert_SMTP ( DecodeAlert );
-                        }
-
-                    if ( DecodeAlert->has_email == true ) //  && MeerOutput->sql_email == true )
-                        {
-                            SQL_Insert_Email ( DecodeAlert );
-                        }
-
-                    /* Record CID in case of crash/disconnections */
-
-                    snprintf(tmp, sizeof(tmp),
-                             "UPDATE sensor SET events_count = events_count+1 WHERE sid = %d",
-                             MeerOutput->sql_sensor_id);
-		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
-
-                    (void)SQL_DB_Query(tmp);
-                    MeerCounters->UPDATECount++;
-
-                    snprintf(tmp, sizeof(tmp),
-                             "UPDATE signature SET events_count = events_count+1 WHERE sig_id = %u",
-                             signature_id );
-		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
-
-                    (void)SQL_DB_Query(tmp);
-                    MeerCounters->UPDATECount++;
-
-                    /* Convert timestamp from event to epoch */
-
-                    strptime(DecodeAlert->timestamp,"%FT%T",&tm_);
-                    strftime(convert_time, sizeof(convert_time),"%F %T",&tm_);
-
-                    snprintf(tmp, sizeof(tmp), "UPDATE sensor SET last_event=%d WHERE sid=%d", (int)mktime(&tm_), MeerOutput->sql_sensor_id);
-		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
-
-                    SQL_DB_Query( (char*)tmp );
-
-                    SQL_Record_Last_CID();
-
-                    MeerCounters->UPDATECount++;
-
-                    SQL_DB_Query("COMMIT");
-                    MeerOutput->sql_transaction=false;
-
-                    MeerOutput->sql_last_cid++;
-
-                }
-            else
-                {
-
-                    /* Convert timestamp from event to epoch */
-
-                    strptime(DecodeAlert->timestamp,"%FT%T",&tm_);
-                    strftime(convert_time, sizeof(convert_time),"%F %T",&tm_);
-
-                    snprintf(tmp, sizeof(tmp), "UPDATE sensor SET health=%d WHERE sid=%d", (int)mktime(&tm_), MeerOutput->sql_sensor_id);
-		    tmp[ sizeof(tmp) - 1 ] = '\0';
-
-                    SQL_DB_Query( (char*)tmp );
-
-                    MeerCounters->HealthCountT++;
-                    MeerCounters->UPDATECount++;
-
-                }
-
-        }
-
-    return 0;
-}
-
-#endif
-
 
 /****************************************************************************
  * Output_External - Sends certain data to an external program based on
@@ -1179,6 +927,7 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
  * database and/or Redis
  ****************************************************************************/
 
+/*
 void Output_Stats ( char *json_string )
 {
 
@@ -1209,26 +958,16 @@ void Output_Stats ( char *json_string )
             return;
         }
 
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
-    char *hostname = NULL;
-
-    if ( json_object_object_get_ex(json_obj, "hostname", &tmp))
-        {
-            hostname =  (char *)json_object_get_string(tmp);
-        }
-
-    SQL_Insert_Stats ( json_string, timestamp, hostname );
-
-#endif
-
     json_object_put(json_obj);
 
 }
 
+*/
+
 
 #ifdef WITH_BLUEDOT
 
+/*
 bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
 {
 
@@ -1262,6 +1001,7 @@ bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
 
     return(false);
 }
+*/
 
 #endif
 
@@ -1450,7 +1190,7 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
     Elasticsearch_Get_Index(index_name, sizeof(index_name), event_type);
 
     snprintf(tmp, MeerConfig->payload_buffer_size, "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
-    tmp[ MeerConfig->payload_buffer_size - 1 ] = '\0'; 
+    tmp[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
     strlcat(big_batch, tmp, MeerConfig->payload_buffer_size); //  * MeerOutput->elasticsearch_batch ) );
     elasticsearch_batch_count++;

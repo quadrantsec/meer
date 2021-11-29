@@ -24,18 +24,11 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      stats.c \
 							      waldo.c \
 							      output.c \
-							      classifications.c \
-							      references.c \
-							      sid-map.c \
 							      usage.c \
 							      oui.c \
 							      geoip.c \
 							      decode-json.c \
-							      decode-json-alert.c \
 							      decode-output-json-client-stats.c \
-							      output-plugins/sql.c \
-							      output-plugins/mysql.c \
-							      output-plugins/postgresql.c \
 							      output-plugins/pipe.c \
 							      output-plugins/external.c \
 							      output-plugins/redis.c \

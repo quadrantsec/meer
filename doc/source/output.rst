@@ -14,10 +14,10 @@ data if enabled.
 
   ###########################################################################
   # redis
-  # 
-  # This allows you to send Suricata/Sagan EVE data to a Redis database. 
-  # This will mimic the way Suricata writes EVE data to Redis with the 
-  # exception of "client_stats" which is a Sagan specific processor. 
+  #
+  # This allows you to send Suricata/Sagan EVE data to a Redis database.
+  # This will mimic the way Suricata writes EVE data to Redis with the
+  # exception of "client_stats" which is a Sagan specific processor.
   ###########################################################################
 
   redis:
@@ -27,62 +27,56 @@ data if enabled.
     server: 127.0.0.1
     #password: "mypassword"
     port: 6379
-    batch: 1                 # Batching (pipelining) data.  When set to 1, 
-                             # no batching is performed and data is immediately 
-                             # sent to Redis.  If increase,  data is batched 
+    batch: 1                 # Batching (pipelining) data.  When set to 1,
+                             # no batching is performed and data is immediately
+                             # sent to Redis.  If increase,  data is batched
                              # and sent in bulk to increase performance.  The max
                              # is 100.
-    key: "suricata"	     # Default 'channel' to use.  If none is specified, the 
+    key: "suricata"          # Default 'channel' to use.  If none is specified, the
                              # channel name will become the "event_type".
-                             # (ie - alert, dhcp, dns, flow, etc). 
-    mode: lpush              # How to publish data to Redis.  Valid types are 
-                             # "list" ("lpush"), "rpush", "channel" ("publish"), 
+                             # (ie - alert, dhcp, dns, flow, etc).
+    mode: lpush              # How to publish data to Redis.  Valid types are
+                             # "list" ("lpush"), "rpush", "channel" ("publish"),
                              # "set".
     append_id: disabled      # If enabled, this will append the "hostname" and
-                             # waldo position to the key.  For example,  the 
+                             # waldo position to the key.  For example,  the
                              # Redis object can become "alert|hostname|1". This
-                             # is good when you are using the "set" mode. 
+                             # is good when you are using the "set" mode.
 
-    # This controls event_types to send to Redis. 
+    routing:
 
-    alert: enabled
-    files: enabled
-    flow: enabled
-    dns: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    fileinfo: enabled
-    dhcp: enabled
-    stats: enabled
-    rdp: enabled
-    sip: enabled
-    ftp: enabled
-    ikev2: enabled
-    nfs: enabled
-    tftp: enabled
-    smb: enabled
-    dcerpc: enabled
-    mqtt: enabled
-    netflow: enabled
-    metadata: enabled
-    dnp3: enabled
-    anomaly: enabled
-
-    # Fingerprint data can be temporarily stored in a Redis database.  When an alert
-    # fires, this information can be used to determine the targets operating system, 
-    # type (client/server), etc.  This can be useful in determining the validity of
-    # an event. If used in conjunction with the SQL output,  the fingerprint data for
-    # the targeted system is stored in the 'fingerprint' table.
-
-    fingerprint: enabled
+      - alert
+      - files
+      - flow
+      - dns
+      - http
+      - tls
+      - ssh
+      - smtp
+      - email
+      - fileinfo
+      - dhcp
+      - stats
+      - rdp
+      - sip
+      - ftp
+      - ikev2
+      - nfs
+      - tftp
+      - smb
+      - dcerpc
+      - mqtt
+      - netflow
+      - metadata
+      - dnp3
+      - anomaly
+      - fingerprint
 
     # This controls sending Sagan client tracking data to Redis.  This has no affect 
     # on Suricata systems. 
 
-    client_stats: disabled
+      - client_stats
+
 
 enabled
 ~~~~~~~
@@ -144,36 +138,39 @@ This option enables the Elasticseaerch output.
     url: "http://127.0.0.1:9200/_bulk"
     index: "suricata_$EVENTTYPE_$YEAR$MONTH$DAY"
     insecure: true                                      # Only applied when https is used.
-    batch: 100						# Batch size per/writes.
-    threads: 10						# Number of "writer" threads.
+    batch: 100                                          # Batch size per/writes.
+    threads: 10                                         # Number of "writer" threads.
     #username: "myusername"
     #password: "mypassword"
 
-    alert: enabled
-    files: enabled
-    flow: enabled
-    dns: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    fileinfo: enabled
-    dhcp: enabled
-    stats: enabled
-    rdp: enabled
-    sip: enabled
-    ftp: enabled
-    ikev2: enabled
-    nfs: enabled
-    tftp: enabled
-    smb: enabled
-    dcerpc: enabled
-    mqtt: enabled
-    netflow: enabled
-    metadata: enabled
-    dnp3: enabled
-    anomaly: enabled
+    routing:
+
+      - alert
+      - files
+      - flow
+      - dns
+      - http
+      - tls
+      - ssh
+      - smtp
+      - email
+      - fileinfo
+      - dhcp
+      - stats
+      - rdp
+      - sip
+      - ftp
+      - ikev2
+      - nfs
+      - tftp
+      - smb
+      - dcerpc
+      - mqtt
+      - netflow
+      - metadata
+      - dnp3
+      - anomaly
+      - fingerprint
 
 
 External
@@ -186,7 +183,7 @@ custom firewalling routines or routing data to alternate programs.  The "externa
 can be written in any language that suites you.
 
 ::
-  
+
   ###########################################################################
   # external 
   #
@@ -238,39 +235,18 @@ can be written in any language that suites you.
     # If you run your network with an iron fist start here.
 
     # I can't seem to find any documentation on what "max-detect-ips" is :(
-   
     program: "/usr/local/bin/external_program"
 
-    meer_metadata: enabled
-    cisco_policies: "policy-security-ips,policy-max-detect-ips,policy-connectivity-ips,policy-balanced-ips"
-    et_signature_severity: "critical,major"		# Critical,Major,Minor,Informational
+    #meer_metadata: enabled
+    #cisco_policies: "policy-security-ips,policy-max-detect-ips,policy-connectivity-ips,policy-balanced-ips"
+    #et_signature_severity: "critical,major"            # Critical,Major,Minor,Informational
 
+    # You likely don't want to route to much data to a external program. External
+    # output is slow.
 
-    alert: enabled
-    files: disabled
-    flow: disabled
-    dns:  disabled
-    http: disabled
-    tls: disabled
-    ssh: disabled
-    smtp: disabled
-    email: disabled
-    fileinfo: disabled
-    dhcp: disabled
-    stats: disabled
-    rdp: disabled
-    sip: disabled
-    ftp: disabled
-    ikev2: disabled
-    nfs: disabled
-    tftp: disabled
-    smb: disabled
-    dcerpc: disabled
-    mqtt: disabled
-    netflow: disabled
-    metadata: disabled
-    dnp3: disabled
-    anomaly: disabled
+    routing:
+
+      - alert
 
 
 enabled
@@ -319,7 +295,7 @@ file and puts it into a named pipe (FIFO).  This can be useful if you want a thi
 program (for example, Sagan - https://sagan.io) to analyze the data. 
 
 ::
-  
+
   ###########################################################################
   # pipe
   # 
@@ -327,42 +303,42 @@ program (for example, Sagan - https://sagan.io) to analyze the data.
   # its raw,  JSON form.  This allows for third party tools, like Sagan, 
   # to do further analysis on the event. 
   ###########################################################################
-  
+
   pipe:
 
     enabled: no
     pipe_location: /var/sagan/fifo/sagan.fifo
     pipe_size: 1048576                        # System must support F_GETPIPE_SZ/F_SETPIPE_SZ
 
-    # Below are the "event_types" from Suricata/Sagan. This tells Meer what to send
-    # to the named pipe/FIFO. 
+    routing:
 
-    alert: enabled
-    files: enabled
-    flow: enabled
-    dns: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    fileinfo: enabled
-    dhcp: enabled
-    stats: enabled
-    rdp: enabled
-    sip: disabled
-    ftp: enabled
-    ikev2: enabled
-    nfs: enabled
-    tftp: enabled
-    smb: enabled
-    dcerpc: enabled
-    mqtt: enabled
-    netflow: enabled
-    metadata: enabled
-    dnp3: enabled
-    anomaly: enabled
-
+      - alert
+      - files
+      - flow
+      - dns
+      - http
+      - tls
+      - ssh
+      - smtp
+      - email
+      - fileinfo
+      - dhcp
+      - stats
+      - rdp
+      - sip
+      - ftp
+      - ikev2
+      - nfs
+      - tftp
+      - smb
+      - dcerpc
+      - mqtt
+      - netflow
+      - metadata
+      - dnp3
+      - anomaly
+      - fingerprint
+  
 
 enabled
 ~~~~~~~
@@ -383,336 +359,4 @@ File
 ----
 
 This configures the 'file' output plugin.
-
-::
-
-  ###########################################################################
-  # file
-  # 
-  # The 'file' output writes post processed EVE data to a file.  For example,
-  # if Meer is adding GeoIP and DNS information,  the new JSON data will 
-  # written to the 'file_location'.
-  ###########################################################################
-
-  file:
-
-    enabled: no
-    file_location: "/path/to/output/file"
-
-    alert: enabled
-    files: enabled
-    flow: enabled
-    dns: enabled
-    http: enabled
-    tls: enabled
-    ssh: enabled
-    smtp: enabled
-    email: enabled
-    fileinfo: enabled
-    dhcp: enabled
-    stats: enabled
-    rdp: enabled
-    sip: disabled
-    ftp: enabled
-    ikev2: enabled
-    nfs: enabled
-    tftp: enabled
-    smb: enabled
-    dcerpc: enabled
-    mqtt: enabled
-    netflow: enabled
-    metadata: enabled
-    dnp3: enabled
-    anomaly: enabled
-
-
-SQL
----
-
-Below is an example of the "output-plugins" from the ``meer.yaml``.  This section controls 
-the SQL output.
-
-::
-
-  ###########################################################################
-  # sql
-  #
-  # This enabled MySQL/MariaDB or PostgreSQL output support.  This writes 
-  # Suricata & Sagan data into a "Barnyard2" like database schema.  This
-  # will likely go away in Meer 2.0
-  ###########################################################################
-
-  sql:
-
-    enabled: yes
-    driver: mysql        # "mysql" or "postgresql"
-    debug: no
-    server: 127.0.0.1
-    port: 3306           # Change to 5432 for PostgreSQL 
-    username: "XXXX"
-    password: "XXXXXX"
-    database: "snort_test"
-
-    # Automatically reconnect to the database when disconnected.
-
-    reconnect: enabled
-    reconnect_time: 10 
-
-    # Store decoded JSON data that is similar to Unified2 "extra" data to the
-    # "extra" table.
-
-    extra_data: enabled
-
-    # If you would like Meer to mimic the legacy "reference" tables from
-    # Snort/Barnyard2, enable it here.  If your using more than one database
-    # to store Suricata or Sagan data, you'll likely want to leave this 
-    # disabled. The legacy reference system isn't very efficient and there's
-    # better ways to keep track of this data.  This is also a memory hog and
-    # performance killer.  See tools/reference_handler/reference_handler.pl to
-    # build a centralized reference table.  This will go away in Meer version
-    # 2.0.
-
-    reference_system: disabled
-    sid_file: "/etc/suricata/rules/sid-msg.map"	  # Created with "create-sidmap"
-    reference: "/etc/suricata/reference.config"
-
-    #sid_file: "/usr/local/etc/sagan-rules/sagan-sid-msg.map"
-    #reference: "/usr/local/etc/sagan-rules/reference.config"
-
-enabled
-~~~~~~~
-
-When this option is set to ``yes`` or ``no``, it enables or disables the SQL section of
-the Meer output plugin.
-
-driver
-~~~~~~
-
-This controls what SQL database driver Meer will use.  Valid types are ``mysql`` (for both
-MySQL and MariaDB) and ``postgresql``.
-
-port
-~~~~
-
-The port the target SQL server is listening on.
-
-server
-~~~~~~
-
-The IP address of the SQL server.
-
-debug
-~~~~~
-
-When ``debug`` is enabled,  Meer will display SQL statements and transactions to stdout and to the
-``meer_log``.  This can be useful for debugging SQL errors and issues.  By default, this is disabled.
-
-username
-~~~~~~~~
-
-The username to use during authentication with the SQL database.
-
-password
-~~~~~~~~
-
-The password to use during authentication with the SQL database.
-
-reconnect
-~~~~~~~~~
-
-If Meer encounters an issue with connecting to the SQL database,  if this 
-option is ``enabled``,  Meer will continually try to reconnect until it is
-successful.
-
-reconnect_time
-~~~~~~~~~~~~~~
-
-This is how long to pause, in seconds,  before attempting to reconnect to the
-SQL database if the ``reconnect`` option is enabled.
-
-extra_data
-~~~~~~~~~~
-
-When the ``extra_data`` option is enabled,  Meer will record certain information
-(XFF, DNS data,  SMTP data, etc) in the legacy ``extra`` table.  
-
-metadata
-~~~~~~~~
-
-This option controls Meer's ability to record decoded alert metadata to the ``metadata``
-SQL table.  If "metadata" is detected within the EVE/JSON  and the ``metadata``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the ``metadata`` SQL table. 
-
-flow
-~~~~
-
-This option controls Meer's ability to record decoded alert flow to the ``flow``
-SQL table.  If "flow" is detected within the EVE/JSON  and the ``flow``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the ``flow`` SQL table.
-
-http
-~~~~
-
-This option controls Meer's ability to record decoded alert http to the ``http``
-SQL table.  If "http" is detected within the EVE/JSON  and the ``http``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the ``http`` SQL table.
-
-tls
-~~~
-
-This option controls Meer's ability to record decoded alert tls to the ``tls``
-SQL table.  If "tls" is detected within the EVE/JSON  and the ``tls``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the ``tls`` SQL table.
-
-ssh
-~~~
-
-This option controls Meer's ability to record decoded alert ssh to the ``ssh``
-SQL table.  If "ssh" is detected within the EVE/JSON  and the ``ssh``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the ``ssh-client``and ``ssh-server`` SQL tables.
-
-smtp
-~~~
-
-This option controls Meer's ability to record decoded alert smtp to the ``smtp``
-SQL table.  If "smtp" is detected within the EVE/JSON  and the ``smtp``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the ``smtp`` SQL table.
-
-email
-~~~~~
-
-This option controls Meer's ability to record decoded alert email to the ``email``
-SQL table.  If "email" is detected within the EVE/JSON  and the ``email``
-decoder is enabled (controlled in the ``meer-core``),  then it will be recorded
-to the ``email`` SQL tables.  This is not to be confused with the ``smtp`` table.
-
-reference_system
-~~~~~~~~~~~~~~~~
-
-The ``reference_system`` allows Meer to store alert reference data in a traditional
-"Barnyard2" format.  If you are using a single database for all events,  this 
-option might be useful to you.  If you are using UIs like Snorby,  Squeel, etc. 
-you will likely want to enable this option.  If you are using multiple databases, 
-then consider looking at the "reference_handler.pl" script that ships with Meer. 
-
-sid_file
-~~~~~~~~
-
-The ``sid_file`` is a legacy "signature message map" file that points signature
-IDs to their references.  If you want to use the legacy ``reference_system``, 
-you will need a "signature message map" (``sid_file``) for Meer to read.
-
-External
---------
-
-This option allows signatures to call "external" programs.  For example,  if a signature the
-proper "metadata" (``metadata: meer external`` or a set policy),  Meer will fork a copy
-of the specified program and pass the EVE via stdin.  This feature can be useful for creating
-custom firewalling routines or routing data to alternate programs.  The "external" program
-can be written in any language that suites you.
-
-::
-
-     ###########################################################################
-     # external 
-     #
-     # EVE data (JSON) is passed via stdin to the external program.   The 
-     # external program can be written in any language you choose (shell script, 
-     # Python, Perl, etc). 
-     #
-     # This can be useful for automatic firewalling,  building block lists, 
-     # replicating "snortsam" functionality, etc.  See the "tools/external"
-     # directory for example routines that use this feature.
-     #
-     # If this option is enabled, any rule that has the metadata of "meer 
-     # external" (ie - "metadata:meer external") will cause the external script 
-     # to be executed.  Execution can also be controlled by Snort metadata
-     # "policies".
-     ###########################################################################
-
-     external:
-
-       enabled: no
-       debug: no
-
-       # Execution of an external program based on metadata "policy".  When Meer
-       # encounters a "policy" (security-ips, balanced-ips, connectivity-ips, 
-       # and max-detect-ips),  Meer will execute the specified routine.  
-       # Currently only Snort rules have these types of polices.  This can be
-       # useful when you want to execute an external script that will to "block"
-       # or "firewall" based off the policy types.  This section only applies if
-       # you are using Suricata with Snort rules.  Snort's polices are
-       # below:
-
-       # connectivity-ips  - You run a lot of real time applications (VOIP, 
-       # financial transactions, etc), and don't want to run any rules that 
-       # could affect the current performance of your sensor.  The rules in this 
-       # category make snort happy, additionally this category focuses on the high
-       # profile most likely to affect the largest number of people type of
-       # vulnerabilities.
-
-       # balanced-ips - You are normal, you run normal stuff and you want normal
-       # security protections.  This is the best policy to start from if you are 
-       # new, old, or just plain average.  If you don't have any special
-       # requirements for super high speeds or super secure networks start here.
-
-       # security-ips - You don't care about dropping your bosses email, everything
-       # in your environment is tightly regulated and you don't tolerate people 
-       # stepping outside of your security policy.  This policy hates on IM, P2P,
-       # vulnerabilities, malware, web apps that cause productivity loss, remote
-       # access, and just about anything not related to getting work done.  
-       # If you run your network with an iron fist start here.
-
-       # I can't seem to find any documentation on what "max-detect-ips" is :(
-
-       policy-security-ips: enabled
-       policy-max-detect-ips: enabled
-       policy-connectivity-ips: enabled
-       policy-balanced-ips: enabled
-
-       program: "/usr/local/bin/external_program"
-
-
-
-enabled
-~~~~~~~
-
-Keyword is used to enable/disable ``external`` output. 
-
-debug
-~~~~~
-
-When enabled,  this option will display and log debugging information. 
-
-policy-security-ips
-~~~~~~~~~~~~~~~~~~~
-
-Execute ``external`` program when the ``policy-security-ips`` is encountered.
-
-policy-max-detect-ips
-~~~~~~~~~~~~~~~~~~~~~
-
-Execute ``external`` program when the ``policy-max-detect-ips`` is encountered.
-
-policy-connectivity-ips
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Execute ``external`` program when the ``policy-connectivity-ips`` is encountered.
-
-policy-balanced-ips
-~~~~~~~~~~~~~~~~~~~
-
-Execute ``external`` program when the ``policy-balanced-ips`` is encountered.
-
-
-program
-~~~~~~~
-
-``external`` program to execute when conditions are met. 
 

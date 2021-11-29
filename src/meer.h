@@ -22,18 +22,9 @@
 #include "config.h"             /* From autoconf */
 #endif
 
-#ifdef HAVE_LIBMYSQLCLIENT
-#include <mysql/mysql.h>
-#endif
-
-#ifdef HAVE_LIBPQ
-#include <postgresql/libpq-fe.h>
-#endif
-
 #ifdef HAVE_LIBHIREDIS
 #include <hiredis/hiredis.h>
 #endif
-
 
 #include <stdbool.h>
 #include <inttypes.h>
@@ -78,8 +69,6 @@ struct _MeerConfig
 
     int waldo_fd;
 
-    bool endian;
-
 #ifdef HAVE_LIBMAXMINDDB
 
     bool geoip;
@@ -94,7 +83,6 @@ struct _MeerConfig
     bool oui;
     char oui_filename[256];
 
-    bool health;
     bool fingerprint;
 
     bool client_stats;
@@ -102,30 +90,9 @@ struct _MeerConfig
 
 };
 
-typedef struct _MeerHealth _MeerHealth;
-struct _MeerHealth
-{
-    uint64_t health_signature;
-};
-
 typedef struct _MeerOutput _MeerOutput;
 struct _MeerOutput
 {
-
-    bool sql_transaction;
-
-#ifdef HAVE_LIBMYSQLCLIENT
-
-    MYSQL *mysql_dbh;
-
-#endif
-
-#ifdef HAVE_LIBPQ
-
-    PGconn   *psql;
-    PGresult *result;
-
-#endif
 
 #ifdef HAVE_LIBHIREDIS
 
@@ -223,27 +190,6 @@ struct _MeerOutput
     bool elasticsearch_fingerprint;
 
 #endif
-
-    bool sql_enabled;
-    bool sql_debug;
-    bool sql_extra_data;
-    bool sql_fingerprint;
-    char sql_server[128];
-    uint32_t sql_port;
-    char sql_username[64];
-    char sql_password[64];
-    char sql_database[64];
-    uint32_t sql_sensor_id;
-    uint64_t sql_last_cid;
-
-    bool sql_reconnect;
-    uint32_t sql_reconnect_time;
-
-    char sql_driver;
-
-    bool sql_reference_system;
-    char sql_reference_file[256];
-    char sql_sid_map_file[256];
 
     bool external_enabled;
     uint8_t external_based_on;
@@ -376,23 +322,6 @@ struct _MeerCounters
     uint16_t fingerprint_network_count;
 
     uint32_t bluedot_skip_count;
-
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
-    uint64_t HealthCount;		/* Array count */
-
-    uint64_t HealthCountT;
-    uint64_t INSERTCount;
-    uint64_t SELECTCount;
-    uint64_t UPDATECount;
-
-    uint64_t ClassCacheHitCount;
-    uint64_t ClassCacheMissCount;
-
-    uint64_t SigCacheHitCount;
-    uint64_t SigCacheMissCount;
-
-#endif
 
     uint64_t JSONPipeWrites;
     uint64_t JSONPipeMisses;

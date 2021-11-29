@@ -3,13 +3,14 @@
 # Simple shell script that compiles Meern with multiple flags.  This helps 
 # hunt down compile time bugs. 
 # 
-# - Public release (10/04/2021) 
-
+# - Public release (20211004) 
 # --disable-tcmalloc
+#
+# - Disabled mysql/postgresql support (20211129)
 
-STANDARD="--disable-postgresql --disable-elasticsearch --disable-mysql --disable-bluedot --disable-geoip --enable-redis"
-ALLFLAGS="--enable-postgresql --enable-elasticsearch --enable-mysql --enable-bluedot --enable-geoip --enable-redis"
-NOFLAG="--disable-postgresql --disable-elasticsearch --disable-mysql --disable-bluedot --disable-geoip --disable-redis"
+STANDARD="--disable-elasticsearch --disable-bluedot --disable-geoip --enable-redis"
+ALLFLAGS="--enable-elasticsearch --enable-bluedot --enable-geoip --enable-redis"
+NOFLAG="--disable-elasticsearch --disable-bluedot --disable-geoip --disable-redis"
 
 LOG="output.log" 
 

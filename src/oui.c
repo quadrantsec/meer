@@ -174,13 +174,13 @@ void OUI_Lookup ( char *mac, char *str, size_t size )
                     if ( MF_Struct[i].long_manfact[0] != '0' )
                         {
                             snprintf(str, size, "%s", MF_Struct[i].long_manfact);
-			    str[ size - 1 ] = '\0'; 
+                            str[ size - 1 ] = '\0';
                             return;
                         }
                     else
                         {
                             snprintf(str, size, "%s", MF_Struct[i].short_manfact);
-			    str[ size - 1 ] = '\0'; 
+                            str[ size - 1 ] = '\0';
                             return;
                         }
 

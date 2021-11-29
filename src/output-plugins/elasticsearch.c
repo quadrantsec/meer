@@ -175,7 +175,7 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
                 {
 
                     snprintf(tmp, sizeof(tmp), "%d", tm.tm_year + 1900);
-		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+                    tmp[ sizeof(tmp) - 1 ] = '\0';
 
                     for ( a = 0; a < strlen(tmp); a++ )
                         {
@@ -197,7 +197,7 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
                 {
 
                     snprintf(tmp, sizeof(tmp), "%02d", tm.tm_mon + 1);
-		    tmp[ sizeof(tmp) - 1 ] = '\0';
+                    tmp[ sizeof(tmp) - 1 ] = '\0';
 
                     for ( a = 0; a < strlen(tmp); a++ )
                         {
@@ -218,7 +218,7 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
                 {
 
                     snprintf(tmp, sizeof(tmp), "%02d", tm.tm_mday);
-		    tmp[ sizeof(tmp) - 1 ] = '\0'; 
+                    tmp[ sizeof(tmp) - 1 ] = '\0';
 
                     for ( a = 0; a < strlen(tmp); a++ )
                         {
@@ -237,7 +237,7 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
         }
 
     snprintf(str, size, "%s", index);
-    str[ size - 1 ] = '\0'; 
+    str[ size - 1 ] = '\0';
 
 }
 

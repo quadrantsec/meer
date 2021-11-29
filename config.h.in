@@ -63,12 +63,6 @@
 /* Define to 1 if you have the `maxminddb' library (-lmaxminddb). */
 #undef HAVE_LIBMAXMINDDB
 
-/* Define to 1 if you have the `mysqlclient' library (-lmysqlclient). */
-#undef HAVE_LIBMYSQLCLIENT
-
-/* Define to 1 if you have the `pq' library (-lpq). */
-#undef HAVE_LIBPQ
-
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 

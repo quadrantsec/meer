@@ -48,22 +48,11 @@ void Load_YAML_Config ( char *yaml_file );
 /*******************/
 
 #define         YAML_MEER_CORE_CORE     1
-#define         YAML_MEER_SQL	        2
-#define		YAML_MEER_PIPE		3
-#define		YAML_MEER_EXTERNAL	4
-#define 	YAML_MEER_REDIS		5
-#define		YAML_MEER_BLUEDOT	6
-#define		YAML_MEER_ELASTICSEARCH	7
-#define		YAML_MEER_FILE		8
-
-
-/******************/
-/* Database types */
-/******************/
-
-#define		DB_MYSQL		1
-#define		DB_POSTGRESQL		2
-#define		DB_REDIS		3
-
+#define		YAML_MEER_PIPE		2
+#define		YAML_MEER_EXTERNAL	3
+#define 	YAML_MEER_REDIS		4
+#define		YAML_MEER_BLUEDOT	5
+#define		YAML_MEER_ELASTICSEARCH	6
+#define		YAML_MEER_FILE		7
 
 #endif

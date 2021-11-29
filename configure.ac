@@ -64,38 +64,10 @@ echo -n "installation for $host OS... "
 
 AC_C_BIGENDIAN(AC_SUBST([ENDIAN],[big]),AC_SUBST([ENDIAN],[little]))
 
-AC_ARG_ENABLE(postgresql,
-  [  --enable-postgresql     Enable PostgreSQL support.],
-  [ POSTGRES="$enableval"],
-  [ POSTGRES="no" ]
-)
-
-AC_ARG_WITH(libpostgresql_includes,
-        [  --with-postgresql-includes=DIR    PostgreSQL include directory],
-        [with_postgresql_includes="$withval"],[with_postgresql_includes="no"])
-
-AC_ARG_WITH(postgresql_libraries,
-        [  --with-postgresql-libraries=DIR   PostgreSQL library directory],
-        [with_postgresql_libraries="$withval"],[with_postgresql_libraries="no"])
-
-if test "x$with_postgresql_includes" != "xno"; then
-   CPPFLAGS="${CPPFLAGS} -I${with_postgresql_includes}"
-   fi
-
-if test "x$with_postgresql_libraries" != "xno"; then
-   LDFLAGS="${LDFLAGS}  -L${with_postgresql_libraries}"
-fi
-
 AC_ARG_ENABLE(elasticsearch,
   [  --enable-elasticsearch          Enable Elasticsearch output support.],
   [ ELASTICSEARCH="$enableval"],
   [ ELASTICSEARCH="no" ]
-)
-
-AC_ARG_ENABLE(mysql,
-  [  --enable-mysql          Enable MySQL/MariaDB support.],
-  [ MYSQL="$enableval"],
-  [ MYSQL="no" ]
 )
 
 AC_ARG_ENABLE(bluedot,
@@ -110,22 +82,6 @@ AC_ARG_ENABLE(geoip,
   [ GEOIP="no" ]
 )
 
-AC_ARG_WITH(libmysql_includes,
-        [  --with-mysql-includes=DIR    MySQL include directory],
-        [with_mysql_includes="$withval"],[with_mysql_includes="no"])
-
-AC_ARG_WITH(mysql_libraries,
-        [  --with-mysql-libraries=DIR   MySQL library directory],
-        [with_mysql_libraries="$withval"],[with_mysql_libraries="no"])
-
-if test "x$with_mysql_includes" != "xno"; then
-   CPPFLAGS="${CPPFLAGS} -I${with_mysql_includes}"
-   fi
-
-if test "x$with_mysql_libraries" != "xno"; then
-   LDFLAGS="${LDFLAGS}  -L${with_mysql_libraries}"
-fi
-
 AC_ARG_ENABLE(redis,
   [  --disable-redis         Disable Redis support.],
   [ REDIS="$enableval"],
@@ -137,28 +93,6 @@ AC_ARG_ENABLE(tcmalloc,
   [ TCMALLOC="$enableval"],
   [ TCMALLOC="no" ]
 )
-
-#AC_ARG_ENABLE(libfastjson,
-#  [  --disable-libfastjson         Disable libfastjson support.],
-#  [ FASTJSON="$enableval"],
-#  [ FASTJSON="yes" ]
-#)
-
-#AC_ARG_WITH(libfastjson_includes,
-#        [  --with-libfastjson-includes=DIR    libfastjson include directory],
-#        [with_libfastjson_includes="$withval"],[with_libfastjson_includes="no"])
-
-#AC_ARG_WITH(libfastjson_c_libraries,
-#        [  --with-libfastjson-libraries=DIR   libfastjson library directory],
-#        [with_libfastjson_libraries="$withval"],[with_libfastjson_libraries="no"])
-#
-#if test "x$with_libfastjson_includes" != "xno"; then
-#   CPPFLAGS="${CPPFLAGS} -I${with_libfastjson_includes}"
-#   fi
-
-#if test "x$with_libfastjson_libraries" != "xno"; then
-#   LDFLAGS="${LDFLAGS}  -L${with_libfastjson_libraries}"
-#fi
 
 AC_SUBST(VERSION)
 AM_INIT_AUTOMAKE([subdir-objects])
@@ -308,13 +242,6 @@ if test "$TCMALLOC" = "yes"; then
        AC_CHECK_LIB(tcmalloc_minimal,main,,AC_MSG_ERROR(The libtcmalloc_minimal library cannot be found.))
        fi
 
-if test "$MYSQL" = "yes"; then
-        AC_MSG_RESULT([------- MySQL Support is enabled -------])
-        AC_CHECK_HEADER([mysql/mysql.h])
-        AC_CHECK_LIB(mysqlclient, main,,AC_MSG_ERROR(The MySQL library libmysqlclient is missing!
-        If you're not interested in MySQL support use the --disable-mysql flag.))
-        fi
-
 if test "$BLUEDOT" = "yes"; then
         AC_MSG_RESULT([------- Bluedot Support is enabled -------])
 	AC_DEFINE(WITH_BLUEDOT, 1, With Bluedot)
@@ -325,13 +252,6 @@ if test "$GEOIP" = "yes"; then
        AC_CHECK_HEADER([maxminddb.h])
        AC_CHECK_LIB(maxminddb, main,,AC_MSG_ERROR(The Maxmind GeoIP library cannot be found.
 If you're not interested in GeoIP support use the --disable-geoip flag.))
-       fi
-
-if test "$POSTGRES" = "yes"; then
-       AC_MSG_RESULT([------- PostgreSQL support is enabled -------])
-       AC_CHECK_HEADER([libpq-fe.h])
-       AC_CHECK_LIB(pq, main,,AC_MSG_ERROR(The PostgreSQL library cannot be found.
-       If you're not interested in PostgreSQL support use the --disable-postgresql flag.))
        fi
 
 if test "$REDIS" = "yes"; then

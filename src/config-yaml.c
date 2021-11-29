@@ -42,7 +42,6 @@
 #include "meer-def.h"
 #include "config-yaml.h"
 #include "util.h"
-#include "decode-json-alert.h"
 
 #ifdef WITH_BLUEDOT
 #include "output-plugins/bluedot.h"
@@ -83,17 +82,6 @@ void Load_YAML_Config( char *yaml_file )
 
     bool routing = false;
 
-    /* For SQL "health checks" */
-
-    MeerHealth = (struct _MeerHealth *) malloc(sizeof(_MeerHealth));
-
-    if ( MeerHealth == NULL )
-        {
-            Meer_Log(ERROR, "[%s, line %d] Failed to allocate memory for _MeerHealth. Abort!", __FILE__, __LINE__);
-        }
-
-    memset(MeerHealth, 0, sizeof(_MeerHealth));
-
     /* Init MeerConfig values */
 
     MeerConfig->fingerprint = false;
@@ -110,16 +98,6 @@ void Load_YAML_Config( char *yaml_file )
         }
 
     memset(MeerOutput, 0, sizeof(_MeerOutput));
-
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
-    MeerOutput->sql_enabled = false;
-    MeerOutput->sql_debug = false;
-    MeerOutput->sql_extra_data = true;
-    MeerOutput->sql_reconnect = true;
-    MeerOutput->sql_reconnect_time = SQL_RECONNECT_TIME;
-
-#endif
 
 #ifdef HAVE_LIBHIREDIS
 
@@ -238,11 +216,6 @@ void Load_YAML_Config( char *yaml_file )
 
                     else if ( type == YAML_TYPE_OUTPUT )
                         {
-                            if ( !strcmp(value, "sql") )
-                                {
-                                    sub_type = YAML_MEER_SQL;
-                                    routing == false;
-                                }
 
                             if ( !strcmp(value, "pipe") )
                                 {
@@ -491,49 +464,6 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
-                            else if ( !strcmp(last_pass, "health" ) )
-                                {
-
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerConfig->health = true;
-                                        }
-
-                                }
-
-                            else if ( !strcmp(last_pass, "health_signatures" ) && MeerConfig->health == true )
-                                {
-
-
-                                    strlcpy(tmp, value, sizeof(tmp));
-
-                                    ptr2 = strtok_r(tmp, ",", &ptr1);
-
-                                    while (ptr2 != NULL )
-                                        {
-
-                                            MeerHealth = (_MeerHealth *) realloc(MeerHealth, (MeerCounters->HealthCount+1) * sizeof(_MeerHealth));
-
-                                            MeerHealth[MeerCounters->HealthCount].health_signature = atol(ptr2);
-
-                                            if ( MeerHealth[MeerCounters->HealthCount].health_signature == 0 )
-                                                {
-                                                    Meer_Log(ERROR, "Invalid 'health_signature' in configuration. Abort");
-                                                }
-
-                                            MeerCounters->HealthCount++;
-
-                                            ptr2 = strtok_r(NULL, ",", &ptr1);
-
-
-                                        }
-
-                                }
-
-#endif
-
                             else if ( !strcmp(last_pass, "client_stats" ) )
                                 {
 
@@ -545,160 +475,6 @@ void Load_YAML_Config( char *yaml_file )
                                 }
 
                         }
-
-#if defined(HAVE_LIBMYSQLCLIENT) || defined(HAVE_LIBPQ)
-
-                    if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_SQL )
-                        {
-
-                            if ( !strcmp(last_pass, "enabled" ))
-                                {
-
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerOutput->sql_enabled = true;
-                                        }
-
-                                }
-
-
-                            if ( !strcmp(last_pass, "reference_system" ))
-                                {
-
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerOutput->sql_reference_system = true;
-                                        }
-
-                                }
-
-                            else if ( !strcmp(last_pass, "sid_file" ) && MeerOutput->sql_reference_system == true )
-                                {
-
-                                    strlcpy(MeerOutput->sql_sid_map_file, value, sizeof(MeerOutput->sql_sid_map_file));
-                                }
-
-                            else if ( !strcmp(last_pass, "reference" ) && MeerOutput->sql_reference_system == true )
-                                {
-                                    strlcpy(MeerOutput->sql_reference_file, value, sizeof(MeerOutput->sql_reference_file));
-                                }
-
-                            else if ( !strcmp(last_pass, "debug" ) && MeerOutput->sql_enabled == true )
-                                {
-
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled") )
-                                        {
-                                            MeerOutput->sql_debug = true;
-                                        }
-                                }
-
-                            else if ( !strcmp(last_pass, "server" ) && MeerOutput->sql_enabled == true )
-                                {
-                                    strlcpy(MeerOutput->sql_server, value, sizeof(MeerOutput->sql_server));
-                                }
-
-                            else if ( !strcmp(last_pass, "port" ) && MeerOutput->sql_enabled == true )
-                                {
-                                    MeerOutput->sql_port = atoi(value);
-                                }
-
-                            else if ( !strcmp(last_pass, "username" ) && MeerOutput->sql_enabled == true )
-                                {
-                                    strlcpy(MeerOutput->sql_username, value, sizeof(MeerOutput->sql_username));
-                                }
-
-                            else if ( !strcmp(last_pass, "password" ) && MeerOutput->sql_enabled == true )
-                                {
-                                    strlcpy(MeerOutput->sql_password, value, sizeof(MeerOutput->sql_password));
-                                }
-
-                            else if ( !strcmp(last_pass, "database" ) && MeerOutput->sql_enabled == true )
-                                {
-                                    strlcpy(MeerOutput->sql_database, value, sizeof(MeerOutput->sql_database));
-                                }
-
-                            else if ( !strcmp(last_pass, "extra_data" ) && MeerOutput->sql_enabled == true )
-                                {
-
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerOutput->sql_extra_data = true;
-                                        }
-                                }
-
-                            else if ( !strcmp(last_pass, "fingerprint" ) && MeerOutput->sql_enabled == true )
-                                {
-
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerOutput->sql_fingerprint = true;
-                                        }
-                                }
-
-
-                            else if ( !strcmp(last_pass, "reconnect" ) && MeerOutput->sql_enabled == true )
-                                {
-
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerOutput->sql_reconnect = true;
-                                        }
-                                }
-
-                            else if ( !strcmp(last_pass, "reconnect_time" ) && MeerOutput->sql_enabled == true )
-                                {
-                                    MeerOutput->sql_reconnect_time = atoi(value);
-                                }
-
-                            else if ( !strcmp(last_pass, "driver" ) && MeerOutput->sql_enabled == true )
-                                {
-
-#ifdef HAVE_LIBMYSQLCLIENT
-                                    if ( !strcmp(value, "mysql" ) )
-                                        {
-                                            MeerOutput->sql_driver = DB_MYSQL;
-                                        }
-#endif
-
-#ifndef HAVE_LIBMYSQLCLIENT
-
-                                    if ( !strcasecmp(value, "mysql" ) )
-                                        {
-                                            Meer_Log(ERROR, "[%s, line %d] Meer isn't compiled into MySQL support.  Abort!", __FILE__, __LINE__);
-                                        }
-
-#endif
-
-
-#ifdef HAVE_LIBPQ
-
-                                    if ( !strcasecmp(value, "postgresql" ) )
-                                        {
-                                            MeerOutput->sql_driver = DB_POSTGRESQL;
-                                        }
-
-#endif
-
-#ifndef HAVE_LIBPQ
-
-                                    if ( !strcasecmp(value, "postgresql" ) )
-                                        {
-                                            Meer_Log(ERROR, "[%s, line %d] Meer isn't compiled into PostgreSQL support.  Abort!", __FILE__, __LINE__);
-                                        }
-
-#endif
-
-
-                                    if ( MeerOutput->sql_driver == 0 )
-                                        {
-                                            Meer_Log(ERROR, "SQL driver '%s' is invalid. Abort!", value);
-                                        }
-
-                                }
-
-                        }
-
-#endif
 
                     if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_EXTERNAL )
                         {
@@ -1993,40 +1769,6 @@ void Load_YAML_Config( char *yaml_file )
         {
             Meer_Log(ERROR, "Configuration incomplete.  No 'lock-file' file specified!");
         }
-
-#ifdef HAVE_LIBMYSQLCLIENT
-
-    if ( MeerOutput->sql_enabled == true )
-        {
-
-            if ( MeerOutput->sql_server[0] == '\0' )
-                {
-                    Meer_Log(ERROR, "SQL output configuration incomplete.  No 'server' specified!");
-                }
-
-            if ( MeerOutput->sql_username[0] == '\0' )
-                {
-                    Meer_Log(ERROR, "SQL output configuration incomplete.  No 'username' specified!");
-                }
-
-
-            if ( MeerOutput->sql_password[0] == '\0' )
-                {
-                    Meer_Log(ERROR, "SQL output configuration incomplete.  No 'password' specified!");
-                }
-
-            if ( MeerOutput->sql_database[0] == '\0' )
-                {
-                    Meer_Log(ERROR, "SQL output configuration incomplete.  No 'database' specified!");
-                }
-
-            if ( MeerOutput->sql_port == 0 )
-                {
-                    Meer_Log(ERROR, "SQL output configuration incomplete.  No 'port' specified!");
-                }
-        }
-
-#endif
 
     Meer_Log(NORMAL, "Configuration '%s' for host '%s' successfully loaded.", yaml_file, MeerConfig->hostname);
 
