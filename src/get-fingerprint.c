@@ -45,8 +45,6 @@ extern struct _Fingerprint_Networks *Fingerprint_Networks;
 void Fingerprint_DHCP ( struct json_object *json_obj, const char *json_string )
 {
 
-// !strcmp(assigned_ip, "0.0.0.0" ) && strcmp(DecodeDHCP->dest_ip, "255.255.255.255") )
-
     struct json_object *tmp = NULL;
 
     struct json_object *json_obj_dhcp = NULL;
@@ -123,6 +121,8 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     char key[128] = { 0 };
 
+    bool flag = false;
+
     char *string_f = malloc(MeerConfig->payload_buffer_size);
 
     if ( string_f == NULL )
@@ -132,6 +132,14 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
         }
 
     memset(string_f, 0, MeerConfig->payload_buffer_size);
+
+    char *new_string = malloc(MeerConfig->payload_buffer_size);
+
+    if ( new_string == NULL )
+        {
+            fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+            exit(-1);
+        }
 
     char *http = malloc(MeerConfig->payload_buffer_size);
 
@@ -196,34 +204,34 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     /* Write out fingerprint|event|{IP} key */
 
-    json_object_object_add(encode_json_fingerprint, "event_type", json_object_new_string("fingerprint"));
-    json_object_object_add(encode_json_fingerprint, "timestamp", json_object_new_string( timestamp ));
-    json_object_object_add(encode_json_fingerprint, "flow_id", json_object_new_int64( flow_id ));
-    json_object_object_add(encode_json_fingerprint, "src_ip", json_object_new_string( src_ip ));
+    json_object_object_add(encode_json, "event_type", json_object_new_string("fingerprint"));
+    json_object_object_add(encode_json, "timestamp", json_object_new_string( timestamp ));
+    json_object_object_add(encode_json, "flow_id", json_object_new_int64( flow_id ));
+    json_object_object_add(encode_json, "src_ip", json_object_new_string( src_ip ));
 
     /* Sagan doesn't have an "app_proto" */
 
     if ( app_proto[0] != '\0' )
         {
-            json_object_object_add(encode_json_fingerprint, "app_proto", json_object_new_string( app_proto ));
+            json_object_object_add(encode_json, "app_proto", json_object_new_string( app_proto ));
         }
 
 
     if (json_object_object_get_ex(json_obj, "src_dns", &tmp))
         {
-            json_object_object_add(encode_json_fingerprint, "src_host", json_object_new_string( json_object_get_string(tmp) ));
+            json_object_object_add(encode_json, "src_host", json_object_new_string( json_object_get_string(tmp) ));
         }
 
     if (json_object_object_get_ex(json_obj, "dest_dns", &tmp))
         {
-            json_object_object_add(encode_json_fingerprint, "dest_host", json_object_new_string( json_object_get_string(tmp) ));
+            json_object_object_add(encode_json, "dest_host", json_object_new_string( json_object_get_string(tmp) ));
         }
 
     /* host */
 
     if (json_object_object_get_ex(json_obj, "host", &tmp))
         {
-            json_object_object_add(encode_json_fingerprint, "host", json_object_new_string( json_object_get_string(tmp) ));
+            json_object_object_add(encode_json, "host", json_object_new_string( json_object_get_string(tmp) ));
         }
     else
         {
@@ -234,7 +242,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     if (json_object_object_get_ex(json_obj, "in_iface", &tmp))
         {
-            json_object_object_add(encode_json_fingerprint, "in_iface", json_object_new_string( json_object_get_string(tmp) ));
+            json_object_object_add(encode_json, "in_iface", json_object_new_string( json_object_get_string(tmp) ));
         }
     else
         {
@@ -245,7 +253,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     if (json_object_object_get_ex(json_obj, "src_port", &tmp))
         {
-            json_object_object_add(encode_json_fingerprint, "src_port", json_object_new_int( json_object_get_int(tmp) ));
+            json_object_object_add(encode_json, "src_port", json_object_new_int( json_object_get_int(tmp) ));
         }
     else
         {
@@ -256,7 +264,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     if (json_object_object_get_ex(json_obj, "dest_ip", &tmp))
         {
-            json_object_object_add(encode_json_fingerprint, "dest_ip", json_object_new_string( json_object_get_string(tmp) ));
+            json_object_object_add(encode_json, "dest_ip", json_object_new_string( json_object_get_string(tmp) ));
         }
     else
         {
@@ -267,7 +275,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     if (json_object_object_get_ex(json_obj, "dest_port", &tmp))
         {
-            json_object_object_add(encode_json_fingerprint, "dest_port", json_object_new_int( json_object_get_int(tmp) ));
+            json_object_object_add(encode_json, "dest_port", json_object_new_int( json_object_get_int(tmp) ));
         }
     else
         {
@@ -278,29 +286,27 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
     if (json_object_object_get_ex(json_obj, "proto", &tmp))
         {
-            json_object_object_add(encode_json_fingerprint, "proto", json_object_new_string( json_object_get_string(tmp) ));
+            json_object_object_add(encode_json, "proto", json_object_new_string( json_object_get_string(tmp) ));
         }
     else
         {
             Meer_Log(WARN, "[%s, line %d] Got a NULL proto!", __FILE__, __LINE__);
         }
 
-    /* program (Sagan specific) */
+    /* program (Sagan specific data) */
+
+    if (json_object_object_get_ex(json_obj, "program", &tmp))
+        {
+            json_object_object_add(encode_json, "program", json_object_new_string( json_object_get_string(tmp) ));
+        }
+
+
+    /* Specific "fingerprints" */
 
     if (json_object_object_get_ex(json_obj, "payload", &tmp))
         {
             json_object_object_add(encode_json_fingerprint, "payload", json_object_new_string( json_object_get_string(tmp) ));
         }
-
-    /* payload */
-
-    if (json_object_object_get_ex(json_obj, "program", &tmp))
-        {
-            json_object_object_add(encode_json_fingerprint, "program", json_object_new_string( json_object_get_string(tmp) ));
-        }
-
-
-    /* Specific "fingerprints" */
 
     if ( FingerprintData->os[0] != '\0' )
         {
@@ -371,11 +377,20 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
             Meer_Log(WARN, "[%s, line %d] Alert data is NULL?!?!!", __FILE__, __LINE__);
         }
 
+    /* Add "fingerprint" nest */
 
+    snprintf(string_f, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string_ext(encode_json, JSON_C_TO_STRING_PLAIN) );
+    string_f[ strlen(string_f) - 1] = '\0';
+
+    snprintf(new_string, MeerConfig->payload_buffer_size, "%s, \"fingerprint\": %s}", string_f, json_object_to_json_string_ext(encode_json_fingerprint, JSON_C_TO_STRING_PLAIN) );
+
+    strlcpy(string_f, new_string, MeerConfig->payload_buffer_size);
 
     /***********************************/
     /* Add "http" data to fingerprint */
     /***********************************/
+
+    flag = false;
 
     if ( !strcmp(app_proto, "http" ) )
         {
@@ -402,11 +417,13 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
                     if (json_object_object_get_ex(json_obj_http, "http_user_agent", &tmp))
                         {
                             json_object_object_add(encode_json_http, "http_user_agent", json_object_new_string(json_object_get_string(tmp) ));
+                            flag = true;
                         }
 
                     if (json_object_object_get_ex(json_obj_http, "xff", &tmp))
                         {
                             json_object_object_add(encode_json_http, "xff", json_object_new_string(json_object_get_string(tmp) ));
+                            flag = true;
                         }
                 }
 
@@ -415,31 +432,14 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
 
         }
 
-    snprintf(string_f, MeerConfig->payload_buffer_size, "%s", json_object_to_json_string_ext(encode_json_fingerprint, JSON_C_TO_STRING_PLAIN));
-    string_f[ MeerConfig->payload_buffer_size ] = '\0';
+    /* Verify we have http data, so we don't have a empty {} nest */
 
-
-    if ( http[0] != '\0' )
+    if ( flag == true )
         {
 
-            char *new_string = malloc(MeerConfig->payload_buffer_size);
-
-            if ( new_string == NULL )
-                {
-                    fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory! Abort!\n", __FILE__, __LINE__);
-                    exit(-1);
-                }
-
-            memset(new_string, 0, MeerConfig->payload_buffer_size);
-
-            string_f[ MeerConfig->payload_buffer_size - 1 ] = '\0' ;
-
+            string_f[ strlen(string_f) - 1] = '\0';
             snprintf(new_string, MeerConfig->payload_buffer_size, "%s, \"http\": %s}", string_f, http);
-            new_string[ MeerConfig->payload_buffer_size - 1] = '\0';
-
             strlcpy(string_f, new_string, MeerConfig->payload_buffer_size);
-            free( new_string );
-
         }
 
     snprintf(key, sizeof(key), "%s|event|%s|%" PRIu64 "", FINGERPRINT_REDIS_KEY, src_ip, signature_id);
@@ -455,6 +455,7 @@ void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintDa
     snprintf(str, MeerConfig->payload_buffer_size, "%s", string_f);
     str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
+    free( new_string );
     free( string_f );
     free( http );
 
@@ -823,7 +824,6 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
     json_object_put(json_obj_fingerprint);
 
     free(tmp_redis);
-    free(new_json_string);
     free(final_json_string);
 
 }
