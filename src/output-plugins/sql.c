@@ -854,7 +854,7 @@ void SQL_Insert_SSH ( struct _DecodeAlert *DecodeAlert, unsigned char type )
              table,MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid,
              proto, e_software );
 
-    tmp[ sizeof(tmp) - 1 ] = '\0'l
+    tmp[ sizeof(tmp) - 1 ] = '\0';
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
@@ -896,11 +896,10 @@ void SQL_Insert_JSON ( struct _DecodeAlert *DecodeAlert )
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid,
              e_json);
 
-    tmp[ sizeof(tmp) - 1 ] = '\0'
+    tmp[ sizeof(tmp) - 1 ] = '\0';
 
     (void)SQL_DB_Query(tmp);
 
-//    MeerCounters->JSONCount++;
     MeerCounters->INSERTCount++;
 
 }
