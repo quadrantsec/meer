@@ -499,7 +499,7 @@ void SQL_Insert_DNS ( struct _DecodeAlert *DecodeAlert )
              MeerOutput->sql_sensor_id, MeerOutput->sql_last_cid,
              e_src_host,
              e_dest_host );
-    tmp[ sizof(tmp) - 1 ] = '\0'; 
+    tmp[ sizeof(tmp) - 1 ] = '\0'; 
 
     (void)SQL_DB_Query(tmp);
     MeerCounters->INSERTCount++;
