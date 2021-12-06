@@ -1202,7 +1202,7 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
 
             while ( elastic_proc_running >= MeerOutput->elasticsearch_threads )
                 {
-                    Meer_Log(WARN, "Wating on a free thread! Consider increasing threads?");
+                    Meer_Log(WARN, "Waiting on a free thread! Consider increasing threads?");
                     sleep(5);
                 }
 
