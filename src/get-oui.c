@@ -62,6 +62,7 @@ void Get_OUI( struct json_object *json_obj, char *str )
 
                     if ( vendor[0] != '\0' )
                         {
+
                             json_object *jvendor = json_object_new_string(vendor);
                             json_object_object_add(json_obj_dhcp,"vendor", jvendor);
                         }
@@ -190,16 +191,19 @@ void Get_OUI( struct json_object *json_obj, char *str )
                     /* Tie everything back together */
 
                     strlcpy(new_json_string, json_object_to_json_string(jobj_obj_new), MeerConfig->payload_buffer_size);
-                    new_json_string[ strlen(new_json_string) -2 ] = '\0';
+
+                    new_json_string[ strlen(new_json_string) - 1 ] = '\0';
+
 
                     snprintf(final_json, MeerConfig->payload_buffer_size, "%s, \"dhcp\": %s }", new_json_string, json_object_to_json_string(json_obj_dhcp) );
-                    final_json[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
                     json_object_put(jobj_obj_new);
                     json_object_put(json_obj_dhcp);
 
-                    snprintf(str, MeerConfig->payload_buffer_size, "%s\n", final_json);
+                    snprintf(str, MeerConfig->payload_buffer_size, "%s", final_json);
                     str[ MeerConfig->payload_buffer_size - 1] = '\0' ;
+
+//		    printf("|%s|\n", str);
 
                     free( new_json_string );
                     free( final_json );
@@ -211,6 +215,7 @@ void Get_OUI( struct json_object *json_obj, char *str )
 
     snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj) );
     str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
+
 
 }
 

@@ -82,6 +82,10 @@ bool Decode_JSON( char *json_string )
 
     char fixed_ip[64] = { 0 };
 
+    /* Remve \n from string */
+
+    json_string[ strlen(json_string) - 1 ] = '\0';
+
     char *new_json_string = malloc( MeerConfig->payload_buffer_size);
 
     if ( new_json_string == NULL )
@@ -306,6 +310,7 @@ bool Decode_JSON( char *json_string )
 
                     Get_Fingerprint( json_obj, json_string, new_json_string );
                     json_string = new_json_string;
+		    printf("|%s|\n", json_string);
                 }
             else
                 {

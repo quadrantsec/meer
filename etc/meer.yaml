@@ -25,7 +25,7 @@ meer-core:
     description: "My awesome sensor!"   # Description of this sensor.  This 
                                         # will be added to _all_ logs!
 
-    payload-buffer-size: 1024kb         # This is the max size buffer that can
+    payload-buffer-size: 128kb          # This is the max size buffer that can
                                         # be read in/written out.  It should
                                         # match your payload-buffer-size in 
                                         # Surcata or be larger.  Valid 
@@ -167,7 +167,7 @@ output-plugins:
   pipe:
 
     enabled: no
-    pipe_location: /var/sagan/fifo/sagan.fifo
+    pipe_location: "/var/sagan/fifo/sagan.fifo"
     pipe_size: 1048576                        # System must support F_GETPIPE_SZ/F_SETPIPE_SZ
 
     routing:

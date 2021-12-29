@@ -118,6 +118,7 @@ bool External( const char *json_string )
     /* Write to child input */
 
     n = write(in[1], json_string, strlen(json_string));
+    n = write(in[1], "\n", 1);		/* Take on \n */
     close(in[1]);
 
     n = read(out[0], buf, sizeof(buf));

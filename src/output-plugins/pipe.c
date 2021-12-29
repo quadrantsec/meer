@@ -50,7 +50,7 @@ void Pipe_Write ( const char *json_string )
             return;
         }
 
-    /* Sack on newline */
+    /* Tack on newline */
 
     ret = write(MeerOutput->pipe_fd, "\n", 1);
 
