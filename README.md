@@ -6,10 +6,15 @@
 :      :   : :: ::  : :: ::   :   : :
 </pre>
 
+# Join the Meer Discord channel
+
+[![Discord](./screenshots/discord.png)](https://discord.gg/n6ReCZED)
+
+# Meer Documentation
+
+Meer "Read The Docs! https://meer.readthedocs.io
 
 # What is “Meer”. 
-
-<i>Note: Meer is consider beta!</i>
 
 <b>The quick explanation: </b> Have you ever worked with Barnyard2?  The idea behind Meer is very similar,  but rather than reading Snort’s “Unified2” files,  Meer reads Suricata and Sagan EVE JSON files. 
 
