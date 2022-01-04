@@ -17,6 +17,5 @@ https://github.com/quadrantsec/meer/issues
 
 You can also get support via our Meer Discord channel.  That is at:
 
-https://discord.gg/n6ReCZED
-
+https://discord.gg/VS6jTjH4gW
 
