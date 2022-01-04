@@ -55,7 +55,7 @@ you have any ideas or requests,  please let us know via our "issues" page (https
 
 * Need help getting started or looking for documentation? Go to https://meer.readthedocs.org !
 
-* Have a question or comment about Meer?  Please post to the Meer mailing at https://groups.google.com/forum/#!forum/meer-users. You can also visit the Sagan/Meer Discord channel by going to https://discord.gg/n6ReCZED
+* Have a question or comment about Meer?  Please post to the Meer mailing at https://groups.google.com/forum/#!forum/meer-users. You can also visit the Sagan/Meer Discord channel by going to https://t.co/xqJdCHkh22
 
 * If you need to report a bug,  please post that in our Github "issues" page.  That is at https://github.com/quadrantsec/meer/issues
 
