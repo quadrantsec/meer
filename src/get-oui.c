@@ -203,8 +203,6 @@ void Get_OUI( struct json_object *json_obj, char *str )
                     snprintf(str, MeerConfig->payload_buffer_size, "%s", final_json);
                     str[ MeerConfig->payload_buffer_size - 1] = '\0' ;
 
-//		    printf("|%s|\n", str);
-
                     free( new_json_string );
                     free( final_json );
                     return;

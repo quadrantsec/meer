@@ -310,7 +310,6 @@ bool Decode_JSON( char *json_string )
 
                     Get_Fingerprint( json_obj, json_string, new_json_string );
                     json_string = new_json_string;
-		    printf("|%s|\n", json_string);
                 }
             else
                 {
