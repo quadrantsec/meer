@@ -362,12 +362,12 @@ void Load_YAML_Config( char *yaml_file )
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
                                         {
-					Meer_Log(ERROR, "[%s, line %d] Meer was not compiled with GeoIP (Maxmind) support!", __FILE__, __LINE__);
+                                            Meer_Log(ERROR, "[%s, line %d] Meer was not compiled with GeoIP (Maxmind) support!", __FILE__, __LINE__);
                                         }
 
                                 }
 
-#endif 
+#endif
 
 #ifdef HAVE_LIBMAXMINDDB
 
