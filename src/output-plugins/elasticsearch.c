@@ -248,8 +248,6 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
 void Elasticsearch( void )
 {
 
-//    char big_batch_LOCAL[PACKET_BUFFER_SIZE_DEFAULT] = { 0 };
-
     char *big_batch_LOCAL = malloc( (MeerConfig->payload_buffer_size)*sizeof(char));
 
     if ( big_batch_LOCAL == NULL )
@@ -397,7 +395,7 @@ void Elasticsearch( void )
     /* Clean up thread! */
 
     curl_easy_cleanup(curl_LOCAL);
-
+    free(big_batch_LOCAL);
     pthread_exit(NULL);
 
 }

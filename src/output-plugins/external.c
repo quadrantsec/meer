@@ -64,6 +64,7 @@ bool External( const char *json_string )
 
             Meer_Log(WARN, "Warning! The external program '%s' does not exsist!", MeerOutput->external_program);
             MeerCounters->ExternalMissCount++;
+	    free(buf);
             return(1);
 
         }
@@ -72,6 +73,7 @@ bool External( const char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] Cannot create input pipe!", __FILE__, __LINE__);
             MeerCounters->ExternalMissCount++;
+	    free(buf);
             return(1);
         }
 
@@ -80,6 +82,7 @@ bool External( const char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] Cannot create output pipe!", __FILE__, __LINE__);
             MeerCounters->ExternalMissCount++;
+	    free(buf);
             return(1);
         }
 
@@ -88,6 +91,7 @@ bool External( const char *json_string )
         {
             Meer_Log(WARN, "[%s, line %d] Cannot create external program process", __FILE__, __LINE__);
             MeerCounters->ExternalMissCount++;
+	    free(buf);
             return(1);
         }
     else if ( pid == 0 )
@@ -134,6 +138,7 @@ bool External( const char *json_string )
 
     MeerCounters->ExternalHitCount++;
 
+    free(buf);
     return(0);
 
 }
