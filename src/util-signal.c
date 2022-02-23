@@ -72,7 +72,6 @@ void Signal_Handler(int sig_num)
             if ( MeerOutput->pipe_enabled == true )
                 {
                     close(MeerOutput->pipe_fd);
-
                 }
 
 #ifdef HAVE_LIBHIREDIS
@@ -135,10 +134,11 @@ void Signal_Handler(int sig_num)
             fsync(MeerConfig->waldo_fd);
             close(MeerConfig->waldo_fd);
 
-            Meer_Log(NORMAL, "Shutdown complete.");
-
             fclose(MeerConfig->meer_log_fd);
             fflush(stdout);
+
+	    Meer_Log(NORMAL, "Shutdown complete.");
+
 
             exit(0);
 
@@ -154,13 +154,18 @@ void Signal_Handler(int sig_num)
             Statistics();
             break;
 
+	case SIGUSR2:
+
+	    Statistics();
+	    break;
+
         case SIGPIPE:
-            Meer_Log(NORMAL, "[Received signal %d [SIGPIPE]. Possible incomplete JSON?]", sig_num);
+            Meer_Log(NORMAL, "[Received signal %d [SIGPIPE]. Possible incomplete JSON?", sig_num);
             break;
 
 
         default:
-            Meer_Log(NORMAL, "[Received signal %d. Meer doesn't know how to deal with]", sig_num);
+            Meer_Log(NORMAL, "[Received signal %d. Meer doesn't know how to deal with.", sig_num);
         }
 
 }
