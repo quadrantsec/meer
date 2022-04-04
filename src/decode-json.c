@@ -313,14 +313,23 @@ bool Decode_JSON( char *json_string )
                     if ( MeerConfig->fingerprint_writer == true )
                         {
 
-                            /* This is a fingerprint event,  change the event_type and build out new JSON */
+                            if ( Fingerprint_In_Range( src_ip ) == true )
+                                {
 
-                            strlcpy( event_type, "fingerprint", sizeof(event_type) );
+                                    /* This is a fingerprint event,  change the event_type and build out new JSON */
 
-                            /* Write Fingerprint data to Redis (for future use) */
+                                    strlcpy( event_type, "fingerprint", sizeof(event_type) );
 
-                            Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
-                            json_string = new_json_string;
+                                    /* Write Fingerprint data to Redis (for future use) */
+
+                                    Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
+                                    json_string = new_json_string;
+
+                                }
+                            else
+                                {
+                                    return 0;
+                                }
 
                         }
                     else

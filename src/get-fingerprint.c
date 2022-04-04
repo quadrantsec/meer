@@ -836,4 +836,25 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
 
 }
 
+bool Fingerprint_In_Range( char *ip_address )
+{
+
+    uint16_t z = 0;
+    bool valid_fingerprint_net = false;
+    unsigned char ip[MAXIPBIT] = { 0 };
+
+    IP2Bit(ip_address, ip);
+
+    for ( z = 0; z < MeerCounters->fingerprint_network_count; z++ )
+        {
+            if ( Is_Inrange( ip, (unsigned char *)&Fingerprint_Networks[z].range, 1) )
+                {
+                    valid_fingerprint_net = true;
+                    break;
+                }
+        }
+
+    return( valid_fingerprint_net );
+}
+
 #endif

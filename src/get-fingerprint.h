@@ -33,3 +33,4 @@ void Fingerprint_DHCP ( struct json_object *json_obj, const char *json_string );
 bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *FingerprintData );
 void Get_Fingerprint( struct json_object *json_obj, const char *json_string, char *str );
 void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintData *FingerprintData, char *str);
+bool Fingerprint_In_Range( char *ip_address );
