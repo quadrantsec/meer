@@ -44,8 +44,8 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
-#include "meer.h"
 #include "meer-def.h"
+#include "meer.h"
 
 #include "util.h"
 #include "util-signal.h"

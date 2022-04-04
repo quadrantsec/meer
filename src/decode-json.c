@@ -141,9 +141,9 @@ bool Decode_JSON( char *json_string )
      * for types that don't have this data. */
 
     if ( strcmp(event_type, "stats" ) )
-    {
+        {
 
-        if (json_object_object_get_ex(json_obj, "flow_id", &tmp))
+            if (json_object_object_get_ex(json_obj, "flow_id", &tmp))
                 {
                     strlcpy( flow_id, json_object_get_string(tmp), sizeof( flow_id ) );
                 }
@@ -276,7 +276,7 @@ bool Decode_JSON( char *json_string )
 
             /* Do we want to add DNS to the JSON? */
 
-            if ( MeerConfig->dns == true )
+            if ( MeerConfig->dns == true && Is_DNS_Event_Type( event_type ) == true )
                 {
                     json_string = Get_DNS( json_obj );
                 }
@@ -297,10 +297,10 @@ bool Decode_JSON( char *json_string )
        "event_type". */
 
     if ( !strcmp(event_type, "alert") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
-    {
+        {
 
-        struct _FingerprintData *FingerprintData;
-        FingerprintData = (struct _FingerprintData *) malloc(sizeof(_FingerprintData));
+            struct _FingerprintData *FingerprintData;
+            FingerprintData = (struct _FingerprintData *) malloc(sizeof(_FingerprintData));
 
             if ( FingerprintData == NULL )
                 {
@@ -339,8 +339,8 @@ bool Decode_JSON( char *json_string )
         }
 
     if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
-    {
-        Fingerprint_DHCP ( json_obj, json_string );
+        {
+            Fingerprint_DHCP ( json_obj, json_string );
         }
 
 #endif
@@ -352,34 +352,34 @@ bool Decode_JSON( char *json_string )
     /* Add GeoIP information */
 
     if ( MeerConfig->geoip == true )
-    {
-        Get_GeoIP( json_obj, json_string, new_json_string );
+        {
+            Get_GeoIP( json_obj, json_string, new_json_string );
             json_string = new_json_string;
         }
 
 #endif
 
     if ( MeerOutput->pipe_enabled == true )
-    {
-        Output_Pipe( json_string, event_type );
+        {
+            Output_Pipe( json_string, event_type );
         }
 
     if ( MeerOutput->external_enabled == true )
-    {
-        Output_External( json_string, json_obj, event_type );
+        {
+            Output_External( json_string, json_obj, event_type );
         }
 
 
     if ( MeerOutput->file_enabled == true )
-    {
-        Output_File( json_string, event_type );
+        {
+            Output_File( json_string, event_type );
         }
 
 #ifdef HAVE_LIBHIREDIS
 
     if ( MeerOutput->redis_enabled == true )
-    {
-        Output_Redis( json_string, event_type );
+        {
+            Output_Redis( json_string, event_type );
         }
 
 #endif
@@ -387,8 +387,8 @@ bool Decode_JSON( char *json_string )
 #ifdef WITH_ELASTICSEARCH
 
     if ( MeerOutput->elasticsearch_enabled == true )
-    {
-        Output_Elasticsearch( json_string, event_type );
+        {
+            Output_Elasticsearch( json_string, event_type );
         }
 
 #endif
@@ -398,8 +398,8 @@ bool Decode_JSON( char *json_string )
     /* Process client stats data from Sagan */
 
     if ( !strcmp(event_type, "client_stats") && MeerConfig->client_stats == true )
-    {
-        Decode_Output_JSON_Client_Stats( json_obj, json_string );
+        {
+            Decode_Output_JSON_Client_Stats( json_obj, json_string );
         }
 
 #endif

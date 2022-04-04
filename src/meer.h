@@ -29,6 +29,8 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+#include "meer-def.h"
+
 #ifndef HAVE_STRLCAT
 size_t strlcat(char *, const char *, size_t );
 #endif
@@ -79,6 +81,8 @@ struct _MeerConfig
 
     bool dns;
     uint32_t dns_cache;
+    char dns_lookup_types[DNS_MAX_TYPES][DNS_MAX_TYPES_LEN];
+    uint8_t dns_lookup_types_count;
 
     bool oui;
     char oui_filename[256];

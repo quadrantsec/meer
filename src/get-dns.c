@@ -26,6 +26,7 @@
 #include <json-c/json.h>
 
 #include <stdio.h>
+#include <string.h>
 
 #include "meer-def.h"
 #include "meer.h"
@@ -33,6 +34,10 @@
 
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerCounters *MeerCounters;
+
+/******************************************************************/
+/* Get_DNS() - looks up and adds DNS PTR records to a JSON object */
+/******************************************************************/
 
 char *Get_DNS( struct json_object *json_obj )
 {
@@ -74,5 +79,38 @@ char *Get_DNS( struct json_object *json_obj )
 
     return ( (char*)json_object_to_json_string(json_obj) );
 
+}
+
+/****************************************************************************/
+/* Is_DNS_Event_Type() - Used to determine if an "event_type" need  to have */
+/* DNS PTR records added or not.                                            */
+/****************************************************************************/
+
+bool Is_DNS_Event_Type( const char *event_type )
+{
+
+    uint8_t i = 0;
+
+    /* If it's 'all' we always return true */
+
+    if ( MeerConfig->dns_lookup_types[0][0] == 'a' && MeerConfig->dns_lookup_types[0][1] == 'l' &&
+            MeerConfig->dns_lookup_types[0][2] == 'l' )
+        {
+            return(true);
+        }
+
+    /* Lookup event_type and decide DNS PTR is needed */
+
+    for ( i = 0; i < MeerConfig->dns_lookup_types_count; i++ )
+        {
+
+            if ( !strcmp( event_type, MeerConfig->dns_lookup_types[i] ) )
+                {
+                    return(true);
+                }
+
+        }
+
+    return(false);
 }
 

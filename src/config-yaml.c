@@ -75,6 +75,7 @@ void Load_YAML_Config( char *yaml_file )
     unsigned char sub_type = 0;
 
     char last_pass[128] = { 0 };
+    char dns_lookup_types_tmp[DNS_MAX_TYPES * DNS_MAX_TYPES_LEN] = { 0 };
 
     char *ptr1 = NULL;
     char *ptr2 = NULL;
@@ -88,6 +89,7 @@ void Load_YAML_Config( char *yaml_file )
 
     strlcpy(MeerConfig->meer_log, MEER_LOG, sizeof(MeerConfig->meer_log));
     strlcpy(MeerConfig->description, MEER_DESC, sizeof( MeerConfig->description ));
+
     MeerConfig->payload_buffer_size = PACKET_BUFFER_SIZE_DEFAULT;
 
     MeerOutput = (struct _MeerOutput *) malloc(sizeof(_MeerOutput));
@@ -119,6 +121,8 @@ void Load_YAML_Config( char *yaml_file )
 
     MeerConfig->client_stats = false;
     MeerConfig->oui = false;
+
+    strlcpy(dns_lookup_types_tmp, DNS_LOOKUP_TYPES, DNS_MAX_TYPES * DNS_MAX_TYPES_LEN );
 
     MeerOutput->pipe_size =  DEFAULT_PIPE_SIZE;
 
@@ -355,6 +359,14 @@ void Load_YAML_Config( char *yaml_file )
                                     MeerConfig->dns_cache = atoi(value);
 
                                 }
+
+                            else if ( !strcmp(last_pass, "dns_lookup_types" ))
+                                {
+
+                                    strlcpy(dns_lookup_types_tmp, value, DNS_MAX_TYPES * DNS_MAX_TYPES_LEN);
+
+                                }
+
 #ifndef HAVE_LIBMAXMINDDB
 
                             else if ( !strcmp(last_pass, "geoip" ))
@@ -1742,7 +1754,22 @@ void Load_YAML_Config( char *yaml_file )
 
                 } /* end of else */
 
+        }
 
+    /* Break down "what" we need to do DNS lookups on */
+
+    Remove_Spaces(dns_lookup_types_tmp);
+    MeerConfig->dns_lookup_types_count = 0;
+
+    ptr2 = strtok_r(dns_lookup_types_tmp, ",", &ptr1);
+
+    while ( ptr2 != NULL )
+        {
+
+            strlcpy( MeerConfig->dns_lookup_types[MeerConfig->dns_lookup_types_count], ptr2, DNS_MAX_TYPES_LEN);
+            MeerConfig->dns_lookup_types_count++;
+
+            ptr2 = strtok_r(NULL, ",", &ptr1);
 
         }
 

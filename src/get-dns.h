@@ -19,5 +19,5 @@
 */
 
 char *Get_DNS( struct json_object *json_obj );
-
+bool Is_DNS_Event_Type( const char *event_type );
 

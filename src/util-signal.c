@@ -137,7 +137,7 @@ void Signal_Handler(int sig_num)
             fclose(MeerConfig->meer_log_fd);
             fflush(stdout);
 
-	    Meer_Log(NORMAL, "Shutdown complete.");
+            Meer_Log(NORMAL, "Shutdown complete.");
 
 
             exit(0);
@@ -154,10 +154,10 @@ void Signal_Handler(int sig_num)
             Statistics();
             break;
 
-	case SIGUSR2:
+        case SIGUSR2:
 
-	    Statistics();
-	    break;
+            Statistics();
+            break;
 
         case SIGPIPE:
             Meer_Log(NORMAL, "[Received signal %d [SIGPIPE]. Possible incomplete JSON?", sig_num);

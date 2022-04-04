@@ -50,6 +50,10 @@
 #define IPv6		6
 
 #define DNS_CACHE_DEFAULT	900
+#define DNS_LOOKUP_TYPES	"alert,ssh,http,rdp,ftp"
+#define DNS_MAX_TYPES		20
+#define DNS_MAX_TYPES_LEN	16
+
 #define PACKET_BUFFER_SIZE_DEFAULT 1048576		/* Any larger seems to cause problems without malloc */
 
 #define SQL_RECONNECT_TIME 10

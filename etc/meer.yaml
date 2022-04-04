@@ -94,6 +94,9 @@ meer-core:
 
     dns: enabled
     dns_cache: 900	# Time in seconds. 
+    dns_lookup_types: "alert,ssh,http,rdp,ftp"  # The event_type to do DNS
+                                                # PTR lookups for.  This can
+                                                # be the event_type or "all".
 
     #########################################################################
     # geoip
