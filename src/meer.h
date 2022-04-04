@@ -88,6 +88,8 @@ struct _MeerConfig
     char oui_filename[256];
 
     bool fingerprint;
+    bool fingerprint_reader;
+    bool fingerprint_writer;
 
     bool client_stats;
     uint8_t client_stats_type;

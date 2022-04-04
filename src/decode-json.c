@@ -313,7 +313,7 @@ bool Decode_JSON( char *json_string )
                store "fingerprint" data in the FingerprintData array.  Otherwise,  enrich
                the standard "alert" data with "fingerprint" data */
 
-            if ( Is_Fingerprint( json_obj, FingerprintData ) == false )
+            if ( Is_Fingerprint( json_obj, FingerprintData ) == false && MeerConfig->fingerprint_reader == true )
                 {
 
                     /* This is a standard "alert".  Add any "fingerprint" JSON to the event */
@@ -324,14 +324,21 @@ bool Decode_JSON( char *json_string )
             else
                 {
 
-                    /* This is a fingerprint event,  change the event_type and build out new JSON */
+                    /* Do we want this meer to "write" fingerprints */
 
-                    strlcpy( event_type, "fingerprint", sizeof(event_type) );
+                    if ( MeerConfig->fingerprint_writer == true )
+                        {
 
-                    /* Write Fingerprint data to Redis (for future use) */
+                            /* This is a fingerprint event,  change the event_type and build out new JSON */
 
-                    Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
-                    json_string = new_json_string;
+                            strlcpy( event_type, "fingerprint", sizeof(event_type) );
+
+                            /* Write Fingerprint data to Redis (for future use) */
+
+                            Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
+                            json_string = new_json_string;
+
+                        }
 
                 }
 
@@ -340,7 +347,13 @@ bool Decode_JSON( char *json_string )
 
     if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
         {
-            Fingerprint_DHCP ( json_obj, json_string );
+
+            /* Only write DHCP if Meer is a "fingerprint" writer */
+
+            if ( MeerConfig->fingerprint_writer == true )
+                {
+                    Fingerprint_DHCP ( json_obj, json_string );
+                }
         }
 
 #endif

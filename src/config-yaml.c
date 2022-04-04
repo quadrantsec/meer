@@ -86,6 +86,8 @@ void Load_YAML_Config( char *yaml_file )
     /* Init MeerConfig values */
 
     MeerConfig->fingerprint = false;
+    MeerConfig->fingerprint_reader = true;
+    MeerConfig->fingerprint_writer = true;
 
     strlcpy(MeerConfig->meer_log, MEER_LOG, sizeof(MeerConfig->meer_log));
     strlcpy(MeerConfig->description, MEER_DESC, sizeof( MeerConfig->description ));
@@ -422,6 +424,26 @@ void Load_YAML_Config( char *yaml_file )
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
                                         {
                                             MeerConfig->fingerprint = true;
+                                        }
+
+                                }
+
+                            else if ( !strcmp(last_pass, "fingerprint_reader" ) )
+                                {
+
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerConfig->fingerprint_reader = true;
+                                        }
+
+                                }
+
+                            else if ( !strcmp(last_pass, "fingerprint_writer" ) )
+                                {
+
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerConfig->fingerprint_writer = true;
                                         }
 
                                 }

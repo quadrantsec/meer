@@ -207,6 +207,8 @@ int main (int argc, char *argv[])
 
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, "Fingerprint support    : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );
+    Meer_Log(NORMAL, "- Fingerprint reader   : %s", MeerConfig->fingerprint_reader ? "enabled" : "disabled" );
+    Meer_Log(NORMAL, "- Fingerprint writer   : %s", MeerConfig->fingerprint_writer ? "enabled" : "disabled" );
     Meer_Log(NORMAL, "");
 
 #ifdef HAVE_LIBMAXMINDDB

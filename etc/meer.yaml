@@ -52,13 +52,20 @@ meer-core:
     #
     # This enables the "fingerprint" option.  When used in conjunction with the 
     # "fingerprint.rules" (https://github.com/quadrantsec/fingerprint-rules), 
-    # this will record things like operating system type,  type of system it is
-    # (client/server), etc.  This data get routed differently and does not 
-    # generate "alerts". 
+    # this will record things like operating system type, type of system it is
+    # (client/server), etc.  This data gets routed differently and does not 
+    # generate "alerts".  The "fingerprint_reader" & "fingerprint_writer" 
+    # tasks are option allow you to split up the fingerprinting tasks.  
     #########################################################################
   
-    fingerprint: enabled
+    fingerprint: disabled
     fingerprint_networks: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
+
+    fingerprint_reader: enabled		# This option appends "fingerprint"
+   					# data to "alert". 
+
+    fingerprint_writer: enabled		# This option detects "fingerprint" 
+    					# alerts and writes them to Redis.
 
     #########################################################################
     # client_stats
