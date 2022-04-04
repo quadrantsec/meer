@@ -136,7 +136,7 @@ bool Decode_JSON( char *json_string )
             return(false);
         }
 
-    /* Certain locks do not contact flow_id, src_ip, dest_ip, etc.  For example, the
+    /* Certain logs do not contact flow_id, src_ip, dest_ip, etc.  For example, the
      * event_type "stats" doesn't have any of this data.  We want the validation checks
      * for types that don't have this data. */
 
@@ -273,22 +273,6 @@ bool Decode_JSON( char *json_string )
                         }
                 }
 
-
-            /* Do we want to add DNS to the JSON? */
-
-            if ( MeerConfig->dns == true && Is_DNS_Event_Type( event_type ) == true )
-                {
-                    json_string = Get_DNS( json_obj );
-                }
-
-            /* Add OUI / Mac data */
-
-            if ( MeerConfig->oui == true && !strcmp( event_type, "dhcp"  ) )
-                {
-                    Get_OUI( json_obj, new_json_string );
-                    json_string = new_json_string;
-                }
-
         } /* End of validation and exclusion */
 
 #ifdef HAVE_LIBHIREDIS
@@ -338,19 +322,37 @@ bool Decode_JSON( char *json_string )
                             Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
                             json_string = new_json_string;
 
-                        } else {
+                        }
+                    else
+                        {
 
-			/* If we aren't writing fingerprints,  we don't want this to be passed
-			 * down as an alert.  We short circuit here! */
+                            /* If we aren't writing fingerprints,  we don't want this to be passed
+                             * down as an alert.  We short circuit here! */
 
-			return 0;
+                            return 0;
 
-			}
+                        }
 
                 }
 
             free(FingerprintData);
         }
+
+    /* Do we want to add DNS to the JSON? */
+
+    if ( MeerConfig->dns == true && Is_DNS_Event_Type( event_type ) == true )
+        {
+            json_string = Get_DNS( json_obj );
+        }
+
+    /* Add OUI / Mac data */
+
+    if ( MeerConfig->oui == true && !strcmp( event_type, "dhcp"  ) )
+        {
+            Get_OUI( json_obj, new_json_string );
+            json_string = new_json_string;
+        }
+
 
     if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
         {
