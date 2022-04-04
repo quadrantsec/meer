@@ -134,10 +134,10 @@ void Signal_Handler(int sig_num)
             fsync(MeerConfig->waldo_fd);
             close(MeerConfig->waldo_fd);
 
-            fclose(MeerConfig->meer_log_fd);
-            fflush(stdout);
-
             Meer_Log(NORMAL, "Shutdown complete.");
+	    fclose(MeerConfig->meer_log_fd);
+	    fflush(stdout);
+
 
 
             exit(0);
