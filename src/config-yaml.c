@@ -431,9 +431,9 @@ void Load_YAML_Config( char *yaml_file )
                             else if ( !strcmp(last_pass, "fingerprint_reader" ) )
                                 {
 
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                    if ( !strcasecmp(value, "no") || !strcasecmp(value, "false" ) || !strcasecmp(value, "disabled"))
                                         {
-                                            MeerConfig->fingerprint_reader = true;
+                                            MeerConfig->fingerprint_reader = false;
                                         }
 
                                 }
@@ -441,9 +441,9 @@ void Load_YAML_Config( char *yaml_file )
                             else if ( !strcmp(last_pass, "fingerprint_writer" ) )
                                 {
 
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                    if ( !strcasecmp(value, "no") || !strcasecmp(value, "false" ) || !strcasecmp(value, "disabled"))
                                         {
-                                            MeerConfig->fingerprint_writer = true;
+                                            MeerConfig->fingerprint_writer = false;
                                         }
 
                                 }
