@@ -635,6 +635,11 @@ bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *Fing
     return(false);
 }
 
+/******************************************************************************/
+/* Get_Fingerprint - This looks up "fingerprint" data, if it is within scope. */
+/* Scope is determined by metadata type,  source, destination, etc            */
+/******************************************************************************/
+
 void Get_Fingerprint( struct json_object *json_obj, const char *json_string, char *str )
 {
 
@@ -700,7 +705,8 @@ void Get_Fingerprint( struct json_object *json_obj, const char *json_string, cha
             strlcpy(dest_ip, json_object_get_string(tmp), sizeof( dest_ip ));
         }
 
-    /* DHCP */
+
+    /* a = 0 = src,  a = 1 = dest */
 
     for (a = 0; a < 2; a++ )
         {

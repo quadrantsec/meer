@@ -338,7 +338,14 @@ bool Decode_JSON( char *json_string )
                             Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
                             json_string = new_json_string;
 
-                        }
+                        } else {
+
+			/* If we aren't writing fingerprints,  we don't want this to be passed
+			 * down as an alert.  We short circuit here! */
+
+			return 0;
+
+			}
 
                 }
 
