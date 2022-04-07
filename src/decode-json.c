@@ -283,15 +283,16 @@ bool Decode_JSON( char *json_string )
     if ( !strcmp(event_type, "alert") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
         {
 
-            if ( Is_Fingerprint_New( json_obj ) == true )
+            if ( Is_Fingerprint( json_obj ) == true )
                 {
 
-		    /* Is the fingerprint in range? */
+                    /* If it's a "fingerprint" add it to our database.  First,  is our "fingerprint"
+                     * in range? */
 
-		    if ( Fingerprint_In_Range( src_ip ) == false ) 
-		    	{
-			return 0;
-			}
+                    if ( Fingerprint_In_Range( src_ip ) == false )
+                        {
+                            return 0;
+                        }
 
                     /* Switch event_type from "alert" to "fingerprint" */
 
@@ -302,7 +303,7 @@ bool Decode_JSON( char *json_string )
 
                     /* Add fingerprint data to Redis for future events */
 
-                    if ( Fingerprint_JSON_IP_Redis_New( json_obj ) == false ) 	/* Add "fingerprint|ip|{IP}" key */
+                    if ( Fingerprint_JSON_IP_Redis( json_obj ) == false ) 	/* Add "fingerprint|ip|{IP}" key */
                         {
                             Meer_Log(WARN, "[%s, line %d] Couldn't write Redis 'fingerprint|ip' key! Skipping!", __FILE__, __LINE__);
                             json_object_put(json_obj);
@@ -310,7 +311,7 @@ bool Decode_JSON( char *json_string )
                             return(false);
                         }
 
-                    if ( Fingerprint_JSON_Event_Redis_New( json_obj, new_json_string, MeerConfig->payload_buffer_size ) == false )
+                    if ( Fingerprint_JSON_Event_Redis( json_obj, new_json_string, MeerConfig->payload_buffer_size ) == false )
                         {
                             Meer_Log(WARN, "[%s, line %d] Couldn't write Redis 'fingerprint|event' key! Skipping!", __FILE__, __LINE__);
                             json_object_put(json_obj);
@@ -318,87 +319,36 @@ bool Decode_JSON( char *json_string )
                             return(false);
                         }
 
-			json_string = new_json_string;	/* Make "new" JSON the "fingerprint" one!
+                    json_string = new_json_string;	/* Make "new" JSON the "fingerprint" one!
 							   For later user in "output" */
 
                 }
             else
                 {
 
-		    Get_Fingerprint_New( json_obj, new_json_string, MeerConfig->payload_buffer_size, json_string );
-		    json_string = new_json_string;
+                    /* Add "fingerprint" data to the alert,  if available */
 
-		    printf("TESTME: %s\n", json_string);
-
-                    // Lookup fingerprint / dhcp
-                    // add to JSON
+                    Get_Fingerprint( json_obj, new_json_string, MeerConfig->payload_buffer_size, json_string );
+                    json_string = new_json_string;
 
                 }
 
-
-//            struct _FingerprintData *FingerprintData;
-//            FingerprintData = (struct _FingerprintData *) malloc(sizeof(_FingerprintData));
-
-//            if ( FingerprintData == NULL )
-//                {
-//                    Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _FingerprintData.  Abort!", __FILE__, __LINE__, json_string);
-//                }
-
-//            memset(FingerprintData, 0, sizeof(_FingerprintData));
-
-            /* Determine if the "alert" is a "fingerprint" event or not.  It if is,
-               store "fingerprint" data in the FingerprintData array.  Otherwise,  enrich
-               the standard "alert" data with "fingerprint" data */
-
-//            if ( Is_Fingerprint( json_obj, FingerprintData ) == false && MeerConfig->fingerprint_reader == true )
-//                {
-
-            /* This is a standard "alert".  Add any "fingerprint" JSON to the event */
-
-//                    Get_Fingerprint( json_obj, json_string, new_json_string );
-//                    json_string = new_json_string;
-//                }
-//            else
-//                {
-
-            /* Do we want this meer to "write" fingerprints */
-
-//                    if ( MeerConfig->fingerprint_writer == true )
-//                        {
-
-//                            if ( Fingerprint_In_Range( src_ip ) == true )
-//                                {
-
-            /* This is a fingerprint event,  change the event_type and build out new JSON */
-
-//                                    strlcpy( event_type, "fingerprint", sizeof(event_type) );
-
-            /* Write Fingerprint data to Redis (for future use) */
-
-//                                    Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
-//                                    json_string = new_json_string;
-
-//                                }
-//                            else
-//                                {
-//                                    return 0;
-//                                }
-
-//                        }
-//                    else
-//                        {
-
-            /* If we aren't writing fingerprints,  we don't want this to be passed
-             * down as an alert.  We short circuit here! */
-
-//                            return 0;
-
-//                        }
-
-//                }
-
-//            free(FingerprintData);
         }
+
+    /* Write out DHCP data for fingerprinting */
+
+    if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
+        {
+
+            /* Only write DHCP if Meer is a "fingerprint" writer */
+
+            if ( MeerConfig->fingerprint_writer == true )
+                {
+                    Fingerprint_DHCP ( json_obj, json_string );
+                }
+        }
+
+#endif
 
     /* Do we want to add DNS to the JSON? */
 
@@ -414,20 +364,6 @@ bool Decode_JSON( char *json_string )
             Get_OUI( json_obj, new_json_string );
             json_string = new_json_string;
         }
-
-
-    if ( !strcmp(event_type, "dhcp") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
-        {
-
-            /* Only write DHCP if Meer is a "fingerprint" writer */
-
-            if ( MeerConfig->fingerprint_writer == true )
-                {
-                    Fingerprint_DHCP ( json_obj, json_string );
-                }
-        }
-
-#endif
 
     Counters( event_type );
 

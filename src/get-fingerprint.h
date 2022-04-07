@@ -18,26 +18,11 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-typedef struct _FingerprintData _FingerprintData;
-struct _FingerprintData
-{
-
-    char os[32];
-    char type[8];
-    char source[32];
-    uint32_t expire;
-
-};
 
 void Fingerprint_DHCP ( struct json_object *json_obj, const char *json_string );
-//bool Is_Fingerprint( struct json_object *json_obj, struct _FingerprintData *FingerprintData );
-//void Get_Fingerprint( struct json_object *json_obj, const char *json_string, char *str );
-//void Fingerprint_JSON_Redis( struct json_object *json_obj, struct _FingerprintData *FingerprintData, char *str);
 bool Fingerprint_In_Range( char *ip_address );
-
-// ---------------------
-bool Is_Fingerprint_New( struct json_object *json_obj );
-bool Fingerprint_JSON_IP_Redis_New ( struct json_object *json_obj );
-bool Fingerprint_JSON_Event_Redis_New ( struct json_object *json_obj, char *str, size_t size );
-void Get_Fingerprint_New( struct json_object *json_obj, char *str, size_t size, const char *json_string );
+bool Is_Fingerprint( struct json_object *json_obj );
+bool Fingerprint_JSON_IP_Redis ( struct json_object *json_obj );
+bool Fingerprint_JSON_Event_Redis ( struct json_object *json_obj, char *str, size_t size );
+void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, const char *json_string );
 
