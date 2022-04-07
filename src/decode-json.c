@@ -86,7 +86,7 @@ bool Decode_JSON( char *json_string )
 
     json_string[ strlen(json_string) - 1 ] = '\0';
 
-    char *new_json_string = malloc( MeerConfig->payload_buffer_size);
+    char *new_json_string = malloc( MeerConfig->payload_buffer_size );
 
     if ( new_json_string == NULL )
         {
@@ -283,68 +283,121 @@ bool Decode_JSON( char *json_string )
     if ( !strcmp(event_type, "alert") && MeerConfig->fingerprint == true && MeerOutput->redis_enabled == true )
         {
 
-            struct _FingerprintData *FingerprintData;
-            FingerprintData = (struct _FingerprintData *) malloc(sizeof(_FingerprintData));
-
-            if ( FingerprintData == NULL )
+            if ( Is_Fingerprint_New( json_obj ) == true )
                 {
-                    Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _FingerprintData.  Abort!", __FILE__, __LINE__, json_string);
+
+		    /* Is the fingerprint in range? */
+
+		    if ( Fingerprint_In_Range( src_ip ) == false ) 
+		    	{
+			return 0;
+			}
+
+                    /* Switch event_type from "alert" to "fingerprint" */
+
+                    json_object *jevent_type = json_object_new_string("fingerprint");
+                    json_object_object_add(json_obj,"event_type", jevent_type);
+
+                    strlcpy(event_type, "fingerprint", 12);
+
+                    /* Add fingerprint data to Redis for future events */
+
+                    if ( Fingerprint_JSON_IP_Redis_New( json_obj ) == false ) 	/* Add "fingerprint|ip|{IP}" key */
+                        {
+                            Meer_Log(WARN, "[%s, line %d] Couldn't write Redis 'fingerprint|ip' key! Skipping!", __FILE__, __LINE__);
+                            json_object_put(json_obj);
+                            free(new_json_string);
+                            return(false);
+                        }
+
+                    if ( Fingerprint_JSON_Event_Redis_New( json_obj, new_json_string, MeerConfig->payload_buffer_size ) == false )
+                        {
+                            Meer_Log(WARN, "[%s, line %d] Couldn't write Redis 'fingerprint|event' key! Skipping!", __FILE__, __LINE__);
+                            json_object_put(json_obj);
+                            free(new_json_string);
+                            return(false);
+                        }
+
+			json_string = new_json_string;	/* Make "new" JSON the "fingerprint" one!
+							   For later user in "output" */
+
+                }
+            else
+                {
+
+		    Get_Fingerprint_New( json_obj, new_json_string, MeerConfig->payload_buffer_size, json_string );
+		    json_string = new_json_string;
+
+		    printf("TESTME: %s\n", json_string);
+
+                    // Lookup fingerprint / dhcp
+                    // add to JSON
+
                 }
 
-            memset(FingerprintData, 0, sizeof(_FingerprintData));
+
+//            struct _FingerprintData *FingerprintData;
+//            FingerprintData = (struct _FingerprintData *) malloc(sizeof(_FingerprintData));
+
+//            if ( FingerprintData == NULL )
+//                {
+//                    Meer_Log(ERROR, "[%s, line %d] JSON: \"%s\" Failed to allocate memory for _FingerprintData.  Abort!", __FILE__, __LINE__, json_string);
+//                }
+
+//            memset(FingerprintData, 0, sizeof(_FingerprintData));
 
             /* Determine if the "alert" is a "fingerprint" event or not.  It if is,
                store "fingerprint" data in the FingerprintData array.  Otherwise,  enrich
                the standard "alert" data with "fingerprint" data */
 
-            if ( Is_Fingerprint( json_obj, FingerprintData ) == false && MeerConfig->fingerprint_reader == true )
-                {
+//            if ( Is_Fingerprint( json_obj, FingerprintData ) == false && MeerConfig->fingerprint_reader == true )
+//                {
 
-                    /* This is a standard "alert".  Add any "fingerprint" JSON to the event */
+            /* This is a standard "alert".  Add any "fingerprint" JSON to the event */
 
-                    Get_Fingerprint( json_obj, json_string, new_json_string );
-                    json_string = new_json_string;
-                }
-            else
-                {
+//                    Get_Fingerprint( json_obj, json_string, new_json_string );
+//                    json_string = new_json_string;
+//                }
+//            else
+//                {
 
-                    /* Do we want this meer to "write" fingerprints */
+            /* Do we want this meer to "write" fingerprints */
 
-                    if ( MeerConfig->fingerprint_writer == true )
-                        {
+//                    if ( MeerConfig->fingerprint_writer == true )
+//                        {
 
-                            if ( Fingerprint_In_Range( src_ip ) == true )
-                                {
+//                            if ( Fingerprint_In_Range( src_ip ) == true )
+//                                {
 
-                                    /* This is a fingerprint event,  change the event_type and build out new JSON */
+            /* This is a fingerprint event,  change the event_type and build out new JSON */
 
-                                    strlcpy( event_type, "fingerprint", sizeof(event_type) );
+//                                    strlcpy( event_type, "fingerprint", sizeof(event_type) );
 
-                                    /* Write Fingerprint data to Redis (for future use) */
+            /* Write Fingerprint data to Redis (for future use) */
 
-                                    Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
-                                    json_string = new_json_string;
+//                                    Fingerprint_JSON_Redis( json_obj, FingerprintData, new_json_string );
+//                                    json_string = new_json_string;
 
-                                }
-                            else
-                                {
-                                    return 0;
-                                }
+//                                }
+//                            else
+//                                {
+//                                    return 0;
+//                                }
 
-                        }
-                    else
-                        {
+//                        }
+//                    else
+//                        {
 
-                            /* If we aren't writing fingerprints,  we don't want this to be passed
-                             * down as an alert.  We short circuit here! */
+            /* If we aren't writing fingerprints,  we don't want this to be passed
+             * down as an alert.  We short circuit here! */
 
-                            return 0;
+//                            return 0;
 
-                        }
+//                        }
 
-                }
+//                }
 
-            free(FingerprintData);
+//            free(FingerprintData);
         }
 
     /* Do we want to add DNS to the JSON? */
