@@ -400,6 +400,10 @@ bool Fingerprint_JSON_Event_Redis( struct json_object *json_obj, char *str, size
     snprintf(str, size, "%s", new_string);		/* String to return back */
 
     json_object_put(encode_json);
+    json_object_put(json_obj_alert);
+    json_object_put(json_obj_metadata);
+
+
     free(string_f);
     free(new_string);
 
@@ -482,7 +486,8 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
 #define SRC_IP  0
 #define DEST_IP  1
 
-    redisReply *reply;
+    redisReply *reply_r;
+    redisReply *kr;
 
     struct json_object *tmp = NULL;
     struct json_object *json_obj_fingerprint = NULL;
@@ -532,7 +537,6 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
         }
 
     memset(tmp_json_string, 0, MeerConfig->payload_buffer_size );
-
 
     strlcpy(new_json_string, json_string, MeerConfig->payload_buffer_size );
 
@@ -599,17 +603,17 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
 
                         }
 
-                    reply = redisCommand(MeerOutput->c_redis, "SCAN 0 MATCH %s|event|%s|* count 1000000", FINGERPRINT_REDIS_KEY, tmp_ip);
+                    reply_r = redisCommand(MeerOutput->c_redis, "SCAN 0 MATCH %s|event|%s|* count 1000000", FINGERPRINT_REDIS_KEY, tmp_ip);
 
-                    if ( reply->element[1]->elements > 0 )
+                    if ( reply_r->element[1]->elements > 0 )
                         {
 
-                            /* Grab individual fingerprint */
 
-                            for ( i = 0; i < reply->element[1]->elements; i++ )
+                            /* Grab individual fingerprint */
+                            for ( i = 0; i < reply_r->element[1]->elements; i++ )
                                 {
 
-                                    redisReply *kr = reply->element[1]->element[i];
+				    kr = reply_r->element[1]->element[i];			    
                                     snprintf(tmp_command, sizeof(tmp_command), "GET %s", kr->str);
                                     tmp_command[ sizeof(tmp_command) - 1 ] = '\0';
 
@@ -617,7 +621,7 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
 
                                     /* Validate fingerprint JSON */
 
-                                    if ( Validate_JSON_String( tmp_redis ) == 0 )
+                                     if ( Validate_JSON_String( tmp_redis ) == 0 )
                                         {
 
                                             json_obj_fingerprint = json_tokener_parse(tmp_redis);
@@ -627,6 +631,7 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
                                         {
 
                                             Meer_Log(WARN, "Incomplete or invalid fingerprint JSON.");
+
                                             continue;
 
                                         }
@@ -644,11 +649,18 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
                                             /* Copy final_json_string to new_json_string in case we have more modifications
                                                to make */
 
-                                            strlcpy(new_json_string, tmp_json_string, MeerConfig->payload_buffer_size);
+                                           strlcpy(new_json_string, tmp_json_string, MeerConfig->payload_buffer_size);
 
                                         }
+
+					json_object_put(json_obj_fingerprint);
+
                                 }
+
+//				freeReplyObject(kr);
                         }
+
+			freeReplyObject(reply_r);
                 }
 
         } /* for (a = 0; a < 2; a++ ) */
@@ -656,11 +668,11 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
     snprintf(str, MeerConfig->payload_buffer_size, "%s", new_json_string);
     str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
-    json_object_put(json_obj_fingerprint);
     free(tmp_redis);
     free(tmp_json_string);
     free(new_json_string);
 
+//freeReplyObject(reply_r);
 }
 
 bool Fingerprint_In_Range( char *ip_address )

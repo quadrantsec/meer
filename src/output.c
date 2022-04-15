@@ -59,7 +59,7 @@
 #endif
 
 #ifdef WITH_BLUEDOT
-#include "output-plugins/bluedot.h"
+//#include "output-plugins/bluedot.h"
 #include "util-http.h"
 #endif
 
@@ -72,12 +72,8 @@ pthread_mutex_t MeerElasticMutex=PTHREAD_MUTEX_INITIALIZER;
 uint_fast16_t elastic_proc_msgslot = 0;
 uint_fast16_t elastic_proc_running = 0;
 
-//char big_batch[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
-
 extern char *big_batch;
 extern char *big_batch_THREAD;
-
-//char big_batch_THREAD[PACKET_BUFFER_SIZE_DEFAULT * 1000] = { 0 };
 
 extern uint16_t elasticsearch_batch_count;
 
@@ -922,50 +918,14 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
     return(false);
 }
 
-/****************************************************************************
- * Output_Stats - writes stats JSON (from Suricata or Sagan) to a SQL
- * database and/or Redis
- ****************************************************************************/
+#ifdef WITH_BLUEDOT
 
-/*
-void Output_Stats ( char *json_string )
+void Output_Bluedot ( const char *json_string )
 {
 
-    struct json_object *json_obj = NULL;
-    struct json_object *tmp = NULL;
-
-    char *timestamp = NULL;
-
-    json_obj = json_tokener_parse(json_string);
-
-    if ( json_string == NULL )
-        {
-            MeerCounters->bad++;
-            Meer_Log(WARN, "Got invalid 'stats' JSON string: %s", json_string);
-            json_object_put(json_obj);
-            return;
-        }
-
-    if ( json_object_object_get_ex(json_obj, "timestamp", &tmp))
-        {
-            timestamp =  (char *)json_object_get_string(tmp);
-        }
-
-    if ( timestamp == NULL )
-        {
-            MeerCounters->bad++;
-            Meer_Log(WARN, "Warning.  Stats line lacked any 'timestamp'. Skipping. JSON: %s", json_string);
-            return;
-        }
-
-    json_object_put(json_obj);
+//printf("IN IT\n");
 
 }
-
-*/
-
-
-#ifdef WITH_BLUEDOT
 
 /*
 bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )

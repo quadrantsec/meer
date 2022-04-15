@@ -140,6 +140,8 @@ void Redis_Connect( void )
                 {
 
                     Remove_Lock_File();
+		    freeReplyObject(reply);
+
                     Meer_Log(ERROR, "Authentication failure for 'reader' to to Redis server at %s:%d. Abort!", MeerOutput->redis_server, MeerOutput->redis_port );
 
                 }
@@ -148,6 +150,7 @@ void Redis_Connect( void )
     Meer_Log(NORMAL, "Successfully connected to Redis server at %s:%d.", MeerOutput->redis_server, MeerOutput->redis_port );
 
     MeerOutput->redis_error = false;
+    freeReplyObject(reply);
 
 }
 
@@ -185,6 +188,12 @@ void Redis_Reader ( char *redis_command, char *str, size_t size )
                 {
                     str[0] = '\0';
                 }
+
+    	/* Got good response, free here.  If we don't get a good response
+           and free, we'll get a fault. */
+
+	freeReplyObject(reply);	
+
         }
     else
         {
@@ -194,8 +203,7 @@ void Redis_Reader ( char *redis_command, char *str, size_t size )
     /* Got good response, free here.  If we don't get a good response
        and free, we'll get a fault. */
 
-    freeReplyObject(reply);
-
+//    freeReplyObject(reply);
 
 }
 
@@ -235,24 +243,15 @@ bool Redis_Writer ( char *command, char *key, char *value, int expire )
 
             if ( strcmp(reply->str, "OK") )
                 {
+		    freeReplyObject(reply);
                     Meer_Log(ERROR, "Got something other than 'OK' from server (%s).  Abort!", reply->str);
                 }
 
-            freeReplyObject(reply);
+	freeReplyObject(reply);
+
         }
-//    else
-//        {
 
-    /* Returning null likely means we got disconnected.  We throw and error
-       and attempt to reconnect.  Once reconnected,  we redo out last Redis
-       write so we don't drop the event! */
-
-//            MeerOutput->redis_error = true;
-//            Redis_Connect();
-//            Redis_Writer ( command, key, value, expire );
-
-//        }
-
+    
     return(true);
 }
 

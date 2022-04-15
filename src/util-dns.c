@@ -57,7 +57,6 @@ void DNS_Lookup_Reverse( char *host, char *str, size_t size )
     strftime(utime_string, sizeof(utime_string), "%s",  run);
     uint64_t utime = atol(utime_string);
 
-
     char host_r[NI_MAXHOST] = { 0 };
 
     for (i=0; i<DnsCacheCount; i++)

@@ -43,14 +43,14 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "decode-json-alert.h"
+//#include "decode-json-alert.h"
 
 #include "meer.h"
 #include "meer-def.h"
 #include "util.h"
 #include "util-http.h"
 
-#include "output-plugins/bluedot.h"
+//#include "output-plugins/bluedot.h"
 
 extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
@@ -63,6 +63,7 @@ extern char html5[256];
 #define	MAX_COMMENTS 1024
 #define	MAX_SOURCE   1024
 
+/*
 bool Bluedot( struct _DecodeAlert *DecodeAlert )
 {
 
@@ -87,7 +88,7 @@ bool Bluedot( struct _DecodeAlert *DecodeAlert )
     json_obj = json_tokener_parse(DecodeAlert->alert_metadata);
 
     /* Which IP are we adding to Bluedot? */
-
+/*
     if (json_object_object_get_ex(json_obj, "bluedot", &tmp))
         {
             bluedot = (char *)json_object_get_string(tmp);
@@ -105,7 +106,7 @@ bool Bluedot( struct _DecodeAlert *DecodeAlert )
         }
 
     /* Didn't find either.  Warn the user but continue on */
-
+/*
     if ( ip[0] == '\0' )
         {
             Meer_Log(WARN, "No 'by_source' or 'by_destination' not found in signature!");
@@ -115,7 +116,7 @@ bool Bluedot( struct _DecodeAlert *DecodeAlert )
     IP2Bit( ip, ip_convert );
 
     /* Is the IP address "routable?" */
-
+/*
     if ( Is_Notroutable(ip_convert) )
         {
 
@@ -128,7 +129,7 @@ bool Bluedot( struct _DecodeAlert *DecodeAlert )
         }
 
     /* Is the IP within the "skip_networks"?  Is so,  skip it! */
-
+/*
     for ( i = 0; i < MeerCounters->bluedot_skip_count; i++ )
         {
 
@@ -148,7 +149,7 @@ bool Bluedot( struct _DecodeAlert *DecodeAlert )
 
     /* Encode the unknown sources like comments, and "source" */
 
-    url_encode( rfc3986, MeerOutput->bluedot_source, source_encoded);
+ /*   url_encode( rfc3986, MeerOutput->bluedot_source, source_encoded);
     url_encode( rfc3986, DecodeAlert->alert_signature, comments_encoded);
 
     snprintf(buff, sizeof(buff), "GET %s&ip=%s&code=4&source=%s&comments=%s HTTP/1.1\r\nHost: %s\r\nUser-Agent: Meer\r\nConnection: close\r\n\r\n", MeerOutput->bluedot_uri, ip, source_encoded, comments_encoded, MeerOutput->bluedot_host);
@@ -183,15 +184,15 @@ bool Bluedot( struct _DecodeAlert *DecodeAlert )
 
     /* Send request */
 
-    write(sockfd, buff, sizeof(buff));
+  //  write(sockfd, buff, sizeof(buff));
 
     /* Get response */
 
-    bzero(buff, sizeof(buff));
-    read(sockfd, buff, sizeof(buff));
+   // bzero(buff, sizeof(buff));
+    //read(sockfd, buff, sizeof(buff));
 
     /* Close the socket! */
-
+/*
     close(sockfd);
 
     if ( MeerOutput->bluedot_debug == true )
@@ -203,6 +204,7 @@ bool Bluedot( struct _DecodeAlert *DecodeAlert )
 
     return(true);
 }
+*/
 
 
 #endif

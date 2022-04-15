@@ -214,6 +214,5 @@ void Get_OUI( struct json_object *json_obj, char *str )
     snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj) );
     str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
-
 }
 

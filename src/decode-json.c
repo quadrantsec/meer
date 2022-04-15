@@ -291,7 +291,9 @@ bool Decode_JSON( char *json_string )
 
                     if ( Fingerprint_In_Range( src_ip ) == false )
                         {
-                            return 0;
+                            json_object_put(json_obj);
+                            free(new_json_string);
+                            return(false);
                         }
 
                     /* Switch event_type from "alert" to "fingerprint" */
@@ -354,7 +356,8 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->dns == true && Is_DNS_Event_Type( event_type ) == true )
         {
-            json_string = Get_DNS( json_obj );
+            Get_DNS( json_obj, json_string, new_json_string );
+	    json_string = new_json_string;
         }
 
     /* Add OUI / Mac data */
@@ -410,6 +413,15 @@ bool Decode_JSON( char *json_string )
         {
             Output_Elasticsearch( json_string, event_type );
         }
+
+#endif
+
+#ifdef WITH_BLUEDOT
+
+   if ( MeerOutput->bluedot_flag = true && !strcmp( event_type, "alert" ) )
+   	{
+	Output_Bluedot( json_string );
+	}
 
 #endif
 
