@@ -18,8 +18,6 @@
 */
 
 void Bluedot_Init( void );
-
-//bool Bluedot( struct _DecodeAlert *DecodeAlert );
 void Bluedot ( const char *metadata, struct json_object *json_obj );
 
 typedef struct _Bluedot_Skip _Bluedot_Skip;

@@ -940,42 +940,6 @@ void Output_Bluedot ( struct json_object *json_obj )
     json_object_put(json_obj_metadata);
 }
 
-/*
-bool Output_Bluedot ( struct _DecodeAlert *DecodeAlert )
-{
-
-    struct json_object *json_obj = NULL;
-    struct json_object *tmp = NULL;
-
-    const char *meer = NULL;
-
-    if ( DecodeAlert->alert_metadata[0] != '\0' )
-        {
-            json_obj = json_tokener_parse(DecodeAlert->alert_metadata);
-
-            if (json_object_object_get_ex(json_obj, "meer", &tmp))
-                {
-
-                    meer = (char *)json_object_get_string(tmp);
-
-                    if ( strstr( meer, "bluedot" ) )
-                        {
-                            Bluedot( DecodeAlert );
-
-                            json_object_put(json_obj);
-                            return(true);
-                        }
-
-                }
-
-        }
-
-    json_object_put(json_obj);
-
-    return(false);
-}
-*/
-
 #endif
 
 #ifdef WITH_ELASTICSEARCH
