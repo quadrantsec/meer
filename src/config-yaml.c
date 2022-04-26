@@ -37,6 +37,8 @@
 #include <string.h>
 #include <errno.h>
 #include <stdbool.h>
+#include <json-c/json.h>
+
 
 #include "meer.h"
 #include "meer-def.h"

@@ -113,8 +113,6 @@ void Bluedot ( const char *metadata, struct json_object *json_obj )
 
     json_obj_metadata = json_tokener_parse(metadata);
 
-    printf("Got meta: %s\n", metadata);
-
     if (json_object_object_get_ex(json_obj_metadata, "bluedot", &tmp))
         {
             bluedot = (char *)json_object_get_string(tmp);
@@ -166,11 +164,6 @@ void Bluedot ( const char *metadata, struct json_object *json_obj )
             return;
         }
 
-
-
-    printf("signature: %s\n", signature);
-    printf("IP: %s\n", ip);
-
     IP2Bit( ip, ip_convert );
 
     /* Is the IP address "routable?" */
@@ -219,163 +212,13 @@ void Bluedot ( const char *metadata, struct json_object *json_obj )
     res = curl_easy_perform(curl);
 
     if(res != CURLE_OK)
-        fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                curl_easy_strerror(res));
-
-
-    printf("URL: %s\n", buff);
-
-
-
+    {
+        Meer_Log(WARN, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+    }
 
     json_object_put(json_obj_metadata);
     json_object_put(json_obj_alert);
 
 }
-
-
-/*
-boollBluedot( struct _DecodeAlert *DecodeAlert )
-{
-
-    char buff[2048] = { 0 };
-    char url_encoded[MAX_BUFFER*3] = { 0 };
-
-    struct json_object *json_obj = NULL;
-    struct json_object *tmp = NULL;
-
-    const char *bluedot = NULL;
-
-    char ip[MAXIP] = { 0 };
-    unsigned char ip_convert[MAXIPBIT] = { 0 };
-
-    char source_encoded[MAX_SOURCE] = { 0 };
-    char comments_encoded[MAX_SOURCE*3] = { 0 };
-
-    int sockfd;
-    struct sockaddr_in servaddr;
-    uint_fast16_t i = 0;
-
-    json_obj = json_tokener_parse(DecodeAlert->alert_metadata);
-
-    /* Which IP are we adding to Bluedot? */
-/*
-    if (json_object_object_get_ex(json_obj, "bluedot", &tmp))
-        {
-            bluedot = (char *)json_object_get_string(tmp);
-
-            if ( strstr( bluedot, "by_source" ) )
-                {
-                    strlcpy(ip, DecodeAlert->src_ip, sizeof(ip));
-                }
-
-            else if ( strstr ( bluedot, "by_destination" ) )
-                {
-                    strlcpy(ip, DecodeAlert->dest_ip, sizeof(ip));
-                }
-
-        }
-
-    /* Didn't find either.  Warn the user but continue on */
-/*
-    if ( ip[0] == '\0' )
-        {
-            Meer_Log(WARN, "No 'by_source' or 'by_destination' not found in signature!");
-            return(0);
-        }
-
-    IP2Bit( ip, ip_convert );
-
-    /* Is the IP address "routable?" */
-/*
-    if ( Is_Notroutable(ip_convert) )
-        {
-
-            if ( MeerOutput->bluedot_debug == true )
-                {
-                    Meer_Log(DEBUG, "[%s, line %d] %s is RFC1918, link local or invalid.", __FILE__, __LINE__, ip);
-                }
-
-            return(false);
-        }
-
-    /* Is the IP within the "skip_networks"?  Is so,  skip it! */
-/*
-    for ( i = 0; i < MeerCounters->bluedot_skip_count; i++ )
-        {
-
-            if ( Is_Inrange(ip_convert, (unsigned char *)&Bluedot_Skip[i].range, 1) )
-                {
-
-                    if ( MeerOutput->bluedot_debug == true )
-                        {
-                            Meer_Log(DEBUG, "IP address %s is in the 'skip_network' range.  Skipping!", ip);
-                        }
-
-                    return(false);
-                }
-
-        }
-
-
-    /* Encode the unknown sources like comments, and "source" */
-
-/*   url_encode( rfc3986, MeerOutput->bluedot_source, source_encoded);
-   url_encode( rfc3986, DecodeAlert->alert_signature, comments_encoded);
-
-   snprintf(buff, sizeof(buff), "GET %s&ip=%s&code=4&source=%s&comments=%s HTTP/1.1\r\nHost: %s\r\nUser-Agent: Meer\r\nConnection: close\r\n\r\n", MeerOutput->bluedot_uri, ip, source_encoded, comments_encoded, MeerOutput->bluedot_host);
-   buff[ sizeof(buff) - 1 ] = '\0';
-
-   sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-   if (sockfd == -1)
-       {
-           Meer_Log(WARN, "[%s, %d] Unable to create socket for Bluedot request!", __FILE__, __LINE__);
-           return(false);
-       }
-
-   bzero(&servaddr, sizeof(servaddr));
-
-   servaddr.sin_family = AF_INET;
-   servaddr.sin_addr.s_addr = inet_addr( MeerOutput->bluedot_ip );
-   servaddr.sin_port = htons(80);
-
-   if ( MeerOutput->bluedot_debug == true )
-       {
-           Meer_Log(DEBUG, "------------------------------------------------------");
-           Meer_Log(DEBUG, "Sending: %s", buff);
-       }
-
-   if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
-       {
-           Meer_Log(WARN, "[%s, %d] Unabled to connect to server!", __FILE__, __LINE__);
-           return(false);
-       }
-
-
-   /* Send request */
-
-//  write(sockfd, buff, sizeof(buff));
-
-/* Get response */
-
-// bzero(buff, sizeof(buff));
-//read(sockfd, buff, sizeof(buff));
-
-/* Close the socket! */
-/*
-    close(sockfd);
-
-    if ( MeerOutput->bluedot_debug == true )
-        {
-            printf("Response:\n%s", buff);
-        }
-
-    json_object_put(json_obj);
-
-    return(true);
-}
-*/
-
 
 #endif

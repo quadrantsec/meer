@@ -28,6 +28,7 @@
 #include <signal.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <json-c/json.h>
 
 #include "meer.h"
 #include "meer-def.h"
@@ -35,9 +36,12 @@
 #include "lockfile.h"
 #include "stats.h"
 
+#if defined(WITH_BLUEDOT) || defined(WITH_ELASTICSEARCH)
+#include <curl/curl.h>
+#endif
+
 #ifdef WITH_ELASTICSEARCH
 #include <output-plugins/elasticsearch.h>
-#include <curl/curl.h>
 bool elasticsearch_death = false;
 uint8_t elasticsearch_death_count = 0;
 extern uint_fast16_t elastic_proc_running;
@@ -51,10 +55,8 @@ extern char *big_batch_THREAD;
 
 #ifdef WITH_BLUEDOT
 #include <output-plugins/bluedot.h>
-#include <curl/curl.h>
 extern CURL *curl;
 #endif
-
 
 extern struct _MeerWaldo *MeerWaldo;
 extern struct _MeerConfig *MeerConfig;

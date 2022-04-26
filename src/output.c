@@ -59,8 +59,7 @@
 #endif
 
 #ifdef WITH_BLUEDOT
-//#include "output-plugins/bluedot.h"
-#include "util-http.h"
+#include "output-plugins/bluedot.h"
 #endif
 
 #ifdef WITH_ELASTICSEARCH
