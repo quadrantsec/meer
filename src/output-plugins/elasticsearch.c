@@ -71,8 +71,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
     if(!ptr)
         {
             /* out of memory! */
-            printf("not enough memory (realloc returned NULL)\n");
-            return 0;
+            Meer_Log(ERROR, "[%s, line %d] Not enough memory (realloc returned NULL)", __FILE__, __LINE__);
         }
 
     mem->memory = ptr;

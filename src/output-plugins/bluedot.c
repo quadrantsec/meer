@@ -20,13 +20,13 @@
 
 /*
  *   bluedot:
+ *     enabled: yes
+ *     debug: yes
+ *     url: "https://bluedot.quadrantsec.com/insert.php?apikey=KEYHERE"
+ *     insecure: true                                      # Only applied when https is used.
+ *     source: "Field Sensors"
+ *     skip_networks: "10.0.0.0/8,192.168.0.0/16,172.16.0.0/12,12.159.2.0/24,199.188.171.0/27"
  *
- *       enabled: yes
- *       source: "Honeypot Network"
- *       host: "your.host.here"
- *       uri: "/insert.php?apikey=abc123"
- *       skip_networks: "12.159.2.0/24, 199.188.171.0/27"
- *       debug: no
  *
  */
 
@@ -43,28 +43,199 @@
 #include <unistd.h>
 #include <string.h>
 
-//#include "decode-json-alert.h"
+#include <json-c/json.h>
+#include <curl/curl.h>
 
 #include "meer.h"
 #include "meer-def.h"
 #include "util.h"
-#include "util-http.h"
-
-//#include "output-plugins/bluedot.h"
+#include "bluedot.h"
 
 extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
 extern struct _Bluedot_Skip *Bluedot_Skip;
 
-extern char rfc3986[256];
-extern char html5[256];
 
-#define MAX_BUFFER   2048
-#define	MAX_COMMENTS 1024
-#define	MAX_SOURCE   1024
+CURL *curl;
+struct curl_slist *headers = NULL;
+
+void Bluedot_Init( void )
+{
+
+    curl_global_init(CURL_GLOBAL_ALL);
+    curl = curl_easy_init();
+
+    if ( MeerOutput->bluedot_insecure == true )
+        {
+
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
+            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYSTATUS, false);
+
+        }
+
+    if ( MeerOutput->bluedot_debug == true )
+        {
+            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
+        }
+
+
+    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);    /* Will send SIGALRM if not set */
+
+    headers = curl_slist_append (headers, MEER_USER_AGENT);
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+
+}
+
+void Bluedot ( const char *metadata, struct json_object *json_obj )
+{
+
+    char ip[MAXIP] = { 0 };
+    char buff[8192] = { 0 };
+    unsigned char ip_convert[MAXIPBIT] = { 0 };
+
+    const char *bluedot = NULL;
+    const char *alert = NULL;
+    const char *signature = NULL;
+
+    struct json_object *json_obj_metadata = NULL;
+    struct json_object *json_obj_alert = NULL;
+
+    struct json_object *tmp = NULL;
+
+    uint32_t i = 0;
+
+    CURLcode res;
+
+    char *source_encoded = NULL;
+    char *comments_encoded = NULL;
+
+    json_obj_metadata = json_tokener_parse(metadata);
+
+    printf("Got meta: %s\n", metadata);
+
+    if (json_object_object_get_ex(json_obj_metadata, "bluedot", &tmp))
+        {
+            bluedot = (char *)json_object_get_string(tmp);
+
+            if ( strstr( bluedot, "by_source" ) )
+                {
+                    json_object_object_get_ex(json_obj, "src_ip", &tmp);
+                    strlcpy(ip, json_object_get_string(tmp), MAXIP);
+                }
+
+            else if ( strstr ( bluedot, "by_destination" ) )
+                {
+                    json_object_object_get_ex(json_obj, "dest_ip", &tmp);
+                    strlcpy(ip, json_object_get_string(tmp), MAXIP);
+                }
+
+        }
+
+    /* This should never, ever happen */
+
+    if ( ip[0] == '\0' )
+        {
+            Meer_Log(WARN, "No 'by_source' or 'by_destination' not found in signature!");
+            json_object_put(json_obj_metadata);
+            return;
+        }
+
+    json_object_object_get_ex(json_obj, "alert", &tmp);
+    alert = json_object_get_string(tmp);
+
+    if ( alert == NULL )
+        {
+            Meer_Log(WARN, "No 'alert' data found!");
+            json_object_put(json_obj_metadata);
+//	    json_object_put(json_obj_alert);
+            return;
+        }
+
+    json_obj_alert = json_tokener_parse(alert);
+
+    json_object_object_get_ex(json_obj_alert, "signature", &tmp);
+    signature = json_object_get_string(tmp);
+
+    if ( signature == NULL )
+        {
+            Meer_Log(WARN, "No 'signature' data found!");
+            json_object_put(json_obj_metadata);
+            json_object_put(json_obj_alert);
+            return;
+        }
+
+
+
+    printf("signature: %s\n", signature);
+    printf("IP: %s\n", ip);
+
+    IP2Bit( ip, ip_convert );
+
+    /* Is the IP address "routable?" */
+
+    if ( Is_Notroutable(ip_convert) )
+        {
+
+            if ( MeerOutput->bluedot_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] %s is RFC1918, link local or invalid.", __FILE__, __LINE__, ip);
+                }
+
+            json_object_put(json_obj_metadata);
+            return;
+        }
+
+    /* Is the IP within the "skip_networks"?  Is so,  skip it! */
+
+    for ( i = 0; i < MeerCounters->bluedot_skip_count; i++ )
+        {
+
+            if ( Is_Inrange(ip_convert, (unsigned char *)&Bluedot_Skip[i].range, 1) )
+                {
+
+                    if ( MeerOutput->bluedot_debug == true )
+                        {
+                            Meer_Log(DEBUG, "IP address %s is in the 'skip_network' range.  Skipping!", ip);
+                        }
+
+                    json_object_put(json_obj_metadata);
+                    return;
+                }
+
+        }
+
+    /* We need to encode some data */
+
+    comments_encoded = curl_easy_escape(curl, signature, strlen(signature));
+    source_encoded = curl_easy_escape(curl, MeerOutput->bluedot_source, strlen(MeerOutput->bluedot_source));
+
+    snprintf(buff, sizeof(buff), "%s&ip=%s&code=4&comments=%s&source=%s", MeerOutput->bluedot_url,ip, comments_encoded, source_encoded);
+
+    buff[ sizeof(buff) - 1 ] = '\0';
+
+    curl_easy_setopt(curl, CURLOPT_URL, buff);
+    res = curl_easy_perform(curl);
+
+    if(res != CURLE_OK)
+        fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                curl_easy_strerror(res));
+
+
+    printf("URL: %s\n", buff);
+
+
+
+
+    json_object_put(json_obj_metadata);
+    json_object_put(json_obj_alert);
+
+}
+
 
 /*
-bool Bluedot( struct _DecodeAlert *DecodeAlert )
+boollBluedot( struct _DecodeAlert *DecodeAlert )
 {
 
     char buff[2048] = { 0 };
@@ -149,49 +320,49 @@ bool Bluedot( struct _DecodeAlert *DecodeAlert )
 
     /* Encode the unknown sources like comments, and "source" */
 
- /*   url_encode( rfc3986, MeerOutput->bluedot_source, source_encoded);
-    url_encode( rfc3986, DecodeAlert->alert_signature, comments_encoded);
+/*   url_encode( rfc3986, MeerOutput->bluedot_source, source_encoded);
+   url_encode( rfc3986, DecodeAlert->alert_signature, comments_encoded);
 
-    snprintf(buff, sizeof(buff), "GET %s&ip=%s&code=4&source=%s&comments=%s HTTP/1.1\r\nHost: %s\r\nUser-Agent: Meer\r\nConnection: close\r\n\r\n", MeerOutput->bluedot_uri, ip, source_encoded, comments_encoded, MeerOutput->bluedot_host);
-    buff[ sizeof(buff) - 1 ] = '\0';
+   snprintf(buff, sizeof(buff), "GET %s&ip=%s&code=4&source=%s&comments=%s HTTP/1.1\r\nHost: %s\r\nUser-Agent: Meer\r\nConnection: close\r\n\r\n", MeerOutput->bluedot_uri, ip, source_encoded, comments_encoded, MeerOutput->bluedot_host);
+   buff[ sizeof(buff) - 1 ] = '\0';
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+   sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (sockfd == -1)
-        {
-            Meer_Log(WARN, "[%s, %d] Unable to create socket for Bluedot request!", __FILE__, __LINE__);
-            return(false);
-        }
+   if (sockfd == -1)
+       {
+           Meer_Log(WARN, "[%s, %d] Unable to create socket for Bluedot request!", __FILE__, __LINE__);
+           return(false);
+       }
 
-    bzero(&servaddr, sizeof(servaddr));
+   bzero(&servaddr, sizeof(servaddr));
 
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_addr.s_addr = inet_addr( MeerOutput->bluedot_ip );
-    servaddr.sin_port = htons(80);
+   servaddr.sin_family = AF_INET;
+   servaddr.sin_addr.s_addr = inet_addr( MeerOutput->bluedot_ip );
+   servaddr.sin_port = htons(80);
 
-    if ( MeerOutput->bluedot_debug == true )
-        {
-            Meer_Log(DEBUG, "------------------------------------------------------");
-            Meer_Log(DEBUG, "Sending: %s", buff);
-        }
+   if ( MeerOutput->bluedot_debug == true )
+       {
+           Meer_Log(DEBUG, "------------------------------------------------------");
+           Meer_Log(DEBUG, "Sending: %s", buff);
+       }
 
-    if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
-        {
-            Meer_Log(WARN, "[%s, %d] Unabled to connect to server!", __FILE__, __LINE__);
-            return(false);
-        }
+   if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0)
+       {
+           Meer_Log(WARN, "[%s, %d] Unabled to connect to server!", __FILE__, __LINE__);
+           return(false);
+       }
 
 
-    /* Send request */
+   /* Send request */
 
-  //  write(sockfd, buff, sizeof(buff));
+//  write(sockfd, buff, sizeof(buff));
 
-    /* Get response */
+/* Get response */
 
-   // bzero(buff, sizeof(buff));
-    //read(sockfd, buff, sizeof(buff));
+// bzero(buff, sizeof(buff));
+//read(sockfd, buff, sizeof(buff));
 
-    /* Close the socket! */
+/* Close the socket! */
 /*
     close(sockfd);
 

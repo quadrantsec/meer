@@ -348,22 +348,14 @@ void Init_Output( void )
     if ( MeerOutput->bluedot_flag == true )
         {
 
-            int i = 0;
-
-            url_encoder_rfc_tables_init();
-
-            i = DNS_Lookup_Forward( MeerOutput->bluedot_host, MeerOutput->bluedot_ip, sizeof(MeerOutput->bluedot_ip) );
-
-            if ( i != 0 )
-                {
-                    Meer_Log(ERROR, "Unable to lookup %s. Abort.", MeerOutput->bluedot_host);
-                }
-
             Meer_Log(NORMAL, "--[ Bluedot information ]----------------------------------------");
             Meer_Log(NORMAL, "");
             Meer_Log(NORMAL, "Bluedot Output          : %s", MeerOutput->bluedot_flag ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Bluedot Server IP       : %s (%s)", MeerOutput->bluedot_ip, MeerOutput->bluedot_host);
+            Meer_Log(NORMAL, "Bluedot Server URL      : %s", MeerOutput->bluedot_url);
             Meer_Log(NORMAL, "");
+
+            Bluedot_Init();
+
         }
 
 #endif
@@ -920,11 +912,33 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
 
 #ifdef WITH_BLUEDOT
 
-void Output_Bluedot ( const char *json_string )
+void Output_Bluedot ( struct json_object *json_obj )
 {
 
-//printf("IN IT\n");
+    const char *alert = NULL;
+    const char *metadata = NULL;
 
+    struct json_object *tmp = NULL;
+    struct json_object *json_obj_metadata = NULL;
+
+    /* The event_type has to be "alert", so no need to check */
+
+    json_object_object_get_ex(json_obj, "alert", &tmp);
+    alert = json_object_get_string(tmp);
+
+    json_obj_metadata = json_tokener_parse( alert );
+
+    if ( json_object_object_get_ex(json_obj_metadata, "metadata", &tmp) )
+        {
+            Bluedot( (const char*)json_object_get_string(tmp), json_obj );
+        }
+    else
+        {
+            json_object_put(json_obj_metadata);
+            return; 	/* There is no "metadata", nothing left to do */
+        }
+
+    json_object_put(json_obj_metadata);
 }
 
 /*

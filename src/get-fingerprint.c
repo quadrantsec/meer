@@ -613,7 +613,7 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
                             for ( i = 0; i < reply_r->element[1]->elements; i++ )
                                 {
 
-				    kr = reply_r->element[1]->element[i];			    
+                                    kr = reply_r->element[1]->element[i];
                                     snprintf(tmp_command, sizeof(tmp_command), "GET %s", kr->str);
                                     tmp_command[ sizeof(tmp_command) - 1 ] = '\0';
 
@@ -621,7 +621,7 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
 
                                     /* Validate fingerprint JSON */
 
-                                     if ( Validate_JSON_String( tmp_redis ) == 0 )
+                                    if ( Validate_JSON_String( tmp_redis ) == 0 )
                                         {
 
                                             json_obj_fingerprint = json_tokener_parse(tmp_redis);
@@ -649,18 +649,18 @@ void Get_Fingerprint( struct json_object *json_obj, char *str, size_t size, cons
                                             /* Copy final_json_string to new_json_string in case we have more modifications
                                                to make */
 
-                                           strlcpy(new_json_string, tmp_json_string, MeerConfig->payload_buffer_size);
+                                            strlcpy(new_json_string, tmp_json_string, MeerConfig->payload_buffer_size);
 
                                         }
 
-					json_object_put(json_obj_fingerprint);
+                                    json_object_put(json_obj_fingerprint);
 
                                 }
 
 //				freeReplyObject(kr);
                         }
 
-			freeReplyObject(reply_r);
+                    freeReplyObject(reply_r);
                 }
 
         } /* for (a = 0; a < 2; a++ ) */

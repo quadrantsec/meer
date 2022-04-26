@@ -58,7 +58,7 @@ extern struct _MeerConfig *MeerConfig;
 extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
 
-struct _MeerHealth *MeerHealth = NULL;
+//struct _MeerHealth *MeerHealth = NULL;
 struct _Fingerprint_Networks *Fingerprint_Networks = NULL;
 
 void Load_YAML_Config( char *yaml_file )
@@ -119,6 +119,10 @@ void Load_YAML_Config( char *yaml_file )
     MeerOutput->elasticsearch_batch = 10;
     MeerOutput->elasticsearch_threads = 5;
 
+#endif
+
+#ifdef WITH_BLUEDOT
+    strlcpy(MeerOutput->bluedot_source, MEER_BLUEDOT_SOURCE, sizeof(MeerOutput->bluedot_source));
 #endif
 
     MeerConfig->client_stats = false;
@@ -1303,6 +1307,8 @@ void Load_YAML_Config( char *yaml_file )
 
 #endif
 
+
+
 #ifdef WITH_BLUEDOT
 
                     if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_BLUEDOT )
@@ -1325,38 +1331,29 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
-
-                            if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "host") )
+                            if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "url") )
                                 {
 
                                     if ( value[0] == '\0' )
                                         {
-                                            Meer_Log(ERROR, "Invalid configuration.  'bluedot' host is invalid");
+                                            Meer_Log(ERROR, "Invalid configuration.  'bluedot' URL is invalid");
                                         }
 
-                                    strlcpy(MeerOutput->bluedot_host, value, sizeof(MeerOutput->bluedot_host));
+                                    strlcpy(MeerOutput->bluedot_url, value, sizeof(MeerOutput->bluedot_url));
                                 }
 
-                            if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "uri") )
+                            if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "insecure") )
                                 {
 
-                                    if ( value[0] == '\0' )
+                                    if (!strcasecmp(value, "yes") || !strcasecmp(value, "true") || !strcasecmp(value, "enabled"))
                                         {
-                                            Meer_Log(ERROR, "Invalid configuration.  'bluedot' uri is invalid");
+                                            MeerOutput->bluedot_insecure = true;
                                         }
-
-                                    strlcpy(MeerOutput->bluedot_uri, value, sizeof(MeerOutput->bluedot_uri));
                                 }
 
                             if ( MeerOutput->bluedot_flag == true && !strcmp(last_pass, "source") )
                                 {
-
-                                    if ( value[0] == '\0' )
-                                        {
-                                            Meer_Log(ERROR, "Invalid configuration.  'bluedot' source is invalid");
-                                        }
-
-                                    strlcpy(MeerOutput->bluedot_source, value, sizeof(MeerOutput->bluedot_source));
+                                    strlcpy(MeerOutput->bluedot_source, value, sizeof( MeerOutput->bluedot_source ));
                                 }
 
 
@@ -1424,12 +1421,11 @@ void Load_YAML_Config( char *yaml_file )
                                             bluedot_ptr = strtok_r(NULL, ",", &tok);
 
                                         }
-
                                 }
-
                         }
 
 #endif
+
 
                     if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_FILE )
                         {

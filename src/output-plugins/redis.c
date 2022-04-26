@@ -140,7 +140,7 @@ void Redis_Connect( void )
                 {
 
                     Remove_Lock_File();
-		    freeReplyObject(reply);
+                    freeReplyObject(reply);
 
                     Meer_Log(ERROR, "Authentication failure for 'reader' to to Redis server at %s:%d. Abort!", MeerOutput->redis_server, MeerOutput->redis_port );
 
@@ -189,10 +189,10 @@ void Redis_Reader ( char *redis_command, char *str, size_t size )
                     str[0] = '\0';
                 }
 
-    	/* Got good response, free here.  If we don't get a good response
-           and free, we'll get a fault. */
+            /* Got good response, free here.  If we don't get a good response
+               and free, we'll get a fault. */
 
-	freeReplyObject(reply);	
+            freeReplyObject(reply);
 
         }
     else
@@ -243,15 +243,15 @@ bool Redis_Writer ( char *command, char *key, char *value, int expire )
 
             if ( strcmp(reply->str, "OK") )
                 {
-		    freeReplyObject(reply);
+                    freeReplyObject(reply);
                     Meer_Log(ERROR, "Got something other than 'OK' from server (%s).  Abort!", reply->str);
                 }
 
-	freeReplyObject(reply);
+            freeReplyObject(reply);
 
         }
 
-    
+
     return(true);
 }
 

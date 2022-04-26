@@ -42,7 +42,7 @@ extern struct _MeerCounters *MeerCounters;
 void Get_DNS( struct json_object *json_obj, const char *json_string, char *str )
 {
 
-    struct json_object *json_obj_new = NULL; 
+    struct json_object *json_obj_new = NULL;
     struct json_object *tmp = NULL;
 
     char src_ip[64] = { 0 };
@@ -54,11 +54,11 @@ void Get_DNS( struct json_object *json_obj, const char *json_string, char *str )
     json_obj_new = json_tokener_parse(json_string);
 
     if ( json_obj_new == NULL )
-        {   
+        {
             Meer_Log(WARN, "Unable t json_tokener_parse: %s", json_string);
-	    snprintf(str, MeerConfig->payload_buffer_size, "%s", json_string);
-	    str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
-            return;	
+            snprintf(str, MeerConfig->payload_buffer_size, "%s", json_string);
+            str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
+            return;
         }
 
     json_object_object_get_ex(json_obj, "src_ip", &tmp);
@@ -83,9 +83,9 @@ void Get_DNS( struct json_object *json_obj, const char *json_string, char *str )
             json_object_object_add(json_obj_new,"dest_dns", jdest_dns);
         }
 
-      snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj_new) );
+    snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj_new) );
 
-       json_object_put(json_obj_new);
+    json_object_put(json_obj_new);
 
 }
 

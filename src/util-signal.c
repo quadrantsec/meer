@@ -49,6 +49,13 @@ extern char *big_batch_THREAD;
 #include <output-plugins/redis.h>
 #endif
 
+#ifdef WITH_BLUEDOT
+#include <output-plugins/bluedot.h>
+#include <curl/curl.h>
+extern CURL *curl;
+#endif
+
+
 extern struct _MeerWaldo *MeerWaldo;
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerOutput *MeerOutput;
@@ -118,6 +125,14 @@ void Signal_Handler(int sig_num)
 
                 }
 
+#endif
+
+#ifdef WITH_BLUEDOT
+
+            if ( MeerOutput->bluedot_flag == true )
+                {
+                    curl_global_cleanup();
+                }
 #endif
 
             if ( MeerOutput->file_enabled == true )

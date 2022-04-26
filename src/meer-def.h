@@ -88,3 +88,7 @@
 #define         FINGERPRINT_IP_REDIS_EXPIRE             86400
 #define		FINGERPRINT_EVENT_REDIS_EXPIRE		86400
 
+#define 	MEER_USER_AGENT 			"User-Agent: Meer"
+#define 	MEER_BLUEDOT_SOURCE			"Meer"
+
+

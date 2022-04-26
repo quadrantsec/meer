@@ -357,7 +357,7 @@ bool Decode_JSON( char *json_string )
     if ( MeerConfig->dns == true && Is_DNS_Event_Type( event_type ) == true )
         {
             Get_DNS( json_obj, json_string, new_json_string );
-	    json_string = new_json_string;
+            json_string = new_json_string;
         }
 
     /* Add OUI / Mac data */
@@ -418,10 +418,10 @@ bool Decode_JSON( char *json_string )
 
 #ifdef WITH_BLUEDOT
 
-   if ( MeerOutput->bluedot_flag = true && !strcmp( event_type, "alert" ) )
-   	{
-	Output_Bluedot( json_string );
-	}
+    if ( MeerOutput->bluedot_flag = true && !strcmp( event_type, "alert" ) )
+        {
+            Output_Bluedot( json_obj );
+        }
 
 #endif
 

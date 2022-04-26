@@ -149,9 +149,8 @@ struct _MeerOutput
 
     bool bluedot_flag;
     bool bluedot_debug;
-    char bluedot_host[128];
-    char bluedot_ip[64];
-    char bluedot_uri[512];
+    char bluedot_url[8192];
+    bool bluedot_insecure;
     char bluedot_source[128];
 
 #endif

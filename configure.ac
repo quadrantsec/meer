@@ -244,6 +244,9 @@ if test "$TCMALLOC" = "yes"; then
 
 if test "$BLUEDOT" = "yes"; then
         AC_MSG_RESULT([------- Bluedot Support is enabled -------])
+        AC_CHECK_LIB(curl, main,,AC_MSG_ERROR(The libcurl library cannot be found.
+This library is used for Meer's Bluedot output support. To disable this feature use the --disable-bluedot flag. ))
+        AC_CHECK_HEADER([curl/curl.h])
 	AC_DEFINE(WITH_BLUEDOT, 1, With Bluedot)
         fi
 
