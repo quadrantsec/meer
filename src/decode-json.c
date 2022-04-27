@@ -73,8 +73,6 @@ bool Decode_JSON( char *json_string )
     struct json_object *json_obj = NULL;
     struct json_object *tmp = NULL;
 
-    bool fingerprint_return = false;
-
     char event_type[32] = { 0 };
     char flow_id[32] = { 0 };
     char src_ip[64] = { 0 };
@@ -418,7 +416,7 @@ bool Decode_JSON( char *json_string )
 
 #ifdef WITH_BLUEDOT
 
-    if ( MeerOutput->bluedot_flag = true && !strcmp( event_type, "alert" ) )
+    if ( ( MeerOutput->bluedot_flag = true && !strcmp( event_type, "alert" ) ) )
         {
             Output_Bluedot( json_obj );
         }

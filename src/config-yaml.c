@@ -232,25 +232,25 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "pipe") )
                                 {
                                     sub_type = YAML_MEER_PIPE;
-                                    routing == false;
+                                    routing = false;
                                 }
 
                             if ( !strcmp(value, "external") )
                                 {
                                     sub_type = YAML_MEER_EXTERNAL;
-                                    routing == false;
+                                    routing = false;
                                 }
 
                             if ( !strcmp(value, "redis") )
                                 {
                                     sub_type = YAML_MEER_REDIS;
-                                    routing == false;
+                                    routing = false;
                                 }
 
                             if ( !strcmp(value, "file") )
                                 {
                                     sub_type = YAML_MEER_FILE;
-                                    routing == false;
+                                    routing = false;
                                 }
 
 #ifdef WITH_BLUEDOT
@@ -258,7 +258,7 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "bluedot") )
                                 {
                                     sub_type = YAML_MEER_BLUEDOT;
-                                    routing == false;
+                                    routing = false;
                                 }
 
 #endif
@@ -266,7 +266,7 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "elasticsearch") )
                                 {
                                     sub_type = YAML_MEER_ELASTICSEARCH;
-                                    routing == false;
+                                    routing = false;
                                 }
 
                         }

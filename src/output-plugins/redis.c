@@ -91,7 +91,7 @@ void Redis_Connect( void )
 {
 
 
-    redisReply *reply;
+    redisReply *reply = NULL;
     MeerOutput->c_redis = NULL;
 
     while ( MeerOutput->c_redis == NULL || MeerOutput->c_redis->err )
