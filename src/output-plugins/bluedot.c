@@ -77,6 +77,11 @@ void Bluedot_Init( void )
     if ( MeerOutput->bluedot_debug == true )
         {
             curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
+            curl_easy_setopt(curl, CURLOPT_NOBODY, 0);   /* Show output for debigging */
+        }
+    else
+        {
+            curl_easy_setopt(curl, CURLOPT_NOBODY, 1);  /* Throw away output */
         }
 
 
@@ -84,7 +89,6 @@ void Bluedot_Init( void )
 
     headers = curl_slist_append (headers, MEER_USER_AGENT);
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
 
 }
 
@@ -117,6 +121,12 @@ void Bluedot ( const char *metadata, struct json_object *json_obj )
         {
             bluedot = (char *)json_object_get_string(tmp);
 
+            if ( bluedot == NULL )
+                {
+                    json_object_put(json_obj_metadata);
+                    return;
+                }
+
             if ( strstr( bluedot, "by_source" ) )
                 {
                     json_object_object_get_ex(json_obj, "src_ip", &tmp);
@@ -147,7 +157,6 @@ void Bluedot ( const char *metadata, struct json_object *json_obj )
         {
             Meer_Log(WARN, "No 'alert' data found!");
             json_object_put(json_obj_metadata);
-//	    json_object_put(json_obj_alert);
             return;
         }
 
@@ -212,9 +221,9 @@ void Bluedot ( const char *metadata, struct json_object *json_obj )
     res = curl_easy_perform(curl);
 
     if(res != CURLE_OK)
-    {
-        Meer_Log(WARN, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-    }
+        {
+            Meer_Log(WARN, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        }
 
     json_object_put(json_obj_metadata);
     json_object_put(json_obj_alert);

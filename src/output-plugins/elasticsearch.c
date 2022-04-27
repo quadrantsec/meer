@@ -370,7 +370,6 @@ void Elasticsearch( void )
 
                                     Meer_Log(WARN, "[%s, line %d] Failure inserting into Elasticsearch! Result codes: %s", __FILE__, __LINE__, chunk.memory);
 
-//				      printf("-> %s\n", json_object_get_string(json_tmp));
                                 }
 
                         }
