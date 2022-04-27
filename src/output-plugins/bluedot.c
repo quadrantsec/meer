@@ -175,20 +175,6 @@ void Bluedot ( const char *metadata, struct json_object *json_obj )
 
     IP2Bit( ip, ip_convert );
 
-    /* Is the IP address "routable?" */
-
-    if ( Is_Notroutable(ip_convert) )
-        {
-
-            if ( MeerOutput->bluedot_debug == true )
-                {
-                    Meer_Log(DEBUG, "[%s, line %d] %s is RFC1918, link local or invalid.", __FILE__, __LINE__, ip);
-                }
-
-            json_object_put(json_obj_metadata);
-            return;
-        }
-
     /* Is the IP within the "skip_networks"?  Is so,  skip it! */
 
     for ( i = 0; i < MeerCounters->bluedot_skip_count; i++ )
