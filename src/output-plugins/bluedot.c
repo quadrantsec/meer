@@ -56,39 +56,39 @@ extern struct _MeerCounters *MeerCounters;
 extern struct _Bluedot_Skip *Bluedot_Skip;
 
 
-CURL *curl;
+CURL *curl_bluedot;
 struct curl_slist *headers = NULL;
 
 void Bluedot_Init( void )
 {
 
     curl_global_init(CURL_GLOBAL_ALL);
-    curl = curl_easy_init();
+    curl_bluedot = curl_easy_init();
 
     if ( MeerOutput->bluedot_insecure == true )
         {
 
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, false);
-            curl_easy_setopt(curl, CURLOPT_SSL_VERIFYSTATUS, false);
+            curl_easy_setopt(curl_bluedot, CURLOPT_SSL_VERIFYPEER, false);
+            curl_easy_setopt(curl_bluedot, CURLOPT_SSL_VERIFYHOST, false);
+            curl_easy_setopt(curl_bluedot, CURLOPT_SSL_VERIFYSTATUS, false);
 
         }
 
     if ( MeerOutput->bluedot_debug == true )
         {
-            curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
-            curl_easy_setopt(curl, CURLOPT_NOBODY, 0);   /* Show output for debigging */
+            curl_easy_setopt(curl_bluedot, CURLOPT_VERBOSE, 1);
+            curl_easy_setopt(curl_bluedot, CURLOPT_NOBODY, 0);   /* Show output for debigging */
         }
     else
         {
-            curl_easy_setopt(curl, CURLOPT_NOBODY, 1);  /* Throw away output */
+            curl_easy_setopt(curl_bluedot, CURLOPT_NOBODY, 1);  /* Throw away output */
         }
 
 
-    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);    /* Will send SIGALRM if not set */
+    curl_easy_setopt(curl_bluedot, CURLOPT_NOSIGNAL, 1);    /* Will send SIGALRM if not set */
 
     headers = curl_slist_append (headers, MEER_USER_AGENT);
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl_bluedot, CURLOPT_HTTPHEADER, headers);
 
 }
 
@@ -196,15 +196,15 @@ void Bluedot ( const char *metadata, struct json_object *json_obj )
 
     /* We need to encode some data */
 
-    comments_encoded = curl_easy_escape(curl, signature, strlen(signature));
-    source_encoded = curl_easy_escape(curl, MeerOutput->bluedot_source, strlen(MeerOutput->bluedot_source));
+    comments_encoded = curl_easy_escape(curl_bluedot, signature, strlen(signature));
+    source_encoded = curl_easy_escape(curl_bluedot, MeerOutput->bluedot_source, strlen(MeerOutput->bluedot_source));
 
     snprintf(buff, sizeof(buff), "%s&ip=%s&code=4&comments=%s&source=%s", MeerOutput->bluedot_url,ip, comments_encoded, source_encoded);
 
     buff[ sizeof(buff) - 1 ] = '\0';
 
-    curl_easy_setopt(curl, CURLOPT_URL, buff);
-    res = curl_easy_perform(curl);
+    curl_easy_setopt(curl_bluedot, CURLOPT_URL, buff);
+    res = curl_easy_perform(curl_bluedot);
 
     if(res != CURLE_OK)
         {

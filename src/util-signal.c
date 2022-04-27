@@ -55,7 +55,7 @@ extern char *big_batch_THREAD;
 
 #ifdef WITH_BLUEDOT
 #include <output-plugins/bluedot.h>
-extern CURL *curl;
+extern CURL *curl_bluedot;
 #endif
 
 extern struct _MeerWaldo *MeerWaldo;
@@ -114,8 +114,6 @@ void Signal_Handler(int sig_num)
 
                             elasticsearch_death_count++;
 
-                            curl_global_cleanup();
-
                         }
 
                     if ( elastic_proc_running == 0 )
@@ -124,17 +122,31 @@ void Signal_Handler(int sig_num)
                             free( big_batch_THREAD);
                         }
 
-
                 }
 
 #endif
+
+            /* Some gymnastics to cleanup libcurl */
+
+#if defined(WITH_BLUEDOT) || defined(WITH_ELASTICSEARCH)
+
+            bool clean_up = false;
 
 #ifdef WITH_BLUEDOT
 
             if ( MeerOutput->bluedot_flag == true )
                 {
                     curl_global_cleanup();
+                    clean_up = true;
                 }
+
+#endif
+
+            if ( MeerOutput->elasticsearch_enabled == true && clean_up == false )
+                {
+                    curl_global_cleanup();
+                }
+
 #endif
 
             if ( MeerOutput->file_enabled == true )

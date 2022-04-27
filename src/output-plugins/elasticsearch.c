@@ -47,8 +47,6 @@ extern struct _MeerOutput *MeerOutput;
 
 extern bool elasticsearch_death;
 
-CURL *curl;
-
 /* Globals for Elasticsearch threads */
 
 uint16_t elasticsearch_batch_count = 0;
