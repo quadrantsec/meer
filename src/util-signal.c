@@ -142,10 +142,13 @@ void Signal_Handler(int sig_num)
 
 #endif
 
+#ifdef WITH_ELASTICSEARCH
+
             if ( MeerOutput->elasticsearch_enabled == true && clean_up == false )
                 {
                     curl_global_cleanup();
                 }
+#endif
 
 #endif
 
