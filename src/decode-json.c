@@ -109,7 +109,7 @@ bool Decode_JSON( char *json_string )
     if ( json_obj == NULL )
         {
             MeerCounters->bad++;
-            Meer_Log(WARN, "Unable t json_tokener_parse: %s", json_string);
+            Meer_Log(WARN, "[%s, line %d] Unable t json_tokener_parse: %s", __FILE__, __LINE__, json_string);
             json_object_put(json_obj);
             free(new_json_string);
             return(false);
@@ -354,7 +354,7 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->dns == true && Is_DNS_Event_Type( event_type ) == true )
         {
-            Get_DNS( json_obj, json_string, new_json_string );
+            Get_DNS( json_obj, new_json_string );
             json_string = new_json_string;
         }
 

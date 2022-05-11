@@ -39,10 +39,10 @@ extern struct _MeerCounters *MeerCounters;
 /* Get_DNS() - looks up and adds DNS PTR records to a JSON object */
 /******************************************************************/
 
-void Get_DNS( struct json_object *json_obj, const char *json_string, char *str )
+void Get_DNS( struct json_object *json_obj, char *str )
 {
 
-    struct json_object *json_obj_new = NULL;
+//    struct json_object *json_obj_new = NULL;
     struct json_object *tmp = NULL;
 
     char src_ip[64] = { 0 };
@@ -51,15 +51,15 @@ void Get_DNS( struct json_object *json_obj, const char *json_string, char *str )
     char src_dns[256] = { 0 };
     char dest_dns[256] = { 0 };
 
-    json_obj_new = json_tokener_parse(json_string);
+//    json_obj_new = json_tokener_parse(json_string);
 
-    if ( json_obj_new == NULL )
-        {
-            Meer_Log(WARN, "Unable t json_tokener_parse: %s", json_string);
-            snprintf(str, MeerConfig->payload_buffer_size, "%s", json_string);
-            str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
-            return;
-        }
+//    if ( json_obj_new == NULL )
+//        {
+//            Meer_Log(WARN, "Unable t json_tokener_parse: %s", json_string);
+//            snprintf(str, MeerConfig->payload_buffer_size, "%s", json_string);
+//            str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
+//            return;
+//        }
 
     json_object_object_get_ex(json_obj, "src_ip", &tmp);
     strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
@@ -72,7 +72,7 @@ void Get_DNS( struct json_object *json_obj, const char *json_string, char *str )
     if ( src_dns[0] != '\0' )
         {
             json_object *jsrc_dns = json_object_new_string(src_dns);
-            json_object_object_add(json_obj_new,"src_dns", jsrc_dns);
+            json_object_object_add(json_obj,"src_dns", jsrc_dns);
         }
 
     DNS_Lookup_Reverse( dest_ip, dest_dns, sizeof( dest_dns ) );
@@ -80,12 +80,12 @@ void Get_DNS( struct json_object *json_obj, const char *json_string, char *str )
     if ( dest_dns[0] != '\0' )
         {
             json_object *jdest_dns = json_object_new_string(dest_dns);
-            json_object_object_add(json_obj_new,"dest_dns", jdest_dns);
+            json_object_object_add(json_obj,"dest_dns", jdest_dns);
         }
 
-    snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj_new) );
+    snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj) );
 
-    json_object_put(json_obj_new);
+//    json_object_put(json_obj_new);
 
 }
 

@@ -18,6 +18,6 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-void Get_DNS( struct json_object *json_obj, const char *json_string, char *str );
+void Get_DNS( struct json_object *json_obj, char *str );
 bool Is_DNS_Event_Type( const char *event_type );
 
