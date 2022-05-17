@@ -414,8 +414,6 @@ bool Fingerprint_JSON_Event_Redis( struct json_object *json_obj, char *str, size
 bool Is_Fingerprint( struct json_object *json_obj )
 {
 
-    printf("DEBUG: IN Is_Fingerprint\n");
-
     struct json_object *tmp = NULL;
     struct json_object *json_obj_alert= NULL;
     struct json_object *json_obj_metadata= NULL;
@@ -425,8 +423,6 @@ bool Is_Fingerprint( struct json_object *json_obj )
 
     if ( json_object_object_get_ex(json_obj, "alert", &tmp) )
         {
-
-	    printf("IS ALERT\n");
 
             alert_data = json_object_get_string(tmp);
 
