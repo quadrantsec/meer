@@ -22,7 +22,6 @@
 #include "config.h"             /* From autoconf */
 #endif
 
-
 #include <json-c/json.h>
 
 #include <stdio.h>
@@ -42,7 +41,6 @@ extern struct _MeerCounters *MeerCounters;
 void Get_DNS( struct json_object *json_obj, char *str )
 {
 
-//    struct json_object *json_obj_new = NULL;
     struct json_object *tmp = NULL;
 
     char src_ip[64] = { 0 };
@@ -50,16 +48,6 @@ void Get_DNS( struct json_object *json_obj, char *str )
 
     char src_dns[256] = { 0 };
     char dest_dns[256] = { 0 };
-
-//    json_obj_new = json_tokener_parse(json_string);
-
-//    if ( json_obj_new == NULL )
-//        {
-//            Meer_Log(WARN, "Unable t json_tokener_parse: %s", json_string);
-//            snprintf(str, MeerConfig->payload_buffer_size, "%s", json_string);
-//            str[ MeerConfig->payload_buffer_size - 1 ] = '\0';
-//            return;
-//        }
 
     json_object_object_get_ex(json_obj, "src_ip", &tmp);
     strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
@@ -84,8 +72,6 @@ void Get_DNS( struct json_object *json_obj, char *str )
         }
 
     snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj) );
-
-//    json_object_put(json_obj_new);
 
 }
 
