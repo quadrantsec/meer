@@ -211,6 +211,14 @@ int main (int argc, char *argv[])
     Meer_Log(NORMAL, "- Fingerprint writer   : %s", MeerConfig->fingerprint_writer ? "enabled" : "disabled" );
     Meer_Log(NORMAL, "");
 
+    if ( MeerConfig->calculate_stats == true )
+        {
+
+            Meer_Log(NORMAL, "Calculate stats              : %s", MeerConfig->calculate_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "- Calculate stats store file : %s", MeerConfig->calculate_stats_store );
+            Meer_Log(NORMAL, "");
+        }
+
 #ifdef HAVE_LIBMAXMINDDB
 
     Meer_Log(NORMAL, "GeoIP support          : %s", MeerConfig->geoip ? "enabled" : "disabled" );

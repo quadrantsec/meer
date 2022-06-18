@@ -26,6 +26,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      usage.c \
 							      oui.c \
 							      geoip.c \
+							      calculate-stats.c \
 							      decode-json.c \
 							      decode-output-json-client-stats.c \
 							      output-plugins/pipe.c \

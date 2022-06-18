@@ -84,6 +84,10 @@ struct _MeerConfig
     char dns_lookup_types[DNS_MAX_TYPES][DNS_MAX_TYPES_LEN];
     uint8_t dns_lookup_types_count;
 
+    bool calculate_stats;
+    char calculate_stats_store[256];
+    int calc_stats_fd;
+
     bool oui;
     char oui_filename[256];
 
@@ -310,7 +314,22 @@ struct _MeerOutput
 typedef struct _MeerWaldo _MeerWaldo;
 struct _MeerWaldo
 {
+
     uint64_t position;
+
+    uint64_t old_kernel_packets;
+    uint64_t old_kernel_drops;
+    uint64_t old_errors;
+
+    uint64_t old_pkts;
+    uint64_t old_bytes;
+    uint64_t old_invalid;
+    uint64_t old_ipv4;
+    uint64_t old_ipv6;
+    uint64_t old_tcp;
+    uint64_t old_udp;
+
+
 };
 
 /* Counters */

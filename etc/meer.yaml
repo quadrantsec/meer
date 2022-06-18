@@ -48,6 +48,25 @@ meer-core:
     #follow-eve: "/var/log/sagan/alert.json"   
 
     #########################################################################
+    # calculate-stats
+    #
+    # When Suricata event_type "stats" is collected,  the data is the 
+    # accumulation over the run time (ie - 1000,2000,3000,4000).  While this
+    # works well with tools like RRTool and LibreNMS,  it doesn't work well 
+    # if you want to extract data from specific time ranges.  When this option
+    # is enabled,  a new key/value pair of "caclulated" is add to the event
+    # type of "stats".  This is the amount of data _between_ stats recordings
+    # (ie - 1000,1000,1000,1000).  This can be useful when creating visulations
+    # of data around certain time ranges.  The new key/value pair "calculated"
+    # only performs the math on the follow:
+    #
+    # kernel_packets, kernel_drops, errors, pkts, bytes, invalid, ipv4, 
+    # ipv6, tcp and udp. 
+    #########################################################################
+
+    calculate-stats: false
+
+    #########################################################################
     # fingerprint
     #
     # This enables the "fingerprint" option.  When used in conjunction with the 
@@ -62,10 +81,10 @@ meer-core:
     fingerprint_networks: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
 
     fingerprint_reader: enabled		# This option appends "fingerprint"
-   					# data to "alert". 
+                                        # data to "alert". 
 
     fingerprint_writer: enabled		# This option detects "fingerprint" 
-    					# alerts and writes them to Redis.
+                                        # alerts and writes them to Redis.
 
     #########################################################################
     # client_stats

@@ -51,6 +51,8 @@ libjson-c is required for Meer to function!
 #include "get-dns.h"
 #include "get-oui.h"
 #include "counters.h"
+#include "calculate-stats.h"
+
 
 #ifdef HAVE_LIBMAXMINDDB
 #include "get-geoip.h"
@@ -272,6 +274,20 @@ bool Decode_JSON( char *json_string )
                 }
 
         } /* End of validation and exclusion */
+
+
+    /* if "caclulate_stats" is true,  we want to do add some keys and do some math! */
+
+    if ( !strcmp(event_type, "stats" ) )
+        {
+
+            if ( MeerConfig->calculate_stats == true )
+                {
+                    Calculate_Stats( json_obj, new_json_string );
+                    json_string = new_json_string;
+                }
+
+        }
 
 #ifdef HAVE_LIBHIREDIS
 

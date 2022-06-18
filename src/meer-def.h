@@ -54,7 +54,7 @@
 #define DNS_MAX_TYPES		20
 #define DNS_MAX_TYPES_LEN	16
 
-#define PACKET_BUFFER_SIZE_DEFAULT 1048576		/* Any larger seems to cause problems without malloc */
+#define PACKET_BUFFER_SIZE_DEFAULT 1048576
 
 #define SQL_RECONNECT_TIME 10
 
