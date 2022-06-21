@@ -377,16 +377,6 @@ void Load_YAML_Config( char *yaml_file )
 
 #ifndef HAVE_LIBMAXMINDDB
 
-                            else if ( !strcmp(last_pass, "calculate-stats" ))
-                                {
-
-                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
-                                        {
-                                            MeerConfig->calculate_stats = true;
-                                        }
-
-                                }
-
                             else if ( !strcmp(last_pass, "geoip" ))
                                 {
 
@@ -418,6 +408,16 @@ void Load_YAML_Config( char *yaml_file )
 
 
 #endif
+
+                            else if ( !strcmp(last_pass, "calculate-stats" ))
+                                {
+
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerConfig->calculate_stats = true;
+                                        }
+
+                                }
 
                             else if ( !strcmp(last_pass, "oui_lookup" ))
                                 {
