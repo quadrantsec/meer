@@ -437,8 +437,6 @@ bool Is_Fingerprint( struct json_object *json_obj )
             if ( json_object_object_get_ex(json_obj_alert, "metadata", &tmp) )
                 {
 
-                    printf("Got alert.Metadata\n");
-
                     metadata = json_object_get_string(tmp);
                     json_obj_metadata = json_tokener_parse(metadata);
 
