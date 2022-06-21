@@ -215,7 +215,6 @@ int main (int argc, char *argv[])
         {
 
             Meer_Log(NORMAL, "Calculate stats              : %s", MeerConfig->calculate_stats ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "- Calculate stats store file : %s", MeerConfig->calculate_stats_store );
             Meer_Log(NORMAL, "");
         }
 

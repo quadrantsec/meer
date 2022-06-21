@@ -85,8 +85,6 @@ struct _MeerConfig
     uint8_t dns_lookup_types_count;
 
     bool calculate_stats;
-    char calculate_stats_store[256];
-    int calc_stats_fd;
 
     bool oui;
     char oui_filename[256];

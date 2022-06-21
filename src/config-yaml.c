@@ -387,13 +387,6 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            else if ( !strcmp(last_pass, "calculate-stats-store" ) )
-                                {
-
-                                    strlcpy(MeerConfig->calculate_stats_store, value, sizeof(MeerConfig->calculate_stats_store) );
-                                }
-
-
                             else if ( !strcmp(last_pass, "geoip" ))
                                 {
 
@@ -1811,11 +1804,6 @@ void Load_YAML_Config( char *yaml_file )
         }
 
     /* Sanity check on core configurations */
-
-    if ( MeerConfig->calculate_stats == true && MeerConfig->calculate_stats_store[0] == '\0' )
-        {
-            Meer_Log(ERROR, "Configuration incomplete. 'calculate_stats' is enabled but no 'calculate_stats_store' file specified");
-        }
 
     if ( MeerConfig->interface[0] == '\0' )
         {

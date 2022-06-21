@@ -58,17 +58,16 @@ void Calculate_Stats( struct json_object *json_obj, char *str )
     char *capture = NULL;
     char *decoder = NULL;
 
-    int64_t kernel_packets = 0;
-    int64_t kernel_drops = 0;
-    int64_t errors = 0;
+    uint64_t kernel_packets = 0;
+    uint64_t kernel_drops = 0;
+    uint64_t errors = 0;
 
-    int64_t pkts = 0;
-    int64_t bytes = 0;
-    int64_t invalid = 0;
-    int64_t ipv4 = 0;
-    int64_t ipv6 = 0;
-    int64_t tcp = 0;
-    int64_t udp = 0;
+    uint64_t bytes = 0;
+    uint64_t invalid = 0;
+    uint64_t ipv4 = 0;
+    uint64_t ipv6 = 0;
+    uint64_t tcp = 0;
+    uint64_t udp = 0;
 
     struct json_object *tmp = NULL;
     struct json_object *json_obj_stats = NULL;
@@ -205,25 +204,6 @@ void Calculate_Stats( struct json_object *json_obj, char *str )
 
     json_obj_decoder = json_tokener_parse(decoder);
 
-    if (json_object_object_get_ex(json_obj_decoder, "pkts", &tmp))
-        {
-            pkts = json_object_get_int64(tmp);
-        }
-    else
-        {
-            Meer_Log(WARN, "Got an event_type of 'decoder' without a 'pkts' key/value!");
-
-            free(fjson);
-            free(new_json_string);
-
-            json_object_put(json_obj_stats);
-            json_object_put(json_obj_kernel);
-            json_object_put(json_obj_decoder);
-            json_object_put(json_obj_calculated);
-
-            return;
-        }
-
     if (json_object_object_get_ex(json_obj_decoder, "bytes", &tmp))
         {
             bytes = json_object_get_int64(tmp);
@@ -342,68 +322,62 @@ void Calculate_Stats( struct json_object *json_obj, char *str )
         {
 
             json_object *jkernel_packets = json_object_new_int64( kernel_packets - MeerWaldo->old_kernel_packets );
-            json_object_object_add(json_obj_calculated,"kernel_packets", jkernel_packets);
+            json_object_object_add(json_obj_calculated,"stats_capture_kernel_packets", jkernel_packets);
 
             json_object *jkernel_drops = json_object_new_int64( kernel_drops - MeerWaldo->old_kernel_drops );
-            json_object_object_add(json_obj_calculated,"kernel_drops", jkernel_drops);
+            json_object_object_add(json_obj_calculated,"stats_capture_kernel_drops", jkernel_drops);
 
             json_object *jerrors = json_object_new_int64( errors - MeerWaldo->old_errors );
-            json_object_object_add(json_obj_calculated,"errors", jerrors);
-
-            json_object *jpkts = json_object_new_int64( pkts - MeerWaldo->old_pkts );
-            json_object_object_add(json_obj_calculated,"pkts", jpkts);
+            json_object_object_add(json_obj_calculated,"stats_capture_errors", jerrors);
 
             json_object *jbytes = json_object_new_int64( bytes - MeerWaldo->old_bytes );
-            json_object_object_add(json_obj_calculated,"bytes", jbytes);
+            json_object_object_add(json_obj_calculated,"stats_decoder_bytes", jbytes);
 
             json_object *jinvalid = json_object_new_int64( invalid - MeerWaldo->old_invalid );
-            json_object_object_add(json_obj_calculated,"invalid", jinvalid);
+            json_object_object_add(json_obj_calculated,"stats_decoder_invalid", jinvalid);
 
             json_object *jipv4 = json_object_new_int64( ipv4 - MeerWaldo->old_ipv4 );
-            json_object_object_add(json_obj_calculated,"ipv4", jipv4);
+            json_object_object_add(json_obj_calculated,"stats_decoder_ipv4", jipv4);
 
             json_object *jipv6 = json_object_new_int64( ipv6 - MeerWaldo->old_ipv6 );
-            json_object_object_add(json_obj_calculated,"ipv6", jipv6);
+            json_object_object_add(json_obj_calculated,"stats_decoder_ipv6", jipv6);
 
             json_object *jtcp = json_object_new_int64( tcp - MeerWaldo->old_tcp );
-            json_object_object_add(json_obj_calculated,"tcp", jtcp);
+            json_object_object_add(json_obj_calculated,"stats_decoder_tcp", jtcp);
 
             json_object *judp = json_object_new_int64( udp - MeerWaldo->old_udp );
-            json_object_object_add(json_obj_calculated,"udp", judp);
+            json_object_object_add(json_obj_calculated,"stats_decoder_udp", judp);
 
         }
     else
         {
 
             json_object *jkernel_packets = json_object_new_int64( kernel_packets );
-            json_object_object_add(json_obj_calculated,"kernel_packets", jkernel_packets);
+            json_object_object_add(json_obj_calculated,"stats_capture_kernel_packets", jkernel_packets);
 
             json_object *jkernel_drops = json_object_new_int64( kernel_drops );
-            json_object_object_add(json_obj_calculated,"kernel_drops", jkernel_drops);
+            json_object_object_add(json_obj_calculated,"stats_capture_kernel_drops", jkernel_drops);
 
             json_object *jerrors = json_object_new_int64( errors );
-            json_object_object_add(json_obj_calculated,"errors", jerrors);
-
-            json_object *jpkts = json_object_new_int64( pkts - MeerWaldo->old_pkts );
-            json_object_object_add(json_obj_calculated,"pkts", jpkts);
+            json_object_object_add(json_obj_calculated,"stats_capture_errors", jerrors);
 
             json_object *jbytes = json_object_new_int64( bytes );
-            json_object_object_add(json_obj_calculated,"bytes", jbytes);
+            json_object_object_add(json_obj_calculated,"stats_decoder_bytes", jbytes);
 
             json_object *jinvalid = json_object_new_int64( invalid );
-            json_object_object_add(json_obj_calculated,"invalid", jinvalid);
+            json_object_object_add(json_obj_calculated,"stats_decoder_invalid", jinvalid);
 
             json_object *jipv4 = json_object_new_int64( ipv4 );
-            json_object_object_add(json_obj_calculated,"ipv4", jipv4);
+            json_object_object_add(json_obj_calculated,"stats_decoder_ipv4", jipv4);
 
             json_object *jipv6 = json_object_new_int64( ipv6 );
-            json_object_object_add(json_obj_calculated,"ipv6", jipv6);
+            json_object_object_add(json_obj_calculated,"stats_decoder_ipv6", jipv6);
 
             json_object *jtcp = json_object_new_int64( tcp );
-            json_object_object_add(json_obj_calculated,"tcp", jtcp);
+            json_object_object_add(json_obj_calculated,"stats_decoder_tcp", jtcp);
 
             json_object *judp = json_object_new_int64( udp );
-            json_object_object_add(json_obj_calculated,"udp", judp);
+            json_object_object_add(json_obj_calculated,"stats_decoder_udp", judp);
 
         }
 
@@ -421,7 +395,6 @@ void Calculate_Stats( struct json_object *json_obj, char *str )
     MeerWaldo->old_kernel_packets = kernel_packets;
     MeerWaldo->old_kernel_drops = kernel_drops;
     MeerWaldo->old_errors = errors;
-    MeerWaldo->old_pkts = pkts;
     MeerWaldo->old_bytes = bytes;
     MeerWaldo->old_invalid = invalid;
     MeerWaldo->old_ipv4 = ipv4;
