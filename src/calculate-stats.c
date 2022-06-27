@@ -19,9 +19,9 @@
 */
 
 /* caclulate-stats.c - Suricata only accumulates stat entries.  This is fine
-   for tools like RRDTool and LibreNMS but it doesn't work well if you want 
+   for tools like RRDTool and LibreNMS but it doesn't work well if you want
    to pull data for specific dates.  This code leaves the "stats" in tact and
-   creates a new "calculated" key/value which is the sum totals in between 
+   creates a new "calculated" key/value which is the sum totals in between
    times! */
 
 #ifdef HAVE_CONFIG_H

@@ -35,6 +35,7 @@
 #include "config-yaml.h"
 #include "lockfile.h"
 #include "stats.h"
+#include "waldo.h"
 
 #if defined(WITH_BLUEDOT) || defined(WITH_ELASTICSEARCH)
 #include <curl/curl.h>
@@ -159,12 +160,15 @@ void Signal_Handler(int sig_num)
                 }
 
 
+
             Remove_Lock_File();
 
             Statistics();
 
             fsync(MeerConfig->waldo_fd);
             close(MeerConfig->waldo_fd);
+
+            Waldo_Close();
 
             Meer_Log(NORMAL, "Shutdown complete.");
 

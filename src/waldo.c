@@ -39,6 +39,19 @@
 extern struct _MeerWaldo *MeerWaldo;
 extern struct _MeerConfig *MeerConfig;
 
+void Waldo_Sync( void )
+{
+    msync(MeerWaldo, sizeof(_MeerWaldo), MS_ASYNC);
+}
+
+void Waldo_Close( void )
+{
+
+    Waldo_Sync();
+    munmap(MeerWaldo, sizeof(_MeerWaldo));
+
+}
+
 void Init_Waldo( void )
 {
 

@@ -43,6 +43,7 @@
 #include <getopt.h>
 #include <fcntl.h>
 #include <sys/wait.h>
+#include <sys/mman.h>
 
 #include "meer-def.h"
 #include "meer.h"
@@ -214,7 +215,7 @@ int main (int argc, char *argv[])
     if ( MeerConfig->calculate_stats == true )
         {
 
-            Meer_Log(NORMAL, "Calculate stats              : %s", MeerConfig->calculate_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Calculate stats        : %s", MeerConfig->calculate_stats ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "");
         }
 
@@ -367,6 +368,7 @@ int main (int argc, char *argv[])
 
                     Meer_Log(WARN, "Spool might have been truncated!  Resetting Waldo to zero and aborting.");
                     MeerWaldo->position = 0;
+                    Waldo_Sync();
                     Signal_Handler(SIGTERM);
 
                 }
@@ -391,6 +393,7 @@ int main (int argc, char *argv[])
                 }
 
             MeerWaldo->position++;
+            Waldo_Sync();
 
         }
 
