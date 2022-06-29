@@ -105,7 +105,6 @@ void Redis_Connect( void )
 
                     if (MeerOutput->c_redis)
                         {
-                            redisFree(MeerOutput->c_redis);
                             Meer_Log(WARN, "[%s, line %d] Redis 'reader' connection error! Sleeping for 2 seconds!", __FILE__, __LINE__);
 
                         }
