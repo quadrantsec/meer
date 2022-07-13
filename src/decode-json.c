@@ -122,6 +122,14 @@ bool Decode_JSON( char *json_string )
     json_object *jdescription  = json_object_new_string( MeerConfig->description );
     json_object_object_add(json_obj,"sensor_description", jdescription );
 
+    /* Let's add our "sensor_type",  if it has been set */
+
+    if ( MeerConfig->sensor_type[0] != '\0' )
+        {
+            json_object *jsensor_type  = json_object_new_string( MeerConfig->sensor_type );
+            json_object_object_add(json_obj,"sensor_type", jsensor_type );
+        }
+
     /* Go ahead and get the "event_type".  All JSON should have one */
 
     if (json_object_object_get_ex(json_obj, "event_type", &tmp))

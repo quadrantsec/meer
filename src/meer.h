@@ -53,6 +53,7 @@ struct _MeerConfig
     char hostname[64];
     char runas[32];
     char description[128];
+    char sensor_type[64];
 
     uint64_t payload_buffer_size;
 

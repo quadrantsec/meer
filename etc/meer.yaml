@@ -24,7 +24,13 @@ meer-core:
 
     description: "My awesome sensor!"   # Description of this sensor.  This 
                                         # will be added to _all_ logs!
-
+                                        
+    type: "PacketAnalysis"              # One line statement to describe the
+                                        # "sensor_type".  This can be used to
+                                        # narrow down events in software like
+                                        # Elasticsearch, etc.  If present, 
+                                        # this field is added to the EVE JSON.
+ 
     payload-buffer-size: 128kb          # This is the max size buffer that can
                                         # be read in/written out.  It should
                                         # match your payload-buffer-size in 

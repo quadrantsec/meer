@@ -91,7 +91,7 @@ void Load_YAML_Config( char *yaml_file )
     MeerConfig->fingerprint_reader = true;
     MeerConfig->fingerprint_writer = true;
 
-    strlcpy(MeerConfig->meer_log, MEER_LOG, sizeof(MeerConfig->meer_log));
+    strlcpy(MeerConfig->meer_log, MEER_LOG, sizeof( MeerConfig->meer_log ));
     strlcpy(MeerConfig->description, MEER_DESC, sizeof( MeerConfig->description ));
 
     MeerConfig->payload_buffer_size = PACKET_BUFFER_SIZE_DEFAULT;
@@ -279,9 +279,14 @@ void Load_YAML_Config( char *yaml_file )
                                     strlcpy(MeerConfig->interface, value, sizeof(MeerConfig->interface));
                                 }
 
-                            if ( !strcmp(last_pass, "description" ))
+                            else if ( !strcmp(last_pass, "description" ))
                                 {
                                     strlcpy(MeerConfig->description, value, sizeof(MeerConfig->description));
+                                }
+
+                            else if ( !strcmp(last_pass, "type" ))
+                                {
+                                    strlcpy(MeerConfig->sensor_type, value, sizeof(MeerConfig->sensor_type));
                                 }
 
                             else if ( !strcmp(last_pass, "hostname" ))
