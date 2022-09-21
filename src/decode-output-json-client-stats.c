@@ -66,6 +66,8 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
     char *cs_ipaddr = NULL;
     char *cs_program = NULL;
     char *cs_message = NULL;
+    char *cs_tag = NULL;
+    char *cs_type = NULL;
 
     /* Encoding structs */
 
@@ -135,6 +137,34 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
             return;
         }
 
+    /* Tag */
+
+    if (json_object_object_get_ex(json_obj, "tag", &tmp))
+        {
+            cs_tag = (char *)json_object_get_string(tmp);
+        }
+
+    if ( cs_tag == NULL )
+        {
+            Meer_Log(WARN, "[%s, line %d] 'tag' appears incomplete or invalid. Abort", __FILE__, __LINE__);
+            json_object_put(encode_json);
+            return;
+        }
+
+    /* client_stats_type ("ip" or "tag") */
+
+    if (json_object_object_get_ex(json_obj, "client_stats_type", &tmp))
+        {
+            cs_type = (char *)json_object_get_string(tmp);
+        }
+
+    if ( cs_type == NULL )
+        {
+            Meer_Log(WARN, "[%s, line %d] 'client_stats_type' appears incomplete or invalid. Abort", __FILE__, __LINE__);
+            json_object_put(encode_json);
+            return;
+        }
+
     /* Message */
 
     if (json_object_object_get_ex(json_obj, "message", &tmp))
@@ -156,6 +186,9 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
 
     json_object *jip = json_object_new_string( cs_ipaddr );
     json_object_object_add(encode_json,"ip_address", jip);
+
+    json_object *jtag = json_object_new_string( cs_tag );
+    json_object_object_add(encode_json,"tag", jtag);
 
     json_object *jprogram = json_object_new_string( cs_program );
     json_object_object_add(encode_json,"program", jprogram);
@@ -180,13 +213,33 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
             // change takes place.
             // snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s|%s|%s",cs_ipaddr, dns, cs_timestamp );
 
-            snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s",cs_ipaddr );
-            redis_prefix[ sizeof(redis_prefix) - 1 ] = '\0';
+            if ( !strcmp(cs_type, "ip" ) )
+                {
+
+                    snprintf(redis_prefix, sizeof(redis_prefix), "client_stats|%s",cs_ipaddr );
+                    redis_prefix[ sizeof(redis_prefix) - 1 ] = '\0';
+
+                }
+
+            else if ( !strcmp(cs_type, "tag" ) )
+                {
+
+                    snprintf(redis_prefix, sizeof(redis_prefix), "client_stats_tag|%s",cs_tag );
+                    redis_prefix[ sizeof(redis_prefix) - 1 ] = '\0';
+
+                }
+
+            if ( redis_prefix[0] == '\0' )
+                {
+
+                    Meer_Log(ERROR, "[%s, line %d] 'client_stats_type' is invalid. It's set to '%s' but should be 'tag' or 'ip'.", __FILE__, __LINE__, cs_type);
+                    json_object_put(encode_json);
+                    return;
+
+                }
 
             Redis_Writer( "SET", redis_prefix, (char*)json_object_to_json_string(encode_json), 0);
-
         }
-
 
     json_object_put(encode_json);
 

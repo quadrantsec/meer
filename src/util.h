@@ -33,6 +33,17 @@ struct _Fingerprint_Networks
 
 };
 
+typedef struct _IOC_Ignore _IOC_Ignore;
+struct _IOC_Ignore
+{
+
+    struct
+    {
+        unsigned char ipbits[MAXIPBIT];
+        unsigned char maskbits[MAXIPBIT];
+    } range;
+
+};
 
 void Drop_Priv(void);
 bool Check_Endian(void);

@@ -63,14 +63,12 @@ struct _MeerConfig
     char classification_file[256];
 
     char lock_file[256];
-    char waldo_file[256];
-    char follow_file[256];
 
     char meer_log[256];
+    bool ioc_collector;
     FILE *meer_log_fd;
     bool meer_log_on;
 
-    int waldo_fd;
 
 #ifdef HAVE_LIBMAXMINDDB
 
@@ -98,6 +96,21 @@ struct _MeerConfig
     uint8_t client_stats_type;
 
 };
+
+typedef struct _MeerInput _MeerInput;
+struct _MeerInput
+{
+//    char type[16];
+
+//    char type[16];
+    uint8_t type;
+
+    char waldo_file[256];
+    char follow_file[256];
+    int waldo_fd;
+
+};
+
 
 typedef struct _MeerOutput _MeerOutput;
 struct _MeerOutput
@@ -196,6 +209,7 @@ struct _MeerOutput
     bool elasticsearch_dnp3;
     bool elasticsearch_anomaly;
     bool elasticsearch_fingerprint;
+    bool elasticsearch_ioc;
 
 #endif
 
@@ -343,6 +357,7 @@ struct _MeerCounters
     int OUICount;
 
     uint16_t fingerprint_network_count;
+    uint16_t ioc_ignore_count;
 
     uint32_t bluedot_skip_count;
 

@@ -1,0 +1,34 @@
+
+These are a set of simple routines that allow Meer to write out "block lists"
+to a MySQL/MariaDB database.  The list can then be consumed by other devices
+(firewalls for example) as a "block list".  
+
+blocklist.cgi
+-------------
+
+This is the web CGI that "sends" the block list to the "client".  As IP 
+addresses are sent,  they are removed.  This routines URL is where you would
+configured you device to get blocklist.  For example:
+
+http://10.10.10.10/cgi-bin/blocklist.cgi?apikey=yourkeyhere
+
+The API key is set in the blocklist.cgi routine.  This prevents unauthorized 
+access to you block lists.
+
+blocklist.sql		
+-------------
+
+SQL database/table for routines to use.  To setup, do this:
+
+$ mysqladmin -u root -p create blocklist
+$ mysql -u root -p blocklist < blocklist.sql
+
+external-program-sql-blocklist
+------------------------------
+
+This is the routine that will be called by Meer's "external" processors.  This
+needs to be fed "alert" data. 
+
+
+
+

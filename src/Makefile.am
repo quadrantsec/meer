@@ -9,6 +9,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
                                                meer_SOURCES = meer.c \
 							      config-yaml.c \
 							      util.c \
+							      daemonize.c \
 							      util-strlcpy.c \
 							      util-strlcat.c \
 							      util-signal.c \
@@ -27,6 +28,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      oui.c \
 							      geoip.c \
 							      calculate-stats.c \
+							      ioc-collector.c \
 							      decode-json.c \
 							      decode-output-json-client-stats.c \
 							      output-plugins/pipe.c \
@@ -34,7 +36,9 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      output-plugins/redis.c \
 							      output-plugins/bluedot.c \
 							      output-plugins/elasticsearch.c \
-							      output-plugins/file.c
+							      output-plugins/file.c \
+							      input-plugins/file.c \
+							      input-plugins/redis.c
 
 
                                                        install-data-local:

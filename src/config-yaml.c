@@ -18,7 +18,13 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-/* Read in Meer configuration/YAML file */
+/*
+   Read in Meer configuration/YAML file
+
+   The order _does_ matter.  For example, don't put "outputs" or "inputs"
+   before "core" or you're gonna have a bad time.  mkay...
+
+*/
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"             /* From autoconf */
@@ -39,7 +45,6 @@
 #include <stdbool.h>
 #include <json-c/json.h>
 
-
 #include "meer.h"
 #include "meer-def.h"
 #include "config-yaml.h"
@@ -58,13 +63,16 @@ struct _Bluedot_Skip *Bluedot_Skip = NULL;
 
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerOutput *MeerOutput;
+extern struct _MeerInput *MeerInput;
 extern struct _MeerCounters *MeerCounters;
 
-//struct _MeerHealth *MeerHealth = NULL;
 struct _Fingerprint_Networks *Fingerprint_Networks = NULL;
+struct _IOC_Ignore *IOC_Ignore = NULL;
 
 void Load_YAML_Config( char *yaml_file )
 {
+
+#define LOAD_DEBUG false
 
     struct stat filecheck;
 
@@ -104,6 +112,15 @@ void Load_YAML_Config( char *yaml_file )
         }
 
     memset(MeerOutput, 0, sizeof(_MeerOutput));
+
+    MeerInput = (struct _MeerInput *) malloc(sizeof(_MeerInput));
+
+    if ( MeerInput == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Failed to allocate memory for _MeerInput. Abort!", __FILE__, __LINE__);
+        }
+
+    memset(MeerInput, 0, sizeof(_MeerInput));
 
 #ifdef HAVE_LIBHIREDIS
 
@@ -169,6 +186,11 @@ void Load_YAML_Config( char *yaml_file )
             if ( event.type == YAML_DOCUMENT_START_EVENT )
                 {
 
+                    if ( LOAD_DEBUG == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] YAML_DOCUMENT_START_EVENT", __FILE__, __LINE__);
+                        }
+
                     yaml_version_directive_t *ver = event.data.document_start.version_directive;
 
                     if ( ver == NULL )
@@ -189,12 +211,23 @@ void Load_YAML_Config( char *yaml_file )
             else if ( event.type == YAML_STREAM_END_EVENT )
                 {
 
+                    if ( LOAD_DEBUG == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] YAML_STREAM_END_EVENT", __FILE__, __LINE__);
+                        }
+
                     done = true;
 
                 }
 
             else if ( event.type == YAML_MAPPING_END_EVENT )
                 {
+
+
+                    if ( LOAD_DEBUG == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] YAML_MAPPING_END_EVENT", __FILE__, __LINE__);
+                        }
 
                     sub_type = 0;
 
@@ -205,16 +238,25 @@ void Load_YAML_Config( char *yaml_file )
 
                     char *value = (char *)event.data.scalar.value;
 
+                    if ( LOAD_DEBUG == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] YAML_SCALAR_EVENT - Value: \"%s\"", __FILE__, __LINE__, value);
+                        }
+
                     if ( !strcmp(value, "meer-core"))
                         {
                             type = YAML_TYPE_MEER;
                         }
 
-                    else if ( !strcmp(value, "output-plugins"))
+                    if ( !strcmp(value, "output-plugins"))
                         {
                             type = YAML_TYPE_OUTPUT;
                         }
 
+                    if ( !strcmp(value, "input-plugins"))
+                        {
+                            type = YAML_TYPE_INPUT;
+                        }
 
                     if ( type == YAML_TYPE_MEER )
                         {
@@ -222,6 +264,29 @@ void Load_YAML_Config( char *yaml_file )
                             if ( !strcmp(value, "core") )
                                 {
                                     sub_type = YAML_MEER_CORE_CORE;
+                                }
+
+                        }
+
+                    if ( type == YAML_TYPE_INPUT )
+                        {
+
+                            if ( !strcmp(value, "file" ) )
+                                {
+                                    sub_type = YAML_INPUT_FILE;
+                                    routing = false;
+                                }
+
+                            if ( !strcmp(value, "pipe" ) )
+                                {
+                                    sub_type = YAML_INPUT_PIPE;
+                                    routing = false;
+                                }
+
+                            if ( !strcmp(value, "redis" ) )
+                                {
+                                    sub_type = YAML_INPUT_REDIS;
+                                    routing = false;
                                 }
 
                         }
@@ -304,11 +369,6 @@ void Load_YAML_Config( char *yaml_file )
                                     strlcpy(MeerConfig->classification_file, value, sizeof(MeerConfig->classification_file));
                                 }
 
-                            else if ( !strcmp(last_pass, "waldo-file" ) || !strcmp(last_pass, "waldo_file" ) )
-                                {
-                                    strlcpy(MeerConfig->waldo_file, value, sizeof(MeerConfig->waldo_file));
-                                }
-
                             else if ( !strcmp(last_pass, "lock-file" ) || !strcmp(last_pass, "lock_file" ) )
                                 {
                                     strlcpy(MeerConfig->lock_file, value, sizeof(MeerConfig->lock_file));
@@ -319,9 +379,34 @@ void Load_YAML_Config( char *yaml_file )
                                     strlcpy(MeerConfig->meer_log, value, sizeof(MeerConfig->meer_log));
                                 }
 
-                            else if ( !strcmp(last_pass, "follow-eve" ) || !strcmp(last_pass, "follow_eve" ) )
+                            else if ( !strcmp(last_pass, "ioc-collector" ))
                                 {
-                                    strlcpy(MeerConfig->follow_file, value, sizeof(MeerConfig->follow_file));
+
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerConfig->ioc_collector = true;
+                                        }
+
+                                }
+
+                            else if ( !strcmp(last_pass, "input-type" ) || !strcmp(last_pass, "input_type" ) )
+                                {
+
+                                    if ( !strcmp(value, "file" ))
+                                        {
+                                            MeerInput->type = YAML_INPUT_FILE;
+                                        }
+
+                                    if ( !strcmp(value, "pipe" ))
+                                        {
+                                            MeerInput->type = YAML_INPUT_PIPE;
+                                        }
+
+                                    if ( !strcmp(value, "redis" ))
+                                        {
+                                            MeerInput->type = YAML_INPUT_REDIS;
+                                        }
+
                                 }
 
                             else if ( !strcmp(last_pass, "payload-buffer-size" ) )
@@ -469,6 +554,69 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
+                            else if ( !strcmp(last_pass, "ioc-ignore" )  && MeerConfig->ioc_collector == true )
+                                {
+
+                                    char *ii_ptr = NULL;
+                                    char *ii_range = NULL;
+                                    char *tok = NULL;
+                                    char *ii_ipblock = NULL;
+
+                                    unsigned char ii_ipbits[MAXIPBIT] = { 0 };
+                                    unsigned char ii_maskbits[MAXIPBIT]= { 0 };
+
+                                    int ii_mask;
+
+                                    Remove_Spaces(value);
+
+                                    ii_ptr = strtok_r(value, ",", &tok);
+
+                                    while ( ii_ptr != NULL )
+                                        {
+
+                                            ii_ipblock = strtok_r(ii_ptr, "/", &ii_range);
+
+                                            if ( ii_ipblock == NULL )
+                                                {
+                                                    Meer_Log(ERROR, "'ioc-ignore' ip block %s is invalid.  Abort", ii_ptr);
+                                                }
+
+                                            if (!IP2Bit(ii_ipblock, ii_ipbits))
+                                                {
+                                                    Meer_Log(ERROR, "[%s, line %d] Invalid address %s in 'ioc-ignore'. Abort", __FILE__, __LINE__, ii_ptr );
+                                                }
+
+                                            IOC_Ignore = (_IOC_Ignore *) realloc(IOC_Ignore, (MeerCounters->ioc_ignore_count+1) * sizeof(_IOC_Ignore));
+
+                                            if ( IOC_Ignore == NULL )
+                                                {
+                                                    Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _IOC_Ignore Abort!", __FILE__, __LINE__);
+                                                }
+
+                                            memset(&IOC_Ignore[MeerCounters->ioc_ignore_count], 0, sizeof(_IOC_Ignore));
+
+                                            ii_mask = atoi(ii_range);
+
+
+                                            if ( ii_mask == 0 || !Mask2Bit(ii_mask, ii_maskbits))
+                                                {
+                                                    Meer_Log(ERROR, "[%s, line %d] Invalid mask for 'ioc_ignore'. Abort", __FILE__, __LINE__);
+                                                }
+
+
+
+                                            memcpy(IOC_Ignore[MeerCounters->ioc_ignore_count].range.ipbits, ii_ipbits, sizeof(ii_ipbits));
+                                            memcpy(IOC_Ignore[MeerCounters->ioc_ignore_count].range.maskbits, ii_maskbits, sizeof(ii_maskbits));
+                                            MeerCounters->ioc_ignore_count++;
+
+
+                                            ii_ptr = strtok_r(NULL, ",", &tok);
+
+                                        }
+
+                                }
+
+
                             else if ( !strcmp(last_pass, "fingerprint_networks" )  && MeerConfig->fingerprint == true )
                                 {
 
@@ -481,7 +629,6 @@ void Load_YAML_Config( char *yaml_file )
                                     unsigned char fp_maskbits[MAXIPBIT]= { 0 };
 
                                     int fp_mask;
-
 
                                     Remove_Spaces(value);
 
@@ -1317,7 +1464,10 @@ void Load_YAML_Config( char *yaml_file )
                                             MeerOutput->elasticsearch_fingerprint = true;
                                         }
 
-
+                                    else if ( !strcmp(value, "ioc" ) )
+                                        {
+                                            MeerOutput->elasticsearch_ioc = true;
+                                        }
                                 }
 
                         }
@@ -1785,6 +1935,41 @@ void Load_YAML_Config( char *yaml_file )
 
                         }
 
+                    if ( type == YAML_TYPE_INPUT && sub_type == YAML_INPUT_FILE )
+                        {
+
+                            /* Need debug? */
+
+                            if ( !strcmp(last_pass, "follow_eve" ))
+                                {
+                                    strlcpy(MeerInput->follow_file, value, sizeof(MeerInput->follow_file));
+                                }
+
+                            else if ( !strcmp(last_pass, "waldo_file" ))
+                                {
+                                    strlcpy(MeerInput->waldo_file, value, sizeof(MeerInput->waldo_file));
+                                }
+
+                        }
+
+                    /*
+                                        if ( type == YAML_TYPE_INPUT && sub_type == YAML_INPUT_PIPE )
+                                            {
+
+                                                printf("PIPE INCOMPLETE\n");
+
+                                            }
+
+                                        if ( type == YAML_TYPE_INPUT && sub_type == YAML_INPUT_PIPE )
+                                            {
+
+                                                printf("REDIS INCOMPLETE\n");
+
+                                            }
+
+                    */
+
+
                     strlcpy(last_pass, value, sizeof(last_pass));
 
                 } /* end of else */
@@ -1810,6 +1995,8 @@ void Load_YAML_Config( char *yaml_file )
 
     /* Sanity check on core configurations */
 
+    /* DEBUG:  ADD CHECK FOR IOC COLLECTOR AND ELASTIC */
+
     if ( MeerConfig->interface[0] == '\0' )
         {
             Meer_Log(ERROR, "Configuration incomplete.  No 'interface' specified!");
@@ -1830,19 +2017,35 @@ void Load_YAML_Config( char *yaml_file )
             Meer_Log(ERROR, "Configuration incomplete.  No 'classification' file specified!");
         }
 
-    if ( MeerConfig->waldo_file[0] == '\0' )
-        {
-            Meer_Log(ERROR, "Configuration incomplete.  No 'waldo-file' specified!");
-        }
-
-    if ( MeerConfig->follow_file[0] == '\0' )
-        {
-            Meer_Log(ERROR, "Configuration incomplete.  No 'follow-exe' file specified!");
-        }
-
     if ( MeerConfig->lock_file[0] == '\0' )
         {
             Meer_Log(ERROR, "Configuration incomplete.  No 'lock-file' file specified!");
+        }
+
+    /******************/
+    /* Validate INPUT */
+    /******************/
+
+    /* Do we _have_ a input-type? */
+
+    if ( MeerInput->type == 0 )
+        {
+            Meer_Log(ERROR, "Configuration incomplete.  No 'input-type' specified or is incorrect.");
+        }
+
+    if ( MeerInput->type == YAML_INPUT_FILE )
+        {
+
+            if ( MeerInput->waldo_file[0] == '\0' )
+                {
+                    Meer_Log(ERROR, "Configuration incomplete.  No 'waldo-file' specified.");
+                }
+
+            if ( MeerInput->follow_file[0] == '\0' )
+                {
+                    Meer_Log(ERROR, "Configuration incomplete.  No 'follow-exe' file specified.");
+                }
+
         }
 
     Meer_Log(NORMAL, "Configuration '%s' for host '%s' successfully loaded.", yaml_file, MeerConfig->hostname);

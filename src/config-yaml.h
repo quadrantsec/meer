@@ -42,6 +42,7 @@ void Load_YAML_Config ( char *yaml_file );
 
 #define         YAML_TYPE_MEER           1
 #define         YAML_TYPE_OUTPUT	 2
+#define		YAML_TYPE_INPUT		 3
 
 /*******************/
 /* Secondary types */
@@ -54,5 +55,14 @@ void Load_YAML_Config ( char *yaml_file );
 #define		YAML_MEER_BLUEDOT	5
 #define		YAML_MEER_ELASTICSEARCH	6
 #define		YAML_MEER_FILE		7
+
+/***************/
+/* Input types */
+/***************/
+
+#define		YAML_INPUT_FILE		1
+#define		YAML_INPUT_PIPE		2
+#define		YAML_INPUT_REDIS 	3
+
 
 #endif

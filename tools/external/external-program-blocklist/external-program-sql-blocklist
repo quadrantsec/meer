@@ -1,31 +1,42 @@
 #!/usr/bin/perl
 
 #############################################################################
-# external-program-iptables - Simple routine that takes Surcata/Sagan EVE
-# data,  parses it and firewalls via iptables.
-#
-# In order for this routine to work,  the user will need to be able to run 
-# iptables as "root".  To do this,  we add the following lines to your 
-# /etc/sudoers via the "visudo" command.
-#
-# suricata ALL=(ALL) NOPASSWD: /sbin/iptables -A INPUT -s * -j DROP,/sbin/iptables -A INPUT -d * -j DROP,/sbin/iptables -A FORWARD -s * -j DROP,/sbin/iptables -A FORWARD -d * -j DROP
-
-# 
-# (Replaces 'suricata' with whatever you run Suricata/Sagan as)
+# external-program-sql-blocklist - Simple routine that takes Surcata/Sagan 
+# EVE data, parses it and sends a "blocklist" SQL database. This data can 
+# then be retrieve by the get-blocklists.cgi. 
 # 
 # Champ Clark III (cclark@quadrantsec.com)
-# 2019/07/20
+# 20220907
 #
 #############################################################################
 
 use JSON; 
 use Net::Subnet qw(subnet_matcher);
+use DBI;
 
 use warnings; 
 use strict;
 
+#############################################################################
+# SQL Authentication Data
+#############################################################################
+
+my $my_username = "username";
+my $my_password = "password";
+my $my_database = "blocklist"; 
+my $my_host = "127.0.0.1";
+
 my $LOG_FILE = "/tmp/firewall.log"; 			# Log file
-my $IPTABLES = "/usr/bin/sudo /sbin/iptables";
+
+#############################################################################
+# Connect to SQL database!
+#############################################################################
+
+my $db = "DBI:MariaDB:database=$my_database;host=$my_host";
+my $dbh = DBI->connect($db, $my_username, $my_password) || die "$DBI::errstr\n";
+
+my $sql;
+my $sth;
 
 #############################################################################
 # The $white_list are IP address that you do NOT to send blocks for.  You'll
@@ -46,13 +57,11 @@ my $white_list = subnet_matcher qw(
 #############################################################################
 
 my $json_d;
-my $cmd;
 my $target;
 my $src_ip;
 my $dest_ip;
 my $signature;
 my $sig_id;
-my $direction;
 
 # Handle signals cleanly...
 
@@ -102,7 +111,6 @@ while (<>) {
       exit(1);
       }
 
-
    Log("Parsed $src_ip -> $dest_ip"); 
 
    # Got good data.  Try to figure out what "side" of the connection to send
@@ -111,13 +119,11 @@ while (<>) {
    if ( !$white_list->($dest_ip) ) 
 	{
 	$target = $dest_ip;
-	$direction = "-d";
 	}
 
    if ( !$white_list->($src_ip) ) 
 	{
 	$target = $src_ip;
-	$direction = "-s";
 	}
 
    if ( !$target ) 
@@ -126,15 +132,17 @@ while (<>) {
 	exit(0);
 	}
 
-   # Send block request! 
-   
-   Log("Target to firewall is $target for '$signature' [Sig ID: $sig_id]");
+   Log("Writing $target for '$signature' [Sig ID: $sig_id] to the database");
 
-   $cmd = "$IPTABLES -A FORWARD $direction $target -j DROP; $IPTABLES -A INPUT $direction $target -j DROP";
-   
-   Log("Executing command: $cmd"); 
-   system($cmd);
-   Log("System cal completed.");
+   #############################################################################
+   # Target goes into SQL 
+   #############################################################################
+
+   $sql = "INSERT INTO drop_list ( `timestamp`, `ip`, `sid` ) VALUES ( now(), ?, ? )"; 
+   $sth = $dbh->prepare( $sql ); 
+   $sth->bind_param(1, $target); 
+   $sth->bind_param(2, $sig_id); 
+   $sth->execute || die "$DBI::errstr\n";
 
 }
 

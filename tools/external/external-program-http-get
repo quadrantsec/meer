@@ -49,7 +49,7 @@ my $sig_id;
 
 my $ua = LWP::UserAgent->new;
 
-# Handle singles cleanly...
+# Handle signals cleanly...
 
 $SIG{'INT'} = \&Signal_Handler;
 $SIG{'TERM'} = \&Signal_Handler;

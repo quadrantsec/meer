@@ -44,14 +44,9 @@ meer-core:
     #classification: "/usr/local/etc/sagan-rules/classification.config"
 
     meer_log: "/var/log/meer/meer.log"          # Meer log file
-    waldo_file: "/var/log/meer/meer.waldo"      # Where to store the last 
-                                                # position in the 
-                                                # "follow-eve" file. 
-
     lock_file: "/var/log/meer/meer.lck"         # To prevent dueling processes.
 
-    follow_eve: "/var/log/suricata/alert.json"  # The Suricata/Sagan file to monitor
-    #follow-eve: "/var/log/sagan/alert.json"   
+    input-type: "file"   
 
     #########################################################################
     # calculate-stats
@@ -143,8 +138,56 @@ meer-core:
     geoip: disabled
     geoip_database: "/usr/local/share/GeoIP2/GeoLite2-City.mmdb"
 
+    #########################################################################
+    # ioc-collector
+    #
+    # When enabled with the "Elasticsearch" output, "ioc-collector" allows 
+    # Meer to store useful information (src_ip, dest_ip, hashes) into 
+    # an Elasticsearch/Opensearch/Zincsearch backend for rapid retrieval. 
+    # This stores data from Suricata/Sagan log files in a more "compressed" 
+    # and "non-repetitive" format.  The advantage to this allows for rapid
+    # looks to verify if hashes (sha1, sha256, etc), IP addresses, or domain
+    # names have been seen within your enviornment.
+    # 
+    # By default "ioc-collector" stores:
+    #
+    # src_ip, dest_ip from "flow" logs. 
+    # hashes (md5, sha1, sha256) from the "files" log.
+    # JA3/JA3S hashes from TLS logs
+    # DNS "queries" from "dns" logs. 
+    #
+    # Hint: You'll likely want to add your network blocks to the "ioc-ignore"
+    # list. 
+    #########################################################################
+
+    ioc-collector: enabled
+    ioc-ignore: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
+
+#############################################################################
+# Input Plugins 
+#
+# This allows you to control how Meer reads in data from Suricata/Sagan. 
+# In the "core" section above,  you'll want to set your "input-type" to one
+# of the below.  You'll also need to configure (if needed) you desired 
+# input method.
+#############################################################################
+
+input-plugins: 
+
+  default: 
+
+    type: "file"
+
+  file: 
+    
+    follow_eve: "/var/log/suricata/alert.json"
+    waldo_file: "/var/log/meer/suricata-waldo.waldo"
+
 #############################################################################
 # Output Plugins 
+#
+# After processing,  were would you like Meer (enriched) data to go? You can
+# use multiple outputs.
 #############################################################################
 
 output-plugins:

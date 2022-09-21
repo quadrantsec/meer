@@ -62,6 +62,7 @@ extern CURL *curl_bluedot;
 extern struct _MeerWaldo *MeerWaldo;
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerOutput *MeerOutput;
+extern struct _MeerInput *MeerInput;
 
 void Signal_Handler(int sig_num)
 {
@@ -165,8 +166,8 @@ void Signal_Handler(int sig_num)
 
             Statistics();
 
-            fsync(MeerConfig->waldo_fd);
-            close(MeerConfig->waldo_fd);
+            fsync(MeerInput->waldo_fd);
+            close(MeerInput->waldo_fd);
 
             Waldo_Close();
 

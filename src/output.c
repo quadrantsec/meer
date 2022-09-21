@@ -79,6 +79,7 @@ extern uint16_t elasticsearch_batch_count;
 #endif
 
 extern struct _MeerOutput *MeerOutput;
+extern struct _MeerInput *MeerInput;
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerCounters *MeerCounters;
 extern struct _MeerHealth *MeerHealth;
@@ -419,6 +420,23 @@ void Init_Output( void )
     Meer_Log(NORMAL, "--[ Meer engine information ]-------------------------------------");
     Meer_Log(NORMAL, "");
 
+    if ( MeerInput->type == YAML_INPUT_FILE )
+        {
+            Meer_Log(NORMAL, "Input type: \"file\"");
+        }
+
+    else if ( MeerInput->type == YAML_INPUT_PIPE )
+        {
+            Meer_Log(NORMAL, "Input type: \"pipe\"");
+        }
+
+    else if ( MeerInput->type == YAML_INPUT_REDIS )
+        {
+            Meer_Log(NORMAL, "Input type: \"redis\"");
+        }
+
+
+    Meer_Log(NORMAL, "");
 
 }
 
@@ -944,163 +962,169 @@ void Output_Bluedot ( struct json_object *json_obj )
 
 #ifdef WITH_ELASTICSEARCH
 
-bool Output_Elasticsearch ( const char *json_string, const char *event_type )
+bool Output_Elasticsearch ( const char *json_string, const char *event_type, const char *id )
 {
 
     if ( !strcmp(event_type, "alert" ) && MeerOutput->elasticsearch_alert == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "files" ) && MeerOutput->elasticsearch_files == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "flow" ) && MeerOutput->elasticsearch_flow == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "dns" ) && MeerOutput->elasticsearch_dns == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "http" ) && MeerOutput->elasticsearch_http == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "tls" ) && MeerOutput->elasticsearch_tls == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "ssh" ) && MeerOutput->elasticsearch_ssh == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "smtp" ) && MeerOutput->elasticsearch_smtp == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "email" ) && MeerOutput->elasticsearch_email == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "fileinfo" ) && MeerOutput->elasticsearch_fileinfo == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "dhcp" ) && MeerOutput->elasticsearch_dhcp == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "stats" ) && MeerOutput->elasticsearch_stats == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "rdp" ) && MeerOutput->elasticsearch_rdp == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "sip" ) && MeerOutput->elasticsearch_sip == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "ftp" ) && MeerOutput->elasticsearch_ftp == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "ikev2" ) && MeerOutput->elasticsearch_ikev2 == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "nfs" ) && MeerOutput->elasticsearch_nfs == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "tftp" ) && MeerOutput->elasticsearch_tftp == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "smb" ) && MeerOutput->elasticsearch_smb == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "mqtt" ) && MeerOutput->elasticsearch_mqtt == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "dcerpc" ) && MeerOutput->elasticsearch_dcerpc == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "netflow" ) && MeerOutput->elasticsearch_netflow == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "metadata" ) && MeerOutput->elasticsearch_metadata == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "dnp3" ) && MeerOutput->elasticsearch_dnp3 == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
 
     else if ( !strcmp(event_type, "anomaly" ) && MeerOutput->elasticsearch_anomaly == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
         }
 
     else if ( !strcmp(event_type, "fingerprint" ) && MeerOutput->elasticsearch_fingerprint == true )
         {
-            Output_Do_Elasticsearch( json_string, event_type );
+            Output_Do_Elasticsearch( json_string, event_type, NULL );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ioc" ) && MeerOutput->elasticsearch_ioc == true )
+        {
+            Output_Do_Elasticsearch( json_string, event_type, id );
             return(true);
         }
 
@@ -1109,7 +1133,7 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type )
 }
 
 
-bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
+bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type, const char *id )
 {
 
     char *tmp = malloc(MeerConfig->payload_buffer_size);
@@ -1126,7 +1150,16 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type )
 
     Elasticsearch_Get_Index(index_name, sizeof(index_name), event_type);
 
-    snprintf(tmp, MeerConfig->payload_buffer_size, "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
+
+    if ( id == NULL )
+        {
+            snprintf(tmp, MeerConfig->payload_buffer_size, "{\"index\":{\"_index\":\"%s\"}}\n%s\n", index_name, json_string);
+        }
+    else
+        {
+            snprintf(tmp, MeerConfig->payload_buffer_size, "{\"index\":{\"_index\":\"%s\",\"_id\":\"%s\"}}\n%s\n", index_name, id, json_string);
+        }
+
     tmp[ MeerConfig->payload_buffer_size - 1 ] = '\0';
 
     strlcat(big_batch, tmp, MeerConfig->payload_buffer_size); //  * MeerOutput->elasticsearch_batch ) );

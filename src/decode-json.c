@@ -52,7 +52,7 @@ libjson-c is required for Meer to function!
 #include "get-oui.h"
 #include "counters.h"
 #include "calculate-stats.h"
-
+#include "ioc-collector.h"
 
 #ifdef HAVE_LIBMAXMINDDB
 #include "get-geoip.h"
@@ -433,7 +433,7 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerOutput->elasticsearch_enabled == true )
         {
-            Output_Elasticsearch( json_string, event_type );
+            Output_Elasticsearch( json_string, event_type, NULL );
         }
 
 #endif
@@ -451,12 +451,19 @@ bool Decode_JSON( char *json_string )
 
     /* Process client stats data from Sagan */
 
-    if ( !strcmp(event_type, "client_stats") && MeerConfig->client_stats == true )
+    if ( ( !strcmp(event_type, "client_stats") || !strcmp(event_type, "client_stats") )  && MeerConfig->client_stats == true )
         {
             Decode_Output_JSON_Client_Stats( json_obj, json_string );
         }
 
 #endif
+
+    if ( MeerConfig->ioc_collector == true )
+        {
+
+            IOC_Collector( json_obj, json_string, event_type );
+
+        }
 
     /* Delete json-c _root_ objects */
 
