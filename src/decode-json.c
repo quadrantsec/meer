@@ -82,7 +82,7 @@ bool Decode_JSON( char *json_string )
 
     char fixed_ip[64] = { 0 };
 
-    /* Remve \n from string */
+    /* Remove \n from string */
 
     json_string[ strlen(json_string) - 1 ] = '\0';
 

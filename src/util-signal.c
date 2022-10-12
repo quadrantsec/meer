@@ -36,6 +36,7 @@
 #include "lockfile.h"
 #include "stats.h"
 #include "waldo.h"
+#include "config-yaml.h"
 
 #if defined(WITH_BLUEDOT) || defined(WITH_ELASTICSEARCH)
 #include <curl/curl.h>
@@ -166,10 +167,13 @@ void Signal_Handler(int sig_num)
 
             Statistics();
 
-            fsync(MeerInput->waldo_fd);
-            close(MeerInput->waldo_fd);
 
-            Waldo_Close();
+            if ( MeerInput->type == YAML_INPUT_FILE )
+                {
+                    fsync(MeerInput->waldo_fd);
+                    close(MeerInput->waldo_fd);
+                    Waldo_Close();
+                }
 
             Meer_Log(NORMAL, "Shutdown complete.");
 

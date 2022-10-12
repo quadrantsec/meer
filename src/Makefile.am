@@ -14,6 +14,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      util-strlcat.c \
 							      util-signal.c \
 							      util-base64.c \
+							      util-md5.c \
 							      util-dns.c \
 							      get-dns.c \
 							      get-geoip.c \

@@ -59,6 +59,10 @@
 
 #include "input-plugins/file.h"
 
+#ifdef HAVE_LIBHIREDIS
+#include "input-plugins/redis.h"
+#endif
+
 #ifdef HAVE_LIBMAXMINDDB
 #include "geoip.h"
 #endif
@@ -102,19 +106,6 @@ int main (int argc, char *argv[])
 
     signed char c;
     int option_index = 0;
-
-//    int fd_int;
-//    FILE *fd_file;
-
-//    struct stat st;
-
-//    bool skip_flag = 0;
-//    bool wait_flag = false;
-
-//    uint64_t linecount = 0;
-//    uint64_t old_size = 0;
-
-//    FILE *meer_log_fd_test;
 
     MeerConfig = (struct _MeerConfig *) malloc(sizeof(_MeerConfig));
 
@@ -244,14 +235,18 @@ int main (int argc, char *argv[])
             Input_File();
         }
 
-    else if ( MeerInput->type == YAML_INPUT_PIPE )
-        {
-            /* DO PIPE */
-        }
+//    else if ( MeerInput->type == YAML_INPUT_PIPE )
+//        {
+//            /* Do PIPE */
+//        }
+
+#ifdef HAVE_LIBHIREDIS
 
     else if ( MeerInput->type == YAML_INPUT_REDIS )
         {
-            /* DO REDIS */
+
+            Input_Redis_Subscribe();
         }
 
+#endif
 }

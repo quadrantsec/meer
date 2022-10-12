@@ -18,6 +18,9 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+/* Take input from a file and keep track of you locations in the file via
+   a "waldo" file */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"             /* From autoconf */
 #endif
@@ -50,7 +53,6 @@
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerInput *MeerInput;
 extern struct _MeerWaldo *MeerWaldo;
-
 
 void Input_File()
 {
@@ -222,7 +224,7 @@ void Input_File()
 
                             if ( skip_flag == 0 )
                                 {
-                                    Decode_JSON( buf);
+                                    Decode_JSON( buf );
                                 }
 
                             MeerWaldo->position++;

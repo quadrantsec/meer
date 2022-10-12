@@ -131,6 +131,8 @@ void Load_YAML_Config( char *yaml_file )
     strlcpy(MeerOutput->redis_server, "127.0.0.1", sizeof(MeerOutput->redis_server));
     strlcpy(MeerOutput->redis_command, "set", sizeof(MeerOutput->redis_command));
 
+    MeerInput->redis_port = 6379;
+
 #endif
 
 #ifdef WITH_ELASTICSEARCH
@@ -379,12 +381,70 @@ void Load_YAML_Config( char *yaml_file )
                                     strlcpy(MeerConfig->meer_log, value, sizeof(MeerConfig->meer_log));
                                 }
 
+
                             else if ( !strcmp(last_pass, "ioc-collector" ))
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
                                         {
                                             MeerConfig->ioc_collector = true;
+                                        }
+
+                                }
+
+                            else if ( !strcmp(last_pass, "ioc-debug" ) && MeerConfig->ioc_collector == true )
+                                {
+
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerConfig->ioc_debug = true;
+                                        }
+                                }
+
+                            else if ( !strcmp(last_pass, "ioc-routing" ) && MeerConfig->ioc_collector == true )
+                                {
+
+                                    char *tok = NULL;
+
+                                    Remove_Spaces(value);
+
+                                    ptr1 = strtok_r(value, ",", &tok);
+
+                                    while ( ptr1 != NULL )
+                                        {
+
+                                            if ( !strcmp(ptr1, "flow" ) )
+                                                {
+                                                    MeerConfig->ioc_routing_flow = true;
+                                                }
+
+                                            else if ( !strcmp(ptr1, "http" ) )
+                                                {
+                                                    MeerConfig->ioc_routing_http = true;
+                                                }
+
+                                            else if ( !strcmp(ptr1, "ssh" ) )
+                                                {
+                                                    MeerConfig->ioc_routing_ssh = true;
+                                                }
+
+                                            else if ( !strcmp(ptr1, "fileinfo" ) )
+                                                {
+                                                    MeerConfig->ioc_routing_fileinfo = true;
+                                                }
+
+                                            else if ( !strcmp(ptr1, "tls" ) )
+                                                {
+                                                    MeerConfig->ioc_routing_tls = true;
+                                                }
+
+                                            else if ( !strcmp(ptr1, "dns" ) )
+                                                {
+                                                    MeerConfig->ioc_routing_dns = true;
+                                                }
+
+                                            ptr1 = strtok_r(NULL, ",", &tok);
+
                                         }
 
                                 }
@@ -397,15 +457,18 @@ void Load_YAML_Config( char *yaml_file )
                                             MeerInput->type = YAML_INPUT_FILE;
                                         }
 
-                                    if ( !strcmp(value, "pipe" ))
-                                        {
-                                            MeerInput->type = YAML_INPUT_PIPE;
-                                        }
+//                                    if ( !strcmp(value, "pipe" ))
+//                                        {
+//                                            MeerInput->type = YAML_INPUT_PIPE;
+//                                        }
 
-                                    if ( !strcmp(value, "redis" ))
+#ifdef HAVE_LIBHIREDIS
+
+                                    else if ( !strcmp(value, "redis" ))
                                         {
                                             MeerInput->type = YAML_INPUT_REDIS;
                                         }
+#endif
 
                                 }
 
@@ -554,7 +617,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            else if ( !strcmp(last_pass, "ioc-ignore" )  && MeerConfig->ioc_collector == true )
+                            else if ( !strcmp(last_pass, "ioc-ignore-networks" )  && MeerConfig->ioc_collector == true )
                                 {
 
                                     char *ii_ptr = NULL;
@@ -578,12 +641,12 @@ void Load_YAML_Config( char *yaml_file )
 
                                             if ( ii_ipblock == NULL )
                                                 {
-                                                    Meer_Log(ERROR, "'ioc-ignore' ip block %s is invalid.  Abort", ii_ptr);
+                                                    Meer_Log(ERROR, "'ioc-ignore-networks' ip block %s is invalid.  Abort", ii_ptr);
                                                 }
 
                                             if (!IP2Bit(ii_ipblock, ii_ipbits))
                                                 {
-                                                    Meer_Log(ERROR, "[%s, line %d] Invalid address %s in 'ioc-ignore'. Abort", __FILE__, __LINE__, ii_ptr );
+                                                    Meer_Log(ERROR, "[%s, line %d] Invalid address %s in 'ioc-ignore-networks'. Abort", __FILE__, __LINE__, ii_ptr );
                                                 }
 
                                             IOC_Ignore = (_IOC_Ignore *) realloc(IOC_Ignore, (MeerCounters->ioc_ignore_count+1) * sizeof(_IOC_Ignore));
@@ -600,7 +663,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                             if ( ii_mask == 0 || !Mask2Bit(ii_mask, ii_maskbits))
                                                 {
-                                                    Meer_Log(ERROR, "[%s, line %d] Invalid mask for 'ioc_ignore'. Abort", __FILE__, __LINE__);
+                                                    Meer_Log(ERROR, "[%s, line %d] Invalid mask for 'ioc-ignore-networks'. Abort", __FILE__, __LINE__);
                                                 }
 
 
@@ -666,12 +729,9 @@ void Load_YAML_Config( char *yaml_file )
                                                     Meer_Log(ERROR, "[%s, line %d] Invalid mask for GeoIP 'skip_networks'. Abort", __FILE__, __LINE__);
                                                 }
 
-
-
                                             memcpy(Fingerprint_Networks[MeerCounters->fingerprint_network_count].range.ipbits, fp_ipbits, sizeof(fp_ipbits));
                                             memcpy(Fingerprint_Networks[MeerCounters->fingerprint_network_count].range.maskbits, fp_maskbits, sizeof(fp_maskbits));
                                             MeerCounters->fingerprint_network_count++;
-
 
                                             fp_ptr = strtok_r(NULL, ",", &tok);
 
@@ -1952,6 +2012,50 @@ void Load_YAML_Config( char *yaml_file )
 
                         }
 
+#ifdef HAVE_LIBHIREDIS
+
+                    if ( type == YAML_TYPE_INPUT && sub_type == YAML_INPUT_REDIS )
+                        {
+
+                            if ( !strcmp(last_pass, "debug" ) )
+                                {
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerInput->redis_debug = true;
+                                        }
+
+                                }
+
+                            else if ( !strcmp(last_pass, "server" ) )
+                                {
+                                    strlcpy(MeerInput->redis_server, value, sizeof(MeerInput->redis_server));
+                                }
+
+                            else if ( !strcmp(last_pass, "password" ) )
+                                {
+                                    strlcpy(MeerInput->redis_password, value, sizeof(MeerInput->redis_password));
+                                }
+
+                            else if ( !strcmp(last_pass, "key" ) )
+                                {
+                                    strlcpy(MeerInput->redis_key, value, sizeof(MeerInput->redis_key));
+                                }
+
+                            else if ( !strcmp(last_pass, "port" ) )
+                                {
+                                    MeerInput->redis_port = atoi(value);
+
+                                    if ( MeerInput->redis_port == 0 )
+                                        {
+                                            Meer_Log(ERROR, "[%s, line %d] Invalid port specified in Redis input.", __FILE__, __LINE__);
+                                        }
+                                }
+
+
+
+                        }
+#endif
+
                     /*
                                         if ( type == YAML_TYPE_INPUT && sub_type == YAML_INPUT_PIPE )
                                             {
@@ -2049,5 +2153,4 @@ void Load_YAML_Config( char *yaml_file )
         }
 
     Meer_Log(NORMAL, "Configuration '%s' for host '%s' successfully loaded.", yaml_file, MeerConfig->hostname);
-
 }

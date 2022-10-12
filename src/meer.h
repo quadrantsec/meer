@@ -65,10 +65,18 @@ struct _MeerConfig
     char lock_file[256];
 
     char meer_log[256];
-    bool ioc_collector;
     FILE *meer_log_fd;
     bool meer_log_on;
 
+    bool ioc_collector;
+    bool ioc_debug;
+
+    bool ioc_routing_flow;
+    bool ioc_routing_http;
+    bool ioc_routing_ssh;
+    bool ioc_routing_fileinfo;
+    bool ioc_routing_tls;
+    bool ioc_routing_dns;
 
 #ifdef HAVE_LIBMAXMINDDB
 
@@ -100,14 +108,24 @@ struct _MeerConfig
 typedef struct _MeerInput _MeerInput;
 struct _MeerInput
 {
-//    char type[16];
 
-//    char type[16];
     uint8_t type;
 
     char waldo_file[256];
     char follow_file[256];
     int waldo_fd;
+
+#ifdef HAVE_LIBHIREDIS
+
+    bool redis_debug;
+    char redis_server[255];
+    char redis_password[255];
+    char redis_channel[255];
+    uint16_t redis_port;
+    uint8_t redis_type;			/* SUBSCRIBE / STREAM */
+    char redis_key[255];
+
+#endif
 
 };
 
@@ -398,6 +416,7 @@ struct _MeerCounters
     uint_fast64_t bad;
     uint_fast64_t fingerprint;
     uint_fast64_t client_stats;
+    uint_fast64_t ioc; 
 
     uint64_t DNSCount;
     uint64_t DNSCacheCount;

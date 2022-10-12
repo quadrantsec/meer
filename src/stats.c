@@ -30,12 +30,15 @@
 #include "meer-def.h"
 #include "stats.h"
 #include "util.h"
+#include "config-yaml.h"
 
 
 extern struct _MeerCounters *MeerCounters;
 extern struct _MeerWaldo *MeerWaldo;
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerOutput *MeerOutput;
+extern struct _MeerInput *MeerInput;
+
 
 void Statistics( void )
 {
@@ -76,9 +79,16 @@ void Statistics( void )
     Meer_Log(NORMAL, " dnp3          : %" PRIu64 " (%.3f%%)", MeerCounters->dnp3, CalcPct( MeerCounters->dnp3, MeerCounters->total ) );
     Meer_Log(NORMAL, " anomaly       : %" PRIu64 " (%.3f%%)", MeerCounters->anomaly, CalcPct( MeerCounters->anomaly, MeerCounters->total ) );
     Meer_Log(NORMAL, " client_stats  : %" PRIu64 " (%.3f%%)", MeerCounters->client_stats, CalcPct( MeerCounters->client_stats, MeerCounters->total ) );
+    Meer_Log(NORMAL, " ioc           : %" PRIu64 " (%.3f%%)", MeerCounters->ioc, CalcPct( MeerCounters->ioc, MeerCounters->total ) );
+
 
     Meer_Log(NORMAL, "");
-    Meer_Log(NORMAL, " Waldo Postion : %" PRIu64 "", MeerWaldo->position);
+
+    if ( MeerInput->type == YAML_INPUT_FILE )
+        {
+            Meer_Log(NORMAL, " Waldo Postion : %" PRIu64 "", MeerWaldo->position);
+        }
+
 //    Meer_Log(NORMAL, " JSON          : %" PRIu64 "", MeerCounters->JSONCount);
 //    Meer_Log(NORMAL, " Invalid JSON  : %" PRIu64 " (%.3f%%)", MeerCounters->bad, CalcPct(MeerCounters->JSONCount,MeerCounters->bad));
 

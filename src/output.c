@@ -408,6 +408,8 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Record 'dnp3'        : %s", MeerOutput->elasticsearch_dnp3 ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Record 'anomaly'     : %s", MeerOutput->elasticsearch_anomaly ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Record 'fingerprint' : %s", MeerOutput->elasticsearch_fingerprint ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'ioc'         : %s", MeerOutput->elasticsearch_ioc ? "enabled" : "disabled" );
+
 
             Elasticsearch_Init();
 
@@ -425,14 +427,24 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Input type: \"file\"");
         }
 
-    else if ( MeerInput->type == YAML_INPUT_PIPE )
-        {
-            Meer_Log(NORMAL, "Input type: \"pipe\"");
-        }
+//    else if ( MeerInput->type == YAML_INPUT_PIPE )
+//        {
+//           Meer_Log(NORMAL, "Input type: \"pipe\"");
+//       }
 
     else if ( MeerInput->type == YAML_INPUT_REDIS )
         {
             Meer_Log(NORMAL, "Input type: \"redis\"");
+            Meer_Log(NORMAL, "------------------------------------------------------");
+            Meer_Log(NORMAL, " * Server: %s:%d", MeerInput->redis_server, MeerInput->redis_port);
+
+            if ( MeerInput->redis_password[0] != '\0' )
+                {
+                    Meer_Log(NORMAL, " * Password: yes");
+                }
+
+
+
         }
 
 
@@ -1149,7 +1161,6 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type, 
     char index_name[512] = { 0 };
 
     Elasticsearch_Get_Index(index_name, sizeof(index_name), event_type);
-
 
     if ( id == NULL )
         {

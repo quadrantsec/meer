@@ -87,9 +87,14 @@ void Redis_Init ( void )
         }
 }
 
-void Redis_Connect( void )
+void Redis_Auth ( void )
 {
 
+
+}
+
+void Redis_Connect( void )
+{
 
     redisReply *reply = NULL;
     MeerOutput->c_redis = NULL;

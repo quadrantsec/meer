@@ -31,7 +31,6 @@ struct MemoryStruct
     size_t size;
 };
 
-static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp);
 void Elasticsearch_Init( void );
 void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type );
 void Elasticsearch( void );

@@ -31,7 +31,7 @@ meer-core:
                                         # Elasticsearch, etc.  If present, 
                                         # this field is added to the EVE JSON.
  
-    payload-buffer-size: 128kb          # This is the max size buffer that can
+    payload-buffer-size: 1024kb         # This is the max size buffer that can
                                         # be read in/written out.  It should
                                         # match your payload-buffer-size in 
                                         # Surcata or be larger.  Valid 
@@ -76,6 +76,9 @@ meer-core:
     # (client/server), etc.  This data gets routed differently and does not 
     # generate "alerts".  The "fingerprint_reader" & "fingerprint_writer" 
     # tasks are option allow you to split up the fingerprinting tasks.  
+    # 
+    # For more information about "Passive Fingerprinting", watch our Suricon
+    # video at https://www.youtube.com/watch?v=n5O4-iqAlVo 
     #########################################################################
   
     fingerprint: disabled
@@ -152,16 +155,20 @@ meer-core:
     # By default "ioc-collector" stores:
     #
     # src_ip, dest_ip from "flow" logs. 
-    # hashes (md5, sha1, sha256) from the "files" log.
+    # hashes (md5, sha1, sha256) from the "fileinfo" log.
     # JA3/JA3S hashes from TLS logs
     # DNS "queries" from "dns" logs. 
+    # HTTP URL and User-Agents from "http"
+    # SSH banner informaion from "ssh" logs.
     #
     # Hint: You'll likely want to add your network blocks to the "ioc-ignore"
     # list. 
     #########################################################################
 
     ioc-collector: enabled
-    ioc-ignore: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
+    ioc-debug: disabled
+    ioc-ignore-networks: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
+    ioc-routing: "flow, http, ssh, fileinfo, tls, dns"
 
 #############################################################################
 # Input Plugins 
@@ -174,14 +181,18 @@ meer-core:
 
 input-plugins: 
 
-  default: 
-
-    type: "file"
-
   file: 
     
     follow_eve: "/var/log/suricata/alert.json"
     waldo_file: "/var/log/meer/suricata-waldo.waldo"
+
+  redis:
+
+    debug: no
+    server: "127.0.0.1"
+#    password: "mypassword"
+    port: 6379
+    key: "suricata"
 
 #############################################################################
 # Output Plugins 

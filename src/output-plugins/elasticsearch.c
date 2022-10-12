@@ -137,8 +137,6 @@ void Elasticsearch_Get_Index ( char *str, size_t size, const char *event_type )
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
 
-    //printf("now: %d-%02d-%02d %02d:%02d:%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-
     for (i = 0; i < strlen(MeerOutput->elasticsearch_index); i++ )
         {
             /* $EVENTTYPE */
