@@ -51,37 +51,49 @@ void IOC_Collector( struct json_object *json_obj, const char *json_string, const
     if ( !strcmp( event_type, "flow" ) && MeerConfig->ioc_routing_flow == true )
         {
             IOC_Flow( json_obj );
-	    return;
+            return;
         }
 
     else if ( !strcmp( event_type, "http" ) && MeerConfig->ioc_routing_http == true )
         {
             IOC_HTTP( json_obj );
-	    return;
+            return;
         }
 
     else if ( !strcmp( event_type, "ssh" ) && MeerConfig->ioc_routing_ssh == true )
         {
             IOC_SSH( json_obj );
-	    return;
+            return;
         }
 
     else if ( !strcmp( event_type, "fileinfo" ) && MeerConfig->ioc_routing_fileinfo == true )
         {
             IOC_FileInfo( json_obj );
-	    return;
+            return;
         }
 
     if ( !strcmp( event_type, "tls" ) && MeerConfig->ioc_routing_tls == true )
         {
             IOC_TLS( json_obj );
-	    return;
+            return;
         }
 
     else if ( !strcmp( event_type, "dns" ) && MeerConfig->ioc_routing_dns == true )
         {
             IOC_DNS( json_obj );
-	    return;
+            return;
+        }
+
+    else if ( !strcmp( event_type, "smb" ) && MeerConfig->ioc_routing_smb == true )
+        {
+            IOC_SMB( json_obj );
+            return;
+        }
+
+    else if ( !strcmp( event_type, "ftp" ) && MeerConfig->ioc_routing_ftp == true )
+        {
+            IOC_FTP( json_obj );
+            return;
         }
 
 }
@@ -369,7 +381,7 @@ void IOC_Flow( struct json_object *json_obj )
                                     Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
                                 }
 
-			    MeerCounters->ioc++; 
+                            MeerCounters->ioc++;
                             Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
 
                         }
@@ -564,7 +576,7 @@ void IOC_FileInfo( struct json_object *json_obj )
             Meer_Log(DEBUG, "[%s, line %d] %s, %s", __FILE__, __LINE__, md5, json_object_to_json_string(encode_json) );
         }
 
-    MeerCounters->ioc++; 
+    MeerCounters->ioc++;
 
     Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", md5 );
 
@@ -829,7 +841,7 @@ void IOC_TLS( struct json_object *json_obj )
             Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
         }
 
-    MeerCounters->ioc++; 
+    MeerCounters->ioc++;
     Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
 
     json_object_put(encode_json);
@@ -996,7 +1008,7 @@ void IOC_DNS( struct json_object *json_obj )
             Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
         }
 
-    MeerCounters->ioc++; 
+    MeerCounters->ioc++;
     Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5);
 
     json_object_put(encode_json);
@@ -1187,7 +1199,7 @@ void IOC_SSH( struct json_object *json_obj )
             Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
         }
 
-    MeerCounters->ioc++; 
+    MeerCounters->ioc++;
 
     Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
 
@@ -1368,7 +1380,7 @@ void IOC_HTTP( struct json_object *json_obj )
                     Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
                 }
 
-	    MeerCounters->ioc++; 
+            MeerCounters->ioc++;
 
             Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
 
@@ -1423,7 +1435,7 @@ void IOC_HTTP( struct json_object *json_obj )
                     Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_user_agent) );
                 }
 
-	    MeerCounters->ioc++; 
+            MeerCounters->ioc++;
             Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_user_agent), "ioc", id_md5 );
 
         }
@@ -1431,6 +1443,304 @@ void IOC_HTTP( struct json_object *json_obj )
     json_object_put(encode_json);
     json_object_put(encode_json_user_agent);
     json_object_put(json_obj_http);
+
+}
+
+/************************************************************************/
+/* IOC_SMB - Grab data from SMB2_COMMAND_CREATE, SMB2_COMMAND_READ. and */
+/* SMB2_COMMAND_WRITE.  SMB is used a lot in lateral movement.          */
+/************************************************************************/
+
+void IOC_SMB( struct json_object *json_obj )
+{
+
+    char timestamp[64] = { 0 };
+    char src_ip[64] = { 0 };
+    char dest_ip[64] = { 0 };
+    uint64_t flow_id = 0;
+    char host[64] = { 0 };
+
+    char id_md5[41] = { 0 };
+
+    char smb_command[64] = { 0 };
+    char smb_filename[10240] = { 0 };
+
+    char command_filename[64 + 10240 + 1] = { 0 };   /* SMB_COMMAND|/file/path */
+
+    struct json_object *tmp = NULL;
+    struct json_object *json_obj_smb = NULL;
+
+    struct json_object *encode_json = NULL;
+    encode_json = json_object_new_object();
+
+    if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
+        {
+            strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
+        }
+
+    if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
+        {
+            strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
+        }
+
+    if ( json_object_object_get_ex(json_obj, "dest_ip", &tmp) )
+        {
+            strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+        }
+
+    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
+        {
+            flow_id = json_object_get_int64(tmp);
+        }
+
+    if ( json_object_object_get_ex(json_obj, "host", &tmp) )
+        {
+            strlcpy( host, json_object_get_string(tmp), sizeof(host) );
+        }
+
+    if ( json_object_object_get_ex(json_obj, "smb", &tmp) )
+        {
+
+            json_obj_smb = json_tokener_parse(json_object_get_string(tmp));
+
+            if ( json_object_object_get_ex(json_obj_smb, "command", &tmp) )
+                {
+                    strlcpy( smb_command, json_object_get_string(tmp), sizeof( smb_command ));
+
+                    if ( !strcmp(smb_command, "SMB2_COMMAND_CREATE" ) ||
+                            !strcmp(smb_command, "SMB2_COMMAND_READ" ) ||
+                            !strcmp(smb_command, "SMB2_COMMAND_WRITE" ) )
+                        {
+
+                            if ( json_object_object_get_ex(json_obj_smb, "filename", &tmp) )
+                                {
+
+                                    strlcpy(smb_filename, json_object_get_string(tmp), sizeof( smb_filename ) );
+
+                                    /****************************************/
+                                    /* New SMB JSON object                   */
+                                    /****************************************/
+
+                                    json_object *jtype = json_object_new_string( "smb" );
+                                    json_object_object_add(encode_json,"type", jtype);
+
+                                    if ( timestamp[0] != '\0' )
+                                        {
+                                            json_object *jtimestamp = json_object_new_string( timestamp );
+                                            json_object_object_add(encode_json,"timestamp", jtimestamp);
+                                        }
+
+                                    if ( MeerConfig->description[0] != '\0' )
+                                        {
+                                            json_object *jdesc = json_object_new_string( MeerConfig->description );
+                                            json_object_object_add(encode_json,"description", jdesc);
+                                        }
+
+                                    if ( src_ip[0] != '\0' )
+                                        {
+                                            json_object *jsrc_ip = json_object_new_string( src_ip );
+                                            json_object_object_add(encode_json,"src_ip", jsrc_ip);
+                                        }
+
+                                    if ( dest_ip[0] != '\0' )
+                                        {
+                                            json_object *jdest_ip = json_object_new_string( dest_ip );
+                                            json_object_object_add(encode_json,"dest_ip", jdest_ip);
+                                        }
+
+                                    if ( host[0] != '\0' )
+                                        {
+                                            json_object *jhost = json_object_new_string( host );
+                                            json_object_object_add(encode_json,"host", jhost);
+                                        }
+
+
+                                    json_object *jflow_id = json_object_new_int64( flow_id );
+                                    json_object_object_add(encode_json,"flow_id", jflow_id);
+
+                                    if ( smb_command[0] != '\0' )
+                                        {
+                                            json_object *jsmb_command = json_object_new_string( smb_command );
+                                            json_object_object_add(encode_json,"command", jsmb_command);
+                                        }
+
+                                    if ( smb_filename[0] != '\0' )
+                                        {
+                                            json_object *jsmb_filename = json_object_new_string( smb_filename );
+                                            json_object_object_add(encode_json,"filename", jsmb_filename);
+                                        }
+
+                                    snprintf(command_filename, sizeof(command_filename), "%s|%s", smb_command, smb_filename);
+                                    command_filename[ sizeof(command_filename) - 1] = '\0';
+
+                                    MD5( (uint8_t*)command_filename, strlen(command_filename), id_md5, sizeof(id_md5) );
+
+                                    /* User Agent */
+
+                                    if ( MeerConfig->ioc_debug == true )
+                                        {
+                                            Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                                        }
+
+                                    MeerCounters->ioc++;
+                                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+
+                                }
+                        }
+                }
+        }
+
+    json_object_put(encode_json);
+    json_object_put(json_obj_smb);
+
+}
+
+/*****************************************************/
+/* IOC_FTP - Grabs files sent, received and username */
+/*****************************************************/
+
+void IOC_FTP( struct json_object *json_obj )
+{
+
+    char timestamp[64] = { 0 };
+    char src_ip[64] = { 0 };
+    char dest_ip[64] = { 0 };
+    uint64_t flow_id = 0;
+    char host[64] = { 0 };
+
+    char id_md5[41] = { 0 };
+
+    char ftp_command[64] = { 0 };
+    char ftp_command_data[10240] = { 0 };
+    char ftp_plus_data[10240+64+1] = { 0 }; 		/* COMMAND|COMMAND_DATA */
+
+    struct json_object *tmp = NULL;
+    struct json_object *json_obj_ftp = NULL;
+
+    struct json_object *encode_json = NULL;
+    encode_json = json_object_new_object();
+
+    if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
+        {
+            strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
+        }
+
+    if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
+        {
+            strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
+        }
+
+    if ( json_object_object_get_ex(json_obj, "dest_ip", &tmp) )
+        {
+            strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+        }
+
+    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
+        {
+            flow_id = json_object_get_int64(tmp);
+        }
+
+    if ( json_object_object_get_ex(json_obj, "host", &tmp) )
+        {
+            strlcpy( host, json_object_get_string(tmp), sizeof(host) );
+        }
+
+
+    if ( json_object_object_get_ex(json_obj, "ftp", &tmp) )
+        {
+
+            json_obj_ftp = json_tokener_parse(json_object_get_string(tmp));
+
+            if ( json_object_object_get_ex(json_obj_ftp, "command", &tmp) )
+                {
+
+                    strlcpy( ftp_command, json_object_get_string(tmp), sizeof(ftp_command) );
+
+                    if ( !strcmp(ftp_command, "STOR" ) ||
+                            !strcmp(ftp_command, "RETR" ) ||
+                            !strcmp(ftp_command, "USER" ) )
+                        {
+
+                            if ( json_object_object_get_ex(json_obj_ftp, "command_data", &tmp) )
+                                {
+
+                                    strlcpy(ftp_command_data, json_object_get_string(tmp), sizeof( ftp_command_data ) );
+
+
+                                    /****************************************/
+                                    /* New FTP JSON object                  */
+                                    /****************************************/
+
+                                    json_object *jtype = json_object_new_string( "ftp" );
+                                    json_object_object_add(encode_json,"type", jtype);
+
+
+                                    if ( timestamp[0] != '\0' )
+                                        {
+                                            json_object *jtimestamp = json_object_new_string( timestamp );
+                                            json_object_object_add(encode_json,"timestamp", jtimestamp);
+                                        }
+                                    if ( MeerConfig->description[0] != '\0' )
+                                        {
+                                            json_object *jdesc = json_object_new_string( MeerConfig->description );
+                                            json_object_object_add(encode_json,"description", jdesc);
+                                        }
+
+                                    if ( src_ip[0] != '\0' )
+                                        {
+                                            json_object *jsrc_ip = json_object_new_string( src_ip );
+                                            json_object_object_add(encode_json,"src_ip", jsrc_ip);
+                                        }
+
+                                    if ( dest_ip[0] != '\0' )
+                                        {
+                                            json_object *jdest_ip = json_object_new_string( dest_ip );
+                                            json_object_object_add(encode_json,"dest_ip", jdest_ip);
+                                        }
+
+                                    if ( host[0] != '\0' )
+                                        {
+                                            json_object *jhost = json_object_new_string( host );
+                                            json_object_object_add(encode_json,"host", jhost);
+                                        }
+
+
+                                    json_object *jflow_id = json_object_new_int64( flow_id );
+                                    json_object_object_add(encode_json,"flow_id", jflow_id);
+
+                                    if ( ftp_command[0] != '\0' )
+                                        {
+                                            json_object *jftp_command = json_object_new_string( ftp_command );
+                                            json_object_object_add(encode_json,"command", jftp_command);
+                                        }
+
+                                    if ( ftp_command_data[0] != '\0' )
+                                        {
+                                            json_object *jftp_command_data = json_object_new_string( ftp_command_data );
+                                            json_object_object_add(encode_json,"command_data", jftp_command_data);
+                                        }
+
+                                    snprintf(ftp_plus_data, sizeof(ftp_plus_data), "%s|%s", ftp_command, ftp_command_data);
+                                    ftp_plus_data[ sizeof(ftp_plus_data) - 1] = '\0';
+
+                                    MD5( (uint8_t*)ftp_plus_data, strlen(ftp_plus_data), id_md5, sizeof(id_md5) );
+
+                                    if ( MeerConfig->ioc_debug == true )
+                                        {
+                                            Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                                        }
+
+                                    MeerCounters->ioc++;
+                                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+
+                                }
+                        }
+                }
+        }
+
+    json_object_put(encode_json);
+    json_object_put(json_obj_ftp);
+
 
 }
 

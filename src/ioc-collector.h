@@ -22,6 +22,10 @@ void IOC_TLS( struct json_object *json_obj );
 void IOC_DNS( struct json_object *json_obj );
 void IOC_SSH( struct json_object *json_obj );
 void IOC_HTTP( struct json_object *json_obj );
+void IOC_SMB( struct json_object *json_obj );
+void IOC_FTP( struct json_object *json_obj );
+
+
 
 
 

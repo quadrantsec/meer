@@ -443,6 +443,16 @@ void Load_YAML_Config( char *yaml_file )
                                                     MeerConfig->ioc_routing_dns = true;
                                                 }
 
+                                            else if ( !strcmp(ptr1, "smb" ) )
+                                                {
+                                                    MeerConfig->ioc_routing_smb = true;
+                                                }
+
+                                            else if ( !strcmp(ptr1, "ftp" ) )
+                                                {
+                                                    MeerConfig->ioc_routing_ftp = true;
+                                                }
+
                                             ptr1 = strtok_r(NULL, ",", &tok);
 
                                         }

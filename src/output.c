@@ -537,7 +537,7 @@ bool Output_Pipe ( const char *json_string, const char *event_type )
             return(true);
         }
 
-    else if ( !strcmp(event_type, "ftp" ) && MeerOutput->pipe_ftp == true )
+    else if ( ( !strcmp(event_type, "ftp" ) || !strcmp(event_type, "ftp_data" ) ) && MeerOutput->pipe_ftp == true )
         {
             Pipe_Write( json_string );
             return(true);
@@ -862,7 +862,7 @@ bool Output_External ( const char *json_string, struct json_object *json_obj, co
         }
 
 
-    else if ( !strcmp(event_type, "ftp" ) && MeerOutput->external_ftp == true )
+    else if ( ( !strcmp(event_type, "ftp" ) || !strcmp(event_type, "ftp_data" ) )  && MeerOutput->external_ftp == true )
         {
             External( json_string );
             return(true);
@@ -1061,7 +1061,7 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type, con
             return(true);
         }
 
-    else if ( !strcmp(event_type, "ftp" ) && MeerOutput->elasticsearch_ftp == true )
+    else if ( ( !strcmp(event_type, "ftp" ) || !strcmp(event_type, "ftp_data" ) ) && MeerOutput->elasticsearch_ftp == true )
         {
             Output_Do_Elasticsearch( json_string, event_type, NULL );
             return(true);
@@ -1299,7 +1299,7 @@ bool Output_File ( const char *json_string, const char *event_type )
             return(true);
         }
 
-    else if ( !strcmp(event_type, "ftp" ) && MeerOutput->file_ftp == true )
+    else if ( ( !strcmp(event_type, "ftp" ) || !strcmp(event_type, "ftp_data" ) ) && MeerOutput->file_ftp == true )
         {
             Output_Do_File( json_string );
             return(true);
@@ -1458,7 +1458,7 @@ bool Output_Redis( const char *json_string, const char *event_type )
             return(true);
         }
 
-    else if ( !strcmp( event_type, "ftp") && MeerOutput->redis_ftp == true )
+    else if ( ( !strcmp( event_type, "ftp") || !strcmp(event_type, "ftp_data" ) ) && MeerOutput->redis_ftp == true )
         {
             JSON_To_Redis( json_string, event_type );
             return(true);

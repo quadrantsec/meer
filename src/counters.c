@@ -121,7 +121,7 @@ void Counters ( const char *event_type )
             return;
         }
 
-    else if ( !strcmp(event_type, "ftp" ) )
+    else if ( !strcmp(event_type, "ftp" ) || !strcmp(event_type, "ftp_data" ) )
         {
             MeerCounters->ftp++;
             return;

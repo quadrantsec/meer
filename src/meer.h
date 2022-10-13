@@ -77,6 +77,8 @@ struct _MeerConfig
     bool ioc_routing_fileinfo;
     bool ioc_routing_tls;
     bool ioc_routing_dns;
+    bool ioc_routing_smb;
+    bool ioc_routing_ftp;
 
 #ifdef HAVE_LIBMAXMINDDB
 
@@ -416,7 +418,7 @@ struct _MeerCounters
     uint_fast64_t bad;
     uint_fast64_t fingerprint;
     uint_fast64_t client_stats;
-    uint_fast64_t ioc; 
+    uint_fast64_t ioc;
 
     uint64_t DNSCount;
     uint64_t DNSCacheCount;
