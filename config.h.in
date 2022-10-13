@@ -54,6 +54,9 @@
 /* Define to 1 if you have the `curl' library (-lcurl). */
 #undef HAVE_LIBCURL
 
+/* Define to 1 if you have the `event' library (-levent). */
+#undef HAVE_LIBEVENT
+
 /* Define to 1 if you have the `hiredis' library (-lhiredis). */
 #undef HAVE_LIBHIREDIS
 

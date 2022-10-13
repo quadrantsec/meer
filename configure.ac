@@ -260,8 +260,9 @@ If you're not interested in GeoIP support use the --disable-geoip flag.))
 if test "$REDIS" = "yes"; then
        AC_MSG_RESULT([------- Redis support is enabled -------])
        AC_CHECK_HEADER([hiredis/hiredis.h])
-       AC_CHECK_LIB(hiredis, main,,AC_MSG_ERROR(The Hiredis (Redis) library cannot be found.
-       If you're not interested in Redis support use the --disable-redis flag.))
+       AC_CHECK_LIB(hiredis, main,,AC_MSG_ERROR(The Hiredis (Redis) library cannot be found. If you're not interested in Redis support use the --disable-redis flag.))
+       AC_CHECK_HEADER([hiredis/adapters/libevent.h])
+       AC_CHECK_LIB(event, main,,AC_MSG_ERROR(The library libevent cannot be found and is needed for Redis. If you're not interested in Redis support use the --disable-redis flag.))
        fi
 
 if test "$ELASTICSEARCH" = "yes"; then
