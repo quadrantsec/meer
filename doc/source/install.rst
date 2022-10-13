@@ -20,9 +20,12 @@ Optional Prerequisites
 Redis
 ~~~~~
 
-If you would like to have Meer store data into Redis,  which is enabled by default during compile time,  you will need the "hiredis" library and development files.  On Ubuntu/Debian systems:
+If you would like to have Meer store data into Redis,  which is enabled by default during compile time,  you will need the "hiredis" library and development files.  You will also need ``libevent`` installed as well.  
 
-.. option:: sudo apt-get install libhiredis-dev
+On Ubuntu/Debian systems:
+
+.. option:: sudo apt-get install libhiredis-dev libevent-dev
+
 
 Elasticsearch
 ~~~~~~~~~~~~~
