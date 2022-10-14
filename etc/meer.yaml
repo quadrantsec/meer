@@ -165,7 +165,7 @@ meer-core:
     # list. 
     #########################################################################
 
-    ioc-collector: enabled
+    ioc-collector: disabled
     ioc-debug: disabled
     ioc-ignore-networks: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
     ioc-routing: "flow, http, ssh, fileinfo, tls, dns, smb, ftp"
@@ -465,5 +465,6 @@ output-plugins:
       - dnp3
       - anomaly
       - fingerprint
+      - ioc
 
 
