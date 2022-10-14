@@ -41,6 +41,18 @@ extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
 extern struct _IOC_Ignore *IOC_Ignore;
 
+/* Simple global cache system to skip repeat data */
+
+char last_flow_id[MD5_SIZE] = { 0 };
+char last_http_id[MD5_SIZE] = { 0 };
+char last_user_agent_id[MD5_SIZE] = { 0 };
+char last_ssh_id[MD5_SIZE] = { 0 };
+char last_fileinfo_id[MD5_SIZE] = { 0 };
+char last_tls_id[MD5_SIZE] = { 0 };
+char last_dns_id[MD5_SIZE] = { 0 };
+char last_smb_id[MD5_SIZE] = { 0 };
+char last_ftp_id[MD5_SIZE] = { 0 };
+
 /*******************************************************************/
 /* IOC_Collector - Determines "what" we want to collect data from  */
 /*******************************************************************/
@@ -109,7 +121,7 @@ void IOC_Flow( struct json_object *json_obj )
     char tmp_ip[64] = { 0 };
     char src_ip[64] = { 0 };
     char dest_ip[64] = { 0 };
-    char id_md5[41] = { 0 };
+    char id_md5[MD5_SIZE] = { 0 };
 
     uint8_t i = 0;
 
@@ -376,13 +388,28 @@ void IOC_Flow( struct json_object *json_obj )
 
                             MD5( (uint8_t*)tmp_ip, strlen(tmp_ip), id_md5, sizeof(id_md5) );
 
-                            if ( MeerConfig->ioc_debug == true )
+                            if ( strcmp(last_flow_id, id_md5 ) )
                                 {
-                                    Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
-                                }
 
-                            MeerCounters->ioc++;
-                            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+                                    if ( MeerConfig->ioc_debug == true )
+                                        {
+                                            Meer_Log(DEBUG, "[%s, line %d] INSERT %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                                        }
+
+                                    MeerCounters->ioc++;
+                                    strlcpy(last_flow_id, id_md5, MD5_SIZE);
+                                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+                                }
+                            else
+                                {
+
+                                    if ( MeerConfig->ioc_debug == true )
+                                        {
+                                            Meer_Log(DEBUG, "[%s, line %d] SKIP %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                                        }
+
+                                    MeerCounters->ioc_skip++;
+                                }
 
                         }
                 }
@@ -409,9 +436,9 @@ void IOC_FileInfo( struct json_object *json_obj )
     char src_ip[64] = { 0 };
     char dest_ip[64] = { 0 };
 
-    char md5[33] = { 0 };
-    char sha1[41] = { 0 };
-    char sha256[65] = { 0 };
+    char md5[MD5_SIZE] = { 0 };
+    char sha1[SHA1_SIZE] = { 0 };
+    char sha256[SHA256_SIZE] = { 0 };
     char filename[8192] = { 0 };
     char magic[512] = { 0 };
     char host[64] = { 0 };
@@ -571,14 +598,30 @@ void IOC_FileInfo( struct json_object *json_obj )
             json_object_object_add(encode_json,"description", jdesc);
         }
 
-    if ( MeerConfig->ioc_debug == true )
+    /* Is this a repeat log */
+
+    if ( strcmp(last_fileinfo_id, md5 ) )
         {
-            Meer_Log(DEBUG, "[%s, line %d] %s, %s", __FILE__, __LINE__, md5, json_object_to_json_string(encode_json) );
+
+            if ( MeerConfig->ioc_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] INSERT: %s, %s", __FILE__, __LINE__, md5, json_object_to_json_string(encode_json) );
+                }
+
+            MeerCounters->ioc++;
+            strlcpy(last_fileinfo_id, md5, MD5_SIZE);
+            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", md5 );
         }
+    else
+        {
 
-    MeerCounters->ioc++;
+            if ( MeerConfig->ioc_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] SKIP: %s, %s", __FILE__, __LINE__, md5, json_object_to_json_string(encode_json) );
+                }
 
-    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", md5 );
+            MeerCounters->ioc_skip++;
+        }
 
     json_object_put(encode_json);
     json_object_put(json_obj_fileinfo);
@@ -596,7 +639,7 @@ void IOC_TLS( struct json_object *json_obj )
     char src_ip[64] = { 0 };
     char dest_ip[64] = { 0 };
 
-    char id_md5[41] = { 0 };
+    char id_md5[MD5_SIZE] = { 0 };
 
     char fingerprint[128] = { 0 };
     char subject[1024] = { 0 };
@@ -836,13 +879,30 @@ void IOC_TLS( struct json_object *json_obj )
 
     MD5( (uint8_t*)id, strlen(id), id_md5, sizeof(id_md5) );
 
-    if ( MeerConfig->ioc_debug == true )
-        {
-            Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
-        }
+    /* Is this a repeat log */
 
-    MeerCounters->ioc++;
-    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+    if ( strcmp(last_tls_id, id_md5 ) )
+        {
+
+            if ( MeerConfig->ioc_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] INSERT: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                }
+
+            MeerCounters->ioc++;
+            strlcpy(last_tls_id, id_md5, MD5_SIZE);
+            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+        }
+    else
+        {
+
+            if ( MeerConfig->ioc_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] SKIP: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                }
+
+            MeerCounters->ioc_skip++;
+        }
 
     json_object_put(encode_json);
     json_object_put(json_obj_ja3);
@@ -866,7 +926,7 @@ void IOC_DNS( struct json_object *json_obj )
     char rrtype[16] = { 0 };
     char host[64] = { 0 };
 
-    char id_md5[41] = { 0 };
+    char id_md5[MD5_SIZE] = { 0 };
 
     struct json_object *tmp = NULL;
     struct json_object *json_obj_dns = NULL;
@@ -1003,13 +1063,31 @@ void IOC_DNS( struct json_object *json_obj )
 
     MD5( (uint8_t*)rrname, strlen(rrname), id_md5, sizeof(id_md5) );
 
-    if ( MeerConfig->ioc_debug == true )
-        {
-            Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
-        }
+    /* Is this a repeat log */
 
-    MeerCounters->ioc++;
-    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5);
+    if ( strcmp(last_dns_id, id_md5 ) )
+        {
+
+            if ( MeerConfig->ioc_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] INSERT: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                }
+
+            MeerCounters->ioc++;
+            strlcpy(last_dns_id, id_md5, MD5_SIZE);
+            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+        }
+    else
+        {
+
+            if ( MeerConfig->ioc_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] SKIP: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                }
+
+
+            MeerCounters->ioc_skip++;
+        }
 
     json_object_put(encode_json);
     json_object_put(json_obj_dns);
@@ -1037,7 +1115,7 @@ void IOC_SSH( struct json_object *json_obj )
     uint16_t src_port = 0;
     uint16_t dest_port = 0;
 
-    char id_md5[41] = { 0 };
+    char id_md5[MD5_SIZE] = { 0 };
 
     struct json_object *encode_json = NULL;
     encode_json = json_object_new_object();
@@ -1194,14 +1272,30 @@ void IOC_SSH( struct json_object *json_obj )
 
     MD5( (uint8_t*)tmp_id, strlen(tmp_id), id_md5, sizeof(id_md5) );
 
-    if ( MeerConfig->ioc_debug == true )
+    /* Is this a repeat log */
+
+    if ( strcmp(last_ssh_id, id_md5 ) )
         {
-            Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+
+            if ( MeerConfig->ioc_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] INSERT: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                }
+
+            MeerCounters->ioc++;
+            strlcpy(last_ssh_id, id_md5, MD5_SIZE);
+            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
         }
+    else
+        {
 
-    MeerCounters->ioc++;
+            if ( MeerConfig->ioc_debug == true )
+                {
+                    Meer_Log(DEBUG, "[%s, line %d] SKIP: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                }
 
-    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+            MeerCounters->ioc_skip++;
+        }
 
     json_object_put(encode_json);		/* DEBIG : NO SENSE, THIS CAUSES A FAULT */
     json_object_put(json_obj_ssh);
@@ -1223,7 +1317,7 @@ void IOC_HTTP( struct json_object *json_obj )
     uint64_t flow_id = 0;
     char host[64] = { 0 };
 
-    char id_md5[41] = { 0 };
+    char id_md5[MD5_SIZE] = { 0 };
 
     char http_user_agent[2048] = { 0 };
     char hostname[256] = { 0 };
@@ -1373,16 +1467,33 @@ void IOC_HTTP( struct json_object *json_obj )
 
             MD5( (uint8_t*)full_url, strlen(full_url), id_md5, sizeof(id_md5) );
 
-            /* Full URL */
+            /* Is this a repeat log */
 
-            if ( MeerConfig->ioc_debug == true )
+            if ( strcmp(last_http_id, id_md5 ) )
                 {
-                    Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+
+                    if ( MeerConfig->ioc_debug == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] INSERT: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                        }
+
+
+                    MeerCounters->ioc++;
+                    strlcpy(last_http_id, id_md5, MD5_SIZE);
+                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
                 }
+            else
+                {
 
-            MeerCounters->ioc++;
+                    if ( MeerConfig->ioc_debug == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] SKIP: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                        }
 
-            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+
+
+                    MeerCounters->ioc_skip++;
+                }
 
             json_object *jtype_ua = json_object_new_string( "user_agent" );
             json_object_object_add(encode_json_user_agent,"type", jtype_ua);
@@ -1428,15 +1539,32 @@ void IOC_HTTP( struct json_object *json_obj )
 
             MD5( (uint8_t*)http_user_agent, strlen(http_user_agent), id_md5, sizeof(id_md5) );
 
-            /* User Agent */
+            /* Is this a repeat log */
 
-            if ( MeerConfig->ioc_debug == true )
+            if ( strcmp(last_user_agent_id, id_md5 ) )
                 {
-                    Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_user_agent) );
+
+                    if ( MeerConfig->ioc_debug == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] INSERT: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_user_agent) );
+                        }
+
+                    MeerCounters->ioc++;
+                    strlcpy(last_user_agent_id, id_md5, MD5_SIZE);
+                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_user_agent), "ioc", id_md5 );
+                }
+            else
+                {
+
+                    if ( MeerConfig->ioc_debug == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] SKIP: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_user_agent) );
+                        }
+
+
+                    MeerCounters->ioc_skip++;
                 }
 
-            MeerCounters->ioc++;
-            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_user_agent), "ioc", id_md5 );
 
         }
 
@@ -1460,7 +1588,7 @@ void IOC_SMB( struct json_object *json_obj )
     uint64_t flow_id = 0;
     char host[64] = { 0 };
 
-    char id_md5[41] = { 0 };
+    char id_md5[MD5_SIZE] = { 0 };
 
     char smb_command[64] = { 0 };
     char smb_filename[10240] = { 0 };
@@ -1575,15 +1703,36 @@ void IOC_SMB( struct json_object *json_obj )
 
                                     MD5( (uint8_t*)command_filename, strlen(command_filename), id_md5, sizeof(id_md5) );
 
-                                    /* User Agent */
-
                                     if ( MeerConfig->ioc_debug == true )
                                         {
                                             Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
                                         }
 
-                                    MeerCounters->ioc++;
-                                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+
+                                    /* Is this a repeat log */
+
+                                    if ( strcmp(last_smb_id, id_md5 ) )
+                                        {
+
+                                            if ( MeerConfig->ioc_debug == true )
+                                                {
+                                                    Meer_Log(DEBUG, "[%s, line %d] INSERT: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                                                }
+
+                                            MeerCounters->ioc++;
+                                            strlcpy(last_smb_id, id_md5, MD5_SIZE);
+                                            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+                                        }
+                                    else
+                                        {
+
+                                            if ( MeerConfig->ioc_debug == true )
+                                                {
+                                                    Meer_Log(DEBUG, "[%s, line %d] SKIP: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                                                }
+
+                                            MeerCounters->ioc_skip++;
+                                        }
 
                                 }
                         }
@@ -1608,7 +1757,7 @@ void IOC_FTP( struct json_object *json_obj )
     uint64_t flow_id = 0;
     char host[64] = { 0 };
 
-    char id_md5[41] = { 0 };
+    char id_md5[MD5_SIZE] = { 0 };
 
     char ftp_command[64] = { 0 };
     char ftp_command_data[10240] = { 0 };
@@ -1725,13 +1874,32 @@ void IOC_FTP( struct json_object *json_obj )
 
                                     MD5( (uint8_t*)ftp_plus_data, strlen(ftp_plus_data), id_md5, sizeof(id_md5) );
 
-                                    if ( MeerConfig->ioc_debug == true )
-                                        {
-                                            Meer_Log(DEBUG, "[%s, line %d] %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
-                                        }
+                                    /* Is this a repeat log */
 
-                                    MeerCounters->ioc++;
-                                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+                                    if ( strcmp(last_ftp_id, id_md5 ) )
+                                        {
+
+                                            if ( MeerConfig->ioc_debug == true )
+                                                {
+                                                    Meer_Log(DEBUG, "[%s, line %d] INSERT: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                                                }
+
+
+                                            MeerCounters->ioc++;
+                                            strlcpy(last_ftp_id, id_md5, MD5_SIZE);
+                                            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ioc", id_md5 );
+                                        }
+                                    else
+                                        {
+
+                                            if ( MeerConfig->ioc_debug == true )
+                                                {
+                                                    Meer_Log(DEBUG, "[%s, line %d] SKIP: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                                                }
+
+
+                                            MeerCounters->ioc_skip++;
+                                        }
 
                                 }
                         }

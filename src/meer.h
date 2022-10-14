@@ -419,6 +419,7 @@ struct _MeerCounters
     uint_fast64_t fingerprint;
     uint_fast64_t client_stats;
     uint_fast64_t ioc;
+    uint_fast64_t ioc_skip;
 
     uint64_t DNSCount;
     uint64_t DNSCacheCount;

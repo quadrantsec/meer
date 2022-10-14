@@ -91,4 +91,10 @@
 #define 	MEER_USER_AGENT 			"User-Agent: Meer"
 #define 	MEER_BLUEDOT_SOURCE			"Meer"
 
+#define		MD5_SIZE				33
+#define		SHA1_SIZE				41
+#define		SHA256_SIZE				65
+
+
+
 

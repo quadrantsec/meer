@@ -80,6 +80,7 @@ void Statistics( void )
     Meer_Log(NORMAL, " anomaly       : %" PRIu64 " (%.3f%%)", MeerCounters->anomaly, CalcPct( MeerCounters->anomaly, MeerCounters->total ) );
     Meer_Log(NORMAL, " client_stats  : %" PRIu64 " (%.3f%%)", MeerCounters->client_stats, CalcPct( MeerCounters->client_stats, MeerCounters->total ) );
     Meer_Log(NORMAL, " ioc           : %" PRIu64 " (%.3f%%)", MeerCounters->ioc, CalcPct( MeerCounters->ioc, MeerCounters->total ) );
+    Meer_Log(NORMAL, " ioc skipped   : %" PRIu64 " (%.3f%%)", MeerCounters->ioc_skip, CalcPct( MeerCounters->ioc_skip, MeerCounters->total ) );
 
 
     Meer_Log(NORMAL, "");
