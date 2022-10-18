@@ -70,10 +70,9 @@ void onMessage(redisAsyncContext *c, void *reply, void *privdata)
 
     if (reply == NULL)
         {
-	    Meer_Log(ERROR, "[%s, line %d] Fatal Error:  Can't allocate memory for reply! Abort!\n", __FILE__, __LINE__);
-
-//            free(buf);
-//            return;
+	    Meer_Log(WARN, "[%s, line %d] Can't allocate memory for reply!", __FILE__, __LINE__);
+            free(buf);
+            return;
         }
 
 
@@ -103,10 +102,8 @@ void onMessage(redisAsyncContext *c, void *reply, void *privdata)
 }
 
 
-bool Input_Redis_Subscribe( void )
+void Input_Redis_Subscribe( void )
 {
-
-//    signal(SIGPIPE, SIG_IGN);
 
     char tmp_command[512] = { 0 };
 
@@ -116,9 +113,9 @@ bool Input_Redis_Subscribe( void )
 
     if (c->err)
         {
-            printf("error: %s\n", c->errstr);
+	    Meer_Log(WARN, "[%s, line %d] Redis error: %s", __FILE__, __LINE__, c->errstr);
             redisAsyncFree(c);
-            return 1;
+            return;
         }
 
 
@@ -144,9 +141,8 @@ bool Input_Redis_Subscribe( void )
     event_base_dispatch(base);
 
     event_base_free(base);
-    redisAsyncFree(c);
 
-    return 0;
+    return;
 
 }
 

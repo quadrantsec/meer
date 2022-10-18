@@ -245,7 +245,15 @@ int main (int argc, char *argv[])
     else if ( MeerInput->type == YAML_INPUT_REDIS )
         {
 
-            Input_Redis_Subscribe();
+            /* When redis pub/sub gets backed up,  it will fail back to
+               here.  We want to make sure we re-connect and start
+                   collecting events ASAP */
+
+            while(1)
+                {
+                    Input_Redis_Subscribe();
+                    Meer_Log(WARN, "[%s, line %d] Re-establising connection to redis %s....", __FILE__, __LINE__, MeerInput->redis_channel);
+                }
         }
 
 #endif

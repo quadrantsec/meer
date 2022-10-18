@@ -18,4 +18,4 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-bool Input_Redis_Subscribe( void );
+void Input_Redis_Subscribe( void );
