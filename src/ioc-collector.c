@@ -21,6 +21,13 @@
 /* System for collecting potential IOCs and putting them in Zinc,  OpenSearch
    or Elasticsearch */
 
+/* TODO: 
+
+   Short circuit other IOC (do it like DNS and FLOW)
+   Add "dns" data when avaliable! 
+
+*/
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"             /* From autoconf */
 #endif
@@ -57,54 +64,54 @@ char last_ftp_id[MD5_SIZE] = { 0 };
 /* IOC_Collector - Determines "what" we want to collect data from  */
 /*******************************************************************/
 
-void IOC_Collector( struct json_object *json_obj, const char *json_string, const char *event_type )
+void IOC_Collector( struct json_object *json_obj, const char *json_string, const char *event_type, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     if ( !strcmp( event_type, "flow" ) && MeerConfig->ioc_routing_flow == true )
         {
-            IOC_Flow( json_obj );
+            IOC_Flow( json_obj, src_ip, dest_ip, flow_id );
             return;
         }
 
     else if ( !strcmp( event_type, "http" ) && MeerConfig->ioc_routing_http == true )
         {
-            IOC_HTTP( json_obj );
+            IOC_HTTP( json_obj, src_ip, dest_ip, flow_id );
             return;
         }
 
     else if ( !strcmp( event_type, "ssh" ) && MeerConfig->ioc_routing_ssh == true )
         {
-            IOC_SSH( json_obj );
+            IOC_SSH( json_obj, src_ip, dest_ip, flow_id );
             return;
         }
 
     else if ( !strcmp( event_type, "fileinfo" ) && MeerConfig->ioc_routing_fileinfo == true )
         {
-            IOC_FileInfo( json_obj );
+            IOC_FileInfo( json_obj, src_ip, dest_ip, flow_id );
             return;
         }
 
     if ( !strcmp( event_type, "tls" ) && MeerConfig->ioc_routing_tls == true )
         {
-            IOC_TLS( json_obj );
+            IOC_TLS( json_obj, src_ip, dest_ip, flow_id );
             return;
         }
 
     else if ( !strcmp( event_type, "dns" ) && MeerConfig->ioc_routing_dns == true )
         {
-            IOC_DNS( json_obj );
+            IOC_DNS( json_obj, src_ip, dest_ip, flow_id );
             return;
         }
 
     else if ( !strcmp( event_type, "smb" ) && MeerConfig->ioc_routing_smb == true )
         {
-            IOC_SMB( json_obj );
+            IOC_SMB( json_obj, src_ip, dest_ip, flow_id );
             return;
         }
 
     else if ( !strcmp( event_type, "ftp" ) && MeerConfig->ioc_routing_ftp == true )
         {
-            IOC_FTP( json_obj );
+            IOC_FTP( json_obj, src_ip, dest_ip, flow_id );
             return;
         }
 
@@ -114,13 +121,13 @@ void IOC_Collector( struct json_object *json_obj, const char *json_string, const
 /* IOC_Flow - Remove local IPs and collect IP addresses of interest */
 /********************************************************************/
 
-void IOC_Flow( struct json_object *json_obj )
+void IOC_Flow( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char *tmp_type = NULL;
     char tmp_ip[64] = { 0 };
-    char src_ip[64] = { 0 };
-    char dest_ip[64] = { 0 };
+//    char src_ip[64] = { 0 };
+//    char dest_ip[64] = { 0 };
     char id_md5[MD5_SIZE] = { 0 };
 
     uint8_t i = 0;
@@ -148,10 +155,10 @@ void IOC_Flow( struct json_object *json_obj )
     char end[64] = { 0 };
     char host[64] = { 0 };
 
-    uint64_t flow_id = 0;
+//    uint64_t flow_id = 0;
 
-    json_object_object_get_ex(json_obj, "src_ip", &tmp);
-    strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
+//    json_object_object_get_ex(json_obj, "src_ip", &tmp);
+//    strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
 
     MD5( (uint8_t*)src_ip, strlen(src_ip), id_md5, sizeof(id_md5) );
 
@@ -160,7 +167,7 @@ void IOC_Flow( struct json_object *json_obj )
 
             if ( MeerConfig->ioc_debug == true )
                 {
-                    Meer_Log(DEBUG, "[%s, line %d] SKIP HTTP %s", __FILE__, __LINE__, id_md5);
+                    Meer_Log(DEBUG, "[%s, line %d] SKIP FLOW %s", __FILE__, __LINE__, id_md5);
                 }
 
             MeerCounters->ioc_skip++;
@@ -171,8 +178,8 @@ void IOC_Flow( struct json_object *json_obj )
             return;
         }
 
-    json_object_object_get_ex(json_obj, "dest_ip", &tmp);
-    strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+//    json_object_object_get_ex(json_obj, "dest_ip", &tmp);
+//    strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
 
     MD5( (uint8_t*)dest_ip, strlen(dest_ip), id_md5, sizeof(id_md5) );
 
@@ -266,10 +273,10 @@ void IOC_Flow( struct json_object *json_obj )
                                     strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
                                 }
 
-                            if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
-                                {
-                                    flow_id = json_object_get_int64(tmp);
-                                }
+//                            if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
+//                                {
+//                                    flow_id = json_object_get_int64(tmp);
+//                                }
 
                             if ( json_object_object_get_ex(json_obj, "proto", &tmp) )
                                 {
@@ -349,11 +356,8 @@ void IOC_Flow( struct json_object *json_obj )
                             json_object *jdest_ip = json_object_new_string( dest_ip );
                             json_object_object_add(encode_json,"dest_ip", jdest_ip);
 
-                            if ( flow_id != 0 )
-                                {
-                                    json_object *jflow_id = json_object_new_int64( flow_id );
-                                    json_object_object_add(encode_json,"flow_id", jflow_id);
-                                }
+                            json_object *jflow_id = json_object_new_string( flow_id );
+                            json_object_object_add(encode_json,"flow_id", jflow_id);
 
                             json_object *jdirection = json_object_new_string( tmp_type );
                             json_object_object_add(encode_json,"direction", jdirection);
@@ -464,16 +468,16 @@ void IOC_Flow( struct json_object *json_obj )
 /* IOC_FileInfo - Collect file hashes */
 /**************************************/
 
-void IOC_FileInfo( struct json_object *json_obj )
+void IOC_FileInfo( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
-    uint64_t flow_id = 0;
+//    uint64_t flow_id = 0;
     uint64_t size = 0;
 
     char app_proto[32] = { 0 };
     char timestamp[64] = { 0 };
-    char src_ip[64] = { 0 };
-    char dest_ip[64] = { 0 };
+//    char src_ip[64] = { 0 };
+//    char dest_ip[64] = { 0 };
 
     char md5[MD5_SIZE] = { 0 };
     char sha1[SHA1_SIZE] = { 0 };
@@ -489,11 +493,11 @@ void IOC_FileInfo( struct json_object *json_obj )
 
     struct json_object *json_obj_fileinfo = NULL;
 
-    json_object_object_get_ex(json_obj, "src_ip", &tmp);
-    strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
+//    json_object_object_get_ex(json_obj, "src_ip", &tmp);
+//    strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
 
-    json_object_object_get_ex(json_obj, "dest_ip", &tmp);
-    strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+//    json_object_object_get_ex(json_obj, "dest_ip", &tmp);
+ //   strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
@@ -505,10 +509,10 @@ void IOC_FileInfo( struct json_object *json_obj )
             strlcpy( app_proto, json_object_get_string(tmp), sizeof(app_proto) );
         }
 
-    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
-        {
-            flow_id = json_object_get_int64(tmp);
-        }
+ //   if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
+//        {
+//            flow_id = json_object_get_int64(tmp);
+//        }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
@@ -629,7 +633,7 @@ void IOC_FileInfo( struct json_object *json_obj )
     json_object *jsize = json_object_new_int64( size );
     json_object_object_add(encode_json,"size", jsize);
 
-    json_object *jflow_id = json_object_new_int64( flow_id );
+    json_object *jflow_id = json_object_new_string( flow_id );
     json_object_object_add(encode_json,"flow_id", jflow_id);
 
     if ( host[0] != '\0' )
@@ -678,12 +682,12 @@ void IOC_FileInfo( struct json_object *json_obj )
 /* IOC_TLS - Collect SNI, expire dates, etc */
 /********************************************/
 
-void IOC_TLS( struct json_object *json_obj )
+void IOC_TLS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
-    char src_ip[64] = { 0 };
-    char dest_ip[64] = { 0 };
+  //  char src_ip[64] = { 0 };
+  //  char dest_ip[64] = { 0 };
 
     char id_md5[MD5_SIZE] = { 0 };
 
@@ -702,7 +706,7 @@ void IOC_TLS( struct json_object *json_obj )
 
     char id[68] = { 0 };
 
-    uint64_t flow_id = 0;
+//    uint64_t flow_id = 0;
 
     struct json_object *tmp = NULL;
     struct json_object *json_obj_tls = NULL;
@@ -712,25 +716,23 @@ void IOC_TLS( struct json_object *json_obj )
     struct json_object *encode_json = NULL;
     encode_json = json_object_new_object();
 
+/*
+    json_object_object_get_ex(json_obj, "src_ip", &tmp);
+    strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
+
+    json_object_object_get_ex(json_obj, "dest_ip", &tmp);
+    strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+*/
+
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
             strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
         }
 
-    if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
-        {
-            strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
-        }
-
-    if ( json_object_object_get_ex(json_obj, "dest_ip", &tmp) )
-        {
-            strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
-        }
-
-    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
-        {
-            flow_id = json_object_get_int64(tmp);
-        }
+//    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
+//        {
+//            flow_id = json_object_get_int64(tmp);
+//        }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
@@ -831,23 +833,14 @@ void IOC_TLS( struct json_object *json_obj )
             json_object_object_add(encode_json,"timestamp", jtimestamp);
         }
 
-    if ( flow_id != 0 )
-        {
-            json_object *jflow_id = json_object_new_int64( flow_id );
+            json_object *jflow_id = json_object_new_string( flow_id );
             json_object_object_add(encode_json,"flow_id", jflow_id);
-        }
 
-    if ( src_ip[0] != '\0' )
-        {
             json_object *jsrc_ip = json_object_new_string( src_ip );
             json_object_object_add(encode_json,"src_ip", jsrc_ip);
-        }
 
-    if ( dest_ip[0] != '\0' )
-        {
             json_object *jdest_ip = json_object_new_string( dest_ip );
             json_object_object_add(encode_json,"dest_ip", jdest_ip);
-        }
 
     if ( fingerprint[0] != '\0' )
         {
@@ -905,8 +898,8 @@ void IOC_TLS( struct json_object *json_obj )
     json_object *jja3s = json_object_new_string( ja3s );
     json_object_object_add(encode_json,"ja3s", jja3s );
 
-    json_object_object_get_ex(json_obj, "flow_id", &tmp);
-    flow_id = json_object_get_int64(tmp);
+//    json_object_object_get_ex(json_obj, "flow_id", &tmp);
+//    flow_id = json_object_get_int64(tmp);
 
     if ( host[0] != '\0' )
         {
@@ -961,13 +954,13 @@ void IOC_TLS( struct json_object *json_obj )
 /* IOC_DNS - Collect "queries" (not answers) */
 /*********************************************/
 
-void IOC_DNS( struct json_object *json_obj )
+void IOC_DNS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
-    char src_ip[64] = { 0 };
-    char dest_ip[64] = { 0 };
-    uint64_t flow_id = 0;
+//    char src_ip[64] = { 0 };
+//    char dest_ip[64] = { 0 };
+//    uint64_t flow_id = 0;
     char rrname[8192] = { 0 };
     char rrtype[16] = { 0 };
     char host[64] = { 0 };
@@ -980,21 +973,21 @@ void IOC_DNS( struct json_object *json_obj )
     struct json_object *encode_json = NULL;
     encode_json = json_object_new_object();
 
-    json_object_object_get_ex(json_obj, "src_ip", &tmp);
-    strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
+//    json_object_object_get_ex(json_obj, "src_ip", &tmp);
+//    strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
 
-    json_object_object_get_ex(json_obj, "dest_ip", &tmp);
-    strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+//    json_object_object_get_ex(json_obj, "dest_ip", &tmp);
+//    strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
             strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
         }
 
-    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
-        {
-            flow_id = json_object_get_int64(tmp);
-        }
+//    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
+//        {
+//            flow_id = json_object_get_int64(tmp);
+//        }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
@@ -1092,7 +1085,7 @@ void IOC_DNS( struct json_object *json_obj )
                 }
 
 
-            json_object *jflow_id = json_object_new_int64( flow_id );
+            json_object *jflow_id = json_object_new_string( flow_id );
             json_object_object_add(encode_json,"flow_id", jflow_id);
 
             if ( rrname[0] != '\0' )
@@ -1156,18 +1149,18 @@ void IOC_DNS( struct json_object *json_obj )
 /* IOC_SSH - Collect SSH version / banners */
 /********************************************/
 
-void IOC_SSH( struct json_object *json_obj )
+void IOC_SSH( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
-    char src_ip[64] = { 0 };
-    char dest_ip[64] = { 0 };
+//    char src_ip[64] = { 0 };
+//    char dest_ip[64] = { 0 };
     char host[64] = { 0 };
     char proto_version[64] = { 0 };
     char client_version[256] = { 0 };
     char server_version[256] = { 0 };
 
-    uint64_t flow_id = 0;
+//    uint64_t flow_id = 0;
     char tmp_id[64] = { 0 };
 
     uint16_t src_port = 0;
@@ -1188,20 +1181,20 @@ void IOC_SSH( struct json_object *json_obj )
             strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
         }
 
-    if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
-        {
-            strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
-        }
+ //   if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
+//        {
+//            strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
+//        }
 
-    if ( json_object_object_get_ex(json_obj, "dest_ip", &tmp) )
-        {
-            strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
-        }
+//    if ( json_object_object_get_ex(json_obj, "dest_ip", &tmp) )
+//        {
+//            strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+//        }
 
-    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
-        {
-            flow_id = json_object_get_int64(tmp);
-        }
+//    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
+//        {
+//            flow_id = json_object_get_int64(tmp);
+//        }
 
     if ( json_object_object_get_ex(json_obj, "src_port", &tmp) )
         {
@@ -1298,7 +1291,7 @@ void IOC_SSH( struct json_object *json_obj )
             json_object_object_add(encode_json,"host", jhost);
         }
 
-    json_object *jflow_id = json_object_new_int64( flow_id );
+    json_object *jflow_id = json_object_new_string( flow_id );
     json_object_object_add(encode_json,"flow_id", jflow_id);
 
     if ( MeerConfig->description[0] != '\0' )
@@ -1366,13 +1359,13 @@ void IOC_SSH( struct json_object *json_obj )
 /* IOC_HTTP - Collects user agents, URLs, etc */
 /**********************************************/
 
-void IOC_HTTP( struct json_object *json_obj )
+void IOC_HTTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
-    char src_ip[64] = { 0 };
-    char dest_ip[64] = { 0 };
-    uint64_t flow_id = 0;
+//    char src_ip[64] = { 0 };
+//    char dest_ip[64] = { 0 };
+//    uint64_t flow_id = 0;
     char host[64] = { 0 };
 
     char id_md5[MD5_SIZE] = { 0 };
@@ -1400,20 +1393,20 @@ void IOC_HTTP( struct json_object *json_obj )
             strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
         }
 
-    if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
-        {
-            strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
-        }
+//    if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
+//        {
+//            strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
+//        }
 
-    if ( json_object_object_get_ex(json_obj, "dest_ip", &tmp) )
-        {
-            strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
-        }
+//    if ( json_object_object_get_ex(json_obj, "dest_ip", &tmp) )
+//        {
+//            strlcpy( dest_ip, json_object_get_string(tmp), sizeof(dest_ip) );
+//        }
 
-    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
-        {
-            flow_id = json_object_get_int64(tmp);
-        }
+//    if ( json_object_object_get_ex(json_obj, "flow_id", &tmp) )
+//        {
+//            flow_id = json_object_get_int64(tmp);
+//        }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
@@ -1462,6 +1455,12 @@ void IOC_HTTP( struct json_object *json_obj )
             json_object *jtype = json_object_new_string( "http" );
             json_object_object_add(encode_json,"type", jtype);
 
+                    json_object *jsrc_ip = json_object_new_string( src_ip );
+                    json_object_object_add(encode_json,"src_ip", jsrc_ip);
+
+                    json_object *jdest_ip = json_object_new_string( dest_ip );
+                    json_object_object_add(encode_json,"dest_ip", jdest_ip);
+
             if ( timestamp[0] != '\0' )
                 {
                     json_object *jtimestamp = json_object_new_string( timestamp );
@@ -1474,25 +1473,13 @@ void IOC_HTTP( struct json_object *json_obj )
                     json_object_object_add(encode_json,"description", jdesc);
                 }
 
-            if ( src_ip[0] != '\0' )
-                {
-                    json_object *jsrc_ip = json_object_new_string( src_ip );
-                    json_object_object_add(encode_json,"src_ip", jsrc_ip);
-                }
-
-            if ( dest_ip[0] != '\0' )
-                {
-                    json_object *jdest_ip = json_object_new_string( dest_ip );
-                    json_object_object_add(encode_json,"dest_ip", jdest_ip);
-                }
-
             if ( host[0] != '\0' )
                 {
                     json_object *jhost = json_object_new_string( host );
                     json_object_object_add(encode_json,"host", jhost);
                 }
 
-            json_object *jflow_id = json_object_new_int64( flow_id );
+            json_object *jflow_id = json_object_new_string( flow_id );
             json_object_object_add(encode_json,"flow_id", jflow_id);
 
             snprintf(full_url, sizeof(full_url), "%s%s", hostname, url);
@@ -1574,19 +1561,13 @@ void IOC_HTTP( struct json_object *json_obj )
                     json_object_object_add(encode_json_user_agent,"timestamp", jtimestamp_ua);
                 }
 
-            if ( src_ip[0] != '\0' )
-                {
-                    json_object *jsrc_ip_ua = json_object_new_string( src_ip );
-                    json_object_object_add(encode_json_user_agent,"src_ip", jsrc_ip_ua);
-                }
+            json_object *jsrc_ip_ua = json_object_new_string( src_ip );
+            json_object_object_add(encode_json_user_agent,"src_ip", jsrc_ip_ua);
 
-            if ( dest_ip[0] != '\0' )
-                {
-                    json_object *jdest_ip_ua = json_object_new_string( dest_ip );
-                    json_object_object_add(encode_json_user_agent,"dest_ip", jdest_ip_ua);
-                }
+            json_object *jdest_ip_ua = json_object_new_string( dest_ip );
+            json_object_object_add(encode_json_user_agent,"dest_ip", jdest_ip_ua);
 
-            json_object *jflow_id_ua = json_object_new_int64( flow_id );
+            json_object *jflow_id_ua = json_object_new_string( flow_id );
             json_object_object_add(encode_json_user_agent,"flow_id", jflow_id_ua);
 
             if ( http_user_agent[0] != '\0' )
@@ -1637,13 +1618,13 @@ void IOC_HTTP( struct json_object *json_obj )
 /* SMB2_COMMAND_WRITE.  SMB is used a lot in lateral movement.          */
 /************************************************************************/
 
-void IOC_SMB( struct json_object *json_obj )
+void IOC_SMB( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id  )
 {
 
     char timestamp[64] = { 0 };
-    char src_ip[64] = { 0 };
-    char dest_ip[64] = { 0 };
-    uint64_t flow_id = 0;
+//    char src_ip[64] = { 0 };
+//    char dest_ip[64] = { 0 };
+//    uint64_t flow_id = 0;
     char host[64] = { 0 };
 
     char id_md5[MD5_SIZE] = { 0 };
@@ -1664,6 +1645,7 @@ void IOC_SMB( struct json_object *json_obj )
             strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
         }
 
+/*
     if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
         {
             strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
@@ -1678,6 +1660,7 @@ void IOC_SMB( struct json_object *json_obj )
         {
             flow_id = json_object_get_int64(tmp);
         }
+*/
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
@@ -1722,17 +1705,11 @@ void IOC_SMB( struct json_object *json_obj )
                                             json_object_object_add(encode_json,"description", jdesc);
                                         }
 
-                                    if ( src_ip[0] != '\0' )
-                                        {
                                             json_object *jsrc_ip = json_object_new_string( src_ip );
                                             json_object_object_add(encode_json,"src_ip", jsrc_ip);
-                                        }
 
-                                    if ( dest_ip[0] != '\0' )
-                                        {
                                             json_object *jdest_ip = json_object_new_string( dest_ip );
                                             json_object_object_add(encode_json,"dest_ip", jdest_ip);
-                                        }
 
                                     if ( host[0] != '\0' )
                                         {
@@ -1741,7 +1718,7 @@ void IOC_SMB( struct json_object *json_obj )
                                         }
 
 
-                                    json_object *jflow_id = json_object_new_int64( flow_id );
+                                    json_object *jflow_id = json_object_new_string( flow_id );
                                     json_object_object_add(encode_json,"flow_id", jflow_id);
 
                                     if ( smb_command[0] != '\0' )
@@ -1806,13 +1783,13 @@ void IOC_SMB( struct json_object *json_obj )
 /* IOC_FTP - Grabs files sent, received and username */
 /*****************************************************/
 
-void IOC_FTP( struct json_object *json_obj )
+void IOC_FTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
-    char src_ip[64] = { 0 };
-    char dest_ip[64] = { 0 };
-    uint64_t flow_id = 0;
+//    char src_ip[64] = { 0 };
+//    char dest_ip[64] = { 0 };
+//    uint64_t flow_id = 0;
     char host[64] = { 0 };
 
     char id_md5[MD5_SIZE] = { 0 };
@@ -1832,6 +1809,7 @@ void IOC_FTP( struct json_object *json_obj )
             strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
         }
 
+/*
     if ( json_object_object_get_ex(json_obj, "src_ip", &tmp) )
         {
             strlcpy( src_ip, json_object_get_string(tmp), sizeof(src_ip) );
@@ -1846,6 +1824,7 @@ void IOC_FTP( struct json_object *json_obj )
         {
             flow_id = json_object_get_int64(tmp);
         }
+*/
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
@@ -1893,17 +1872,11 @@ void IOC_FTP( struct json_object *json_obj )
                                             json_object_object_add(encode_json,"description", jdesc);
                                         }
 
-                                    if ( src_ip[0] != '\0' )
-                                        {
                                             json_object *jsrc_ip = json_object_new_string( src_ip );
                                             json_object_object_add(encode_json,"src_ip", jsrc_ip);
-                                        }
 
-                                    if ( dest_ip[0] != '\0' )
-                                        {
                                             json_object *jdest_ip = json_object_new_string( dest_ip );
                                             json_object_object_add(encode_json,"dest_ip", jdest_ip);
-                                        }
 
                                     if ( host[0] != '\0' )
                                         {
@@ -1912,7 +1885,7 @@ void IOC_FTP( struct json_object *json_obj )
                                         }
 
 
-                                    json_object *jflow_id = json_object_new_int64( flow_id );
+                                    json_object *jflow_id = json_object_new_string( flow_id );
                                     json_object_object_add(encode_json,"flow_id", jflow_id);
 
                                     if ( ftp_command[0] != '\0' )

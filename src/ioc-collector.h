@@ -15,15 +15,15 @@
 */
 
 bool IOC_In_Range( char *ip_address );
-void IOC_Collector( struct json_object *json_obj, const char *json_string, const char *event_type );
-void IOC_Flow( struct json_object *json_obj );
-void IOC_FileInfo( struct json_object *json_obj );
-void IOC_TLS( struct json_object *json_obj );
-void IOC_DNS( struct json_object *json_obj );
-void IOC_SSH( struct json_object *json_obj );
-void IOC_HTTP( struct json_object *json_obj );
-void IOC_SMB( struct json_object *json_obj );
-void IOC_FTP( struct json_object *json_obj );
+void IOC_Collector( struct json_object *json_obj, const char *json_string, const char *event_type, const char *src_ip, const char *dest_ip, const char *flow_id );
+void IOC_Flow( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void IOC_FileInfo( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void IOC_TLS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void IOC_DNS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void IOC_SSH( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void IOC_HTTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void IOC_SMB( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void IOC_FTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
 
 
 
