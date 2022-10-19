@@ -23,6 +23,8 @@
 #include "config.h"             /* From autoconf */
 #endif
 
+#ifdef HAVE_LIBHIREDIS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +40,7 @@
 #include "util-signal.h"
 
 #include "input-plugins/redis.h"
-#
+
 /* Proto for connect callback */
 
 void connectCallback(const redisAsyncContext *c, int status);
@@ -166,3 +168,6 @@ void connectCallback(const redisAsyncContext *c, int status)
 //    Meer_Log(NORMAL, "Disconnect from stream \"%s\"", MeerInput->redis_key );
 
 //}
+
+#endif
+
