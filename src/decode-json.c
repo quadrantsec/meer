@@ -458,12 +458,16 @@ bool Decode_JSON( char *json_string )
 
 #endif
 
+#ifdef WITH_ELASTICSEARCH
+
     if ( MeerConfig->ioc_collector == true )
         {
 
             IOC_Collector( json_obj, json_string, event_type, src_ip, dest_ip, flow_id );
 
         }
+
+#endif 
 
     /* Delete json-c _root_ objects */
 

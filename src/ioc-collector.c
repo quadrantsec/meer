@@ -25,6 +25,8 @@
 #include "config.h"             /* From autoconf */
 #endif
 
+#ifdef WITH_ELASTICSEARCH
+
 #include <string.h>
 #include <json-c/json.h>
 
@@ -2124,4 +2126,5 @@ bool IOC_In_Range( char *ip_address )
     return( valid_fingerprint_net );
 }
 
+#endif
 
