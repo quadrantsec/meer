@@ -70,6 +70,7 @@ struct _MeerConfig
 
     bool ioc_collector;
     bool ioc_debug;
+    bool ioc_smb_internal;
 
     bool ioc_routing_flow;
     bool ioc_routing_http;

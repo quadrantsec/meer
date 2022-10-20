@@ -401,6 +401,17 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
+
+                            else if ( !strcmp(last_pass, "ioc-smb-internal" ))
+                                {
+
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerConfig->ioc_smb_internal = true;
+                                        }
+
+                                }
+
                             else if ( !strcmp(last_pass, "ioc-routing" ) && MeerConfig->ioc_collector == true )
                                 {
 

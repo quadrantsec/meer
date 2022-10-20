@@ -154,12 +154,18 @@ meer-core:
     # 
     # By default "ioc-collector" stores:
     #
-    # src_ip, dest_ip from "flow" logs. 
-    # hashes (md5, sha1, sha256) from the "fileinfo" log.
-    # JA3/JA3S hashes from TLS logs
-    # DNS "queries" from "dns" logs. 
-    # HTTP URL and User-Agents from "http"
-    # SSH banner informaion from "ssh" logs.
+    # flow - src_ip, dest_ip.
+    # fileinfo - file hashes (md5, sha1, sha256), filename, magic. 
+    # tls - ja3, ja3s, fingerprint, issuerdn, subject, serial, sni, version,
+    #       notbefore and notafter
+    # dns - "queries" only. rrname and rrtype. 
+    # http - full URL, method, status, length.  "user-agents" are stored 
+    #        as IOC type "user-agent".
+    # ssh - client version and server version.
+    # smb - defined types (smb_command : SMB2_COMMAND_CREATE, 
+    #       SMB2_COMMAND_WRITE, etc) and filename. 
+    # ftp - command and command data.  Commands stored are "STOR", "RETR" and
+    #       "USER". 
     #
     # Hint: You'll likely want to add your network blocks to the "ioc-ignore"
     # list. 
@@ -169,6 +175,7 @@ meer-core:
     ioc-debug: disabled
     ioc-ignore-networks: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
     ioc-routing: "flow, http, ssh, fileinfo, tls, dns, smb, ftp"
+    ioc-smb-internal: true
 
 #############################################################################
 # Input Plugins 

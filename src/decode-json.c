@@ -467,7 +467,7 @@ bool Decode_JSON( char *json_string )
 
         }
 
-#endif 
+#endif
 
     /* Delete json-c _root_ objects */
 
