@@ -1558,13 +1558,13 @@ void IOC_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
             if ( src_dns[0] != '\0' )
                 {
                     json_object *jsrc_dns = json_object_new_string( src_dns );
-                    json_object_object_add(encode_json,"src_dns", jsrc_dns);
+                    json_object_object_add(encode_json_user_agent,"src_dns", jsrc_dns);
                 }
 
             if ( dest_dns[0] != '\0' )
                 {
                     json_object *jdest_dns = json_object_new_string( dest_dns );
-                    json_object_object_add(encode_json,"dest_dns", jdest_dns);
+                    json_object_object_add(encode_json_user_agent,"dest_dns", jdest_dns);
                 }
 
             if ( MeerConfig->description[0] != '\0' )
