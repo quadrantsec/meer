@@ -43,6 +43,12 @@ extern struct _MeerOutput *MeerOutput;
 extern struct _MeerCounters *MeerCounters;
 extern struct _IOC_Ignore *IOC_Ignore;
 
+/* Command Lists */
+
+extern struct _IOC_SMB_Commands *IOC_SMB_Commands;
+extern struct _IOC_FTP_Commands *IOC_FTP_Commands;
+
+
 /* Simple global cache system to skip repeat data */
 
 char last_flow_id[MD5_SIZE] = { 0 };
@@ -119,7 +125,7 @@ void IOC_Collector( struct json_object *json_obj, const char *json_string, const
                     return;
                 }
 
-	    /* Note the "ioc_smb_internal == false" */
+            /* Note the "ioc_smb_internal == false" */
 
             else if ( !strcmp( event_type, "smb" ) && MeerConfig->ioc_routing_smb == true && MeerConfig->ioc_smb_internal == false )
                 {
@@ -1421,6 +1427,23 @@ void IOC_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 
             MD5( (uint8_t*)full_url, strlen(full_url), id_md5, sizeof(id_md5) );
 
+            if ( !strcmp(last_http_id, id_md5 ) )
+                {
+
+                    MeerCounters->ioc_skip++;
+
+                    if ( MeerConfig->ioc_debug == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] HTTP URL SKIP: %s", __FILE__, __LINE__, id_md5 );
+                        }
+
+
+                    json_object_put(json_obj_http);
+
+                    return;
+
+                }
+
             /****************************************/
             /* New HTTP JSON object                 */
             /****************************************/
@@ -1473,28 +1496,6 @@ void IOC_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
             json_object *jfull_url = json_object_new_string( full_url );
             json_object_object_add(encode_json,"url", jfull_url);
 
-            if ( !strcmp(last_http_id, id_md5 ) )
-                {
-
-                    MeerCounters->ioc_skip++;
-
-                    if ( MeerConfig->ioc_debug == true )
-                        {
-                            Meer_Log(DEBUG, "[%s, line %d] HTTP URL SKIP: %s", __FILE__, __LINE__, id_md5 );
-                        }
-
-
-                    json_object_put(json_obj_http);
-
-                    return;
-
-                }
-
-
-            /****************************************/
-            /* New User Agent Object                */
-            /****************************************/
-
             if ( http_user_agent[0] != '\0' )
                 {
                     json_object *juser_agent = json_object_new_string( http_user_agent );
@@ -1544,10 +1545,9 @@ void IOC_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
                     return;
                 }
 
-
-            /* New User Agent Object */
-
-
+            /****************************************/
+            /* New User Agent Object                */
+            /****************************************/
 
             struct json_object *encode_json_user_agent = NULL;
             encode_json_user_agent = json_object_new_object();
@@ -1629,6 +1629,8 @@ void IOC_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
     char host[64] = { 0 };
 
     char id_md5[MD5_SIZE] = { 0 };
+    bool flag = false;
+    uint8_t i = 0;
 
     char smb_command[64] = { 0 };
     char smb_filename[10240] = { 0 };
@@ -1670,9 +1672,18 @@ void IOC_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
                 {
                     strlcpy( smb_command, json_object_get_string(tmp), sizeof( smb_command ));
 
-                    if ( !strcmp(smb_command, "SMB2_COMMAND_CREATE" ) ||
-                            !strcmp(smb_command, "SMB2_COMMAND_READ" ) ||
-                            !strcmp(smb_command, "SMB2_COMMAND_WRITE" ) )
+                    /* Is the a SMB command we care about? */
+
+                    for ( i = 0; i < MeerCounters->SMB_Command_Count; i++ )
+                        {
+                            if ( !strcmp( smb_command, IOC_SMB_Commands[i].command) )
+                                {
+                                    flag = true;
+                                    continue;
+                                }
+                        }
+
+                    if ( flag == true )
                         {
 
                             if ( json_object_object_get_ex(json_obj_smb, "filename", &tmp) )
@@ -1793,6 +1804,9 @@ void IOC_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
     char timestamp[64] = { 0 };
     char host[64] = { 0 };
 
+    bool flag = false;
+    uint8_t i = 0;
+
     char id_md5[MD5_SIZE] = { 0 };
 
     char ftp_command[64] = { 0 };
@@ -1835,9 +1849,18 @@ void IOC_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
 
                     strlcpy( ftp_command, json_object_get_string(tmp), sizeof(ftp_command) );
 
-                    if ( !strcmp(ftp_command, "STOR" ) ||
-                            !strcmp(ftp_command, "RETR" ) ||
-                            !strcmp(ftp_command, "USER" ) )
+                    /* Is the a FTP command we care about? */
+
+                    for ( i = 0; i < MeerCounters->FTP_Command_Count; i++ )
+                        {
+                            if ( !strcmp( ftp_command, IOC_FTP_Commands[i].command) )
+                                {
+                                    flag = true;
+                                    continue;
+                                }
+                        }
+
+                    if ( flag == true )
                         {
 
                             if ( json_object_object_get_ex(json_obj_ftp, "command_data", &tmp) )

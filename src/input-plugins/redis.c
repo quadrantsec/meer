@@ -72,7 +72,7 @@ void onMessage(redisAsyncContext *c, void *reply, void *privdata)
 
     if (reply == NULL)
         {
-	    Meer_Log(WARN, "[%s, line %d] Can't allocate memory for reply!", __FILE__, __LINE__);
+            Meer_Log(WARN, "[%s, line %d] Can't allocate memory for reply!", __FILE__, __LINE__);
             free(buf);
             return;
         }
@@ -86,7 +86,7 @@ void onMessage(redisAsyncContext *c, void *reply, void *privdata)
             if ( r->element[2]->str != NULL )
                 {
 
-		    
+
                     snprintf(buf, MeerConfig->payload_buffer_size, "%s\n", r->element[2]->str);
                     buf[ MeerConfig->payload_buffer_size -1 ] = '\0';
 
@@ -115,7 +115,7 @@ void Input_Redis_Subscribe( void )
 
     if (c->err)
         {
-	    Meer_Log(WARN, "[%s, line %d] Redis error: %s", __FILE__, __LINE__, c->errstr);
+            Meer_Log(WARN, "[%s, line %d] Redis error: %s", __FILE__, __LINE__, c->errstr);
             redisAsyncFree(c);
             return;
         }

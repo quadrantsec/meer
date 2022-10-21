@@ -37,7 +37,8 @@
 
 extern struct _MeerCounters *MeerCounters;
 extern struct _MeerConfig *MeerConfig;
-struct _Manfact_Struct *MF_Struct;
+
+struct _Manfact_Struct *MF_Struct = NULL;
 
 /*****************************************************************************/
 /* Load MAC/Vendor information into memory.  This list is from the Wireshark */

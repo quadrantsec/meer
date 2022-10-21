@@ -377,6 +377,9 @@ struct _MeerCounters
     int SIDMapCount;
     int OUICount;
 
+    uint8_t SMB_Command_Count;
+    uint8_t FTP_Command_Count;
+
     uint16_t fingerprint_network_count;
     uint16_t ioc_ignore_count;
 

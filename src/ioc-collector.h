@@ -14,6 +14,20 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
+typedef struct _IOC_SMB_Commands _IOC_SMB_Commands;
+struct _IOC_SMB_Commands
+{
+    char command[32];
+};
+
+typedef struct _IOC_FTP_Commands _IOC_FTP_Commands;
+struct _IOC_FTP_Commands
+{
+    char command[5];
+};
+
+
+
 bool IOC_In_Range( char *ip_address );
 void IOC_Collector( struct json_object *json_obj, const char *json_string, const char *event_type, const char *src_ip, const char *dest_ip, const char *flow_id );
 void IOC_Flow( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );

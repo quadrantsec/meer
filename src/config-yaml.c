@@ -48,6 +48,7 @@
 #include "meer.h"
 #include "meer-def.h"
 #include "config-yaml.h"
+#include "ioc-collector.h"
 #include "util.h"
 
 #ifdef WITH_BLUEDOT
@@ -68,6 +69,9 @@ extern struct _MeerCounters *MeerCounters;
 
 struct _Fingerprint_Networks *Fingerprint_Networks = NULL;
 struct _IOC_Ignore *IOC_Ignore = NULL;
+
+struct _IOC_SMB_Commands *IOC_SMB_Commands = NULL;
+struct _IOC_FTP_Commands *IOC_FTP_Commands = NULL;
 
 void Load_YAML_Config( char *yaml_file )
 {
@@ -410,6 +414,74 @@ void Load_YAML_Config( char *yaml_file )
                                             MeerConfig->ioc_smb_internal = true;
                                         }
 
+                                }
+
+                            else if ( !strcmp(last_pass, "ioc-smb" ))
+                                {
+
+                                    Remove_Spaces(value);
+
+                                    char *tok = NULL;
+
+                                    ptr1 = strtok_r(value, ",", &tok);
+
+                                    while ( ptr1 != NULL )
+                                        {
+
+                                            /* Allocate memory for classifications,  but not comments */
+
+                                            IOC_SMB_Commands = (_IOC_SMB_Commands *) realloc(IOC_SMB_Commands, (MeerCounters->SMB_Command_Count+1) * sizeof(_IOC_SMB_Commands));
+
+                                            if ( IOC_SMB_Commands == NULL )
+                                                {
+                                                    Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _IOC_SMB_Commands. Abort!", __FILE__, __LINE__);
+                                                }
+
+                                            memset(&IOC_SMB_Commands[MeerCounters->SMB_Command_Count], 0, sizeof(struct _IOC_SMB_Commands));
+
+                                            /* Store into memory the values */
+
+                                            strlcpy(IOC_SMB_Commands[MeerCounters->SMB_Command_Count].command, ptr1, sizeof(IOC_SMB_Commands[MeerCounters->SMB_Command_Count].command));
+
+                                            MeerCounters->SMB_Command_Count++;
+
+                                            ptr1 = strtok_r(NULL, ",", &tok);
+
+                                        }
+
+                                }
+
+                            else if ( !strcmp(last_pass, "ioc-ftp" ))
+                                {
+
+                                    Remove_Spaces(value);
+
+                                    char *tok = NULL;
+
+                                    ptr1 = strtok_r(value, ",", &tok);
+
+                                    while ( ptr1 != NULL )
+                                        {
+
+                                            /* Allocate memory for classifications,  but not comments */
+
+                                            IOC_FTP_Commands = (_IOC_FTP_Commands *) realloc(IOC_FTP_Commands, (MeerCounters->FTP_Command_Count+1) * sizeof(_IOC_FTP_Commands));
+
+                                            if ( IOC_FTP_Commands == NULL )
+                                                {
+                                                    Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _IOC_FTP_Commands. Abort!", __FILE__, __LINE__);
+                                                }
+
+                                            memset(&IOC_FTP_Commands[MeerCounters->FTP_Command_Count], 0, sizeof(struct _IOC_FTP_Commands));
+                                            /* Store into memory the values */
+
+                                            strlcpy(IOC_FTP_Commands[MeerCounters->FTP_Command_Count].command, ptr1, sizeof(IOC_FTP_Commands[MeerCounters->FTP_Command_Count].command));
+
+                                            MeerCounters->FTP_Command_Count++;
+
+                                            ptr1 = strtok_r(NULL, ",", &tok);
+
+                                        }
                                 }
 
                             else if ( !strcmp(last_pass, "ioc-routing" ) && MeerConfig->ioc_collector == true )
