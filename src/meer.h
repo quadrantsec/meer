@@ -68,18 +68,18 @@ struct _MeerConfig
     FILE *meer_log_fd;
     bool meer_log_on;
 
-    bool ioc_collector;
-    bool ioc_debug;
-    bool ioc_smb_internal;
+    bool ndp_collector;
+    bool ndp_debug;
+    bool ndp_smb_internal;
 
-    bool ioc_routing_flow;
-    bool ioc_routing_http;
-    bool ioc_routing_ssh;
-    bool ioc_routing_fileinfo;
-    bool ioc_routing_tls;
-    bool ioc_routing_dns;
-    bool ioc_routing_smb;
-    bool ioc_routing_ftp;
+    bool ndp_routing_flow;
+    bool ndp_routing_http;
+    bool ndp_routing_ssh;
+    bool ndp_routing_fileinfo;
+    bool ndp_routing_tls;
+    bool ndp_routing_dns;
+    bool ndp_routing_smb;
+    bool ndp_routing_ftp;
 
 #ifdef HAVE_LIBMAXMINDDB
 
@@ -230,7 +230,7 @@ struct _MeerOutput
     bool elasticsearch_dnp3;
     bool elasticsearch_anomaly;
     bool elasticsearch_fingerprint;
-    bool elasticsearch_ioc;
+    bool elasticsearch_ndp;
 
 #endif
 
@@ -381,7 +381,7 @@ struct _MeerCounters
     uint8_t FTP_Command_Count;
 
     uint16_t fingerprint_network_count;
-    uint16_t ioc_ignore_count;
+    uint16_t ndp_ignore_count;
 
     uint32_t bluedot_skip_count;
 
@@ -422,8 +422,8 @@ struct _MeerCounters
     uint_fast64_t bad;
     uint_fast64_t fingerprint;
     uint_fast64_t client_stats;
-    uint_fast64_t ioc;
-    uint_fast64_t ioc_skip;
+    uint_fast64_t ndp;
+    uint_fast64_t ndp_skip;
 
     uint64_t DNSCount;
     uint64_t DNSCacheCount;

@@ -48,7 +48,7 @@
 #include "meer.h"
 #include "meer-def.h"
 #include "config-yaml.h"
-#include "ioc-collector.h"
+#include "ndp-collector.h"
 #include "util.h"
 
 #ifdef WITH_BLUEDOT
@@ -68,7 +68,7 @@ extern struct _MeerInput *MeerInput;
 extern struct _MeerCounters *MeerCounters;
 
 struct _Fingerprint_Networks *Fingerprint_Networks = NULL;
-struct _IOC_Ignore *IOC_Ignore = NULL;
+struct _NDP_Ignore *NDP_Ignore = NULL;
 
 struct _IOC_SMB_Commands *IOC_SMB_Commands = NULL;
 struct _IOC_FTP_Commands *IOC_FTP_Commands = NULL;
@@ -386,37 +386,37 @@ void Load_YAML_Config( char *yaml_file )
                                 }
 
 
-                            else if ( !strcmp(last_pass, "ioc-collector" ))
+                            else if ( !strcmp(last_pass, "ndp-collector" ))
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
                                         {
-                                            MeerConfig->ioc_collector = true;
+                                            MeerConfig->ndp_collector = true;
                                         }
 
                                 }
 
-                            else if ( !strcmp(last_pass, "ioc-debug" ) && MeerConfig->ioc_collector == true )
+                            else if ( !strcmp(last_pass, "ndp-debug" ) && MeerConfig->ndp_collector == true )
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
                                         {
-                                            MeerConfig->ioc_debug = true;
+                                            MeerConfig->ndp_debug = true;
                                         }
                                 }
 
 
-                            else if ( !strcmp(last_pass, "ioc-smb-internal" ))
+                            else if ( !strcmp(last_pass, "ndp-smb-internal" ))
                                 {
 
                                     if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
                                         {
-                                            MeerConfig->ioc_smb_internal = true;
+                                            MeerConfig->ndp_smb_internal = true;
                                         }
 
                                 }
 
-                            else if ( !strcmp(last_pass, "ioc-smb" ))
+                            else if ( !strcmp(last_pass, "ndp-smb" ))
                                 {
 
                                     Remove_Spaces(value);
@@ -451,7 +451,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            else if ( !strcmp(last_pass, "ioc-ftp" ))
+                            else if ( !strcmp(last_pass, "ndp-ftp" ))
                                 {
 
                                     Remove_Spaces(value);
@@ -484,7 +484,7 @@ void Load_YAML_Config( char *yaml_file )
                                         }
                                 }
 
-                            else if ( !strcmp(last_pass, "ioc-routing" ) && MeerConfig->ioc_collector == true )
+                            else if ( !strcmp(last_pass, "ndp-routing" ) && MeerConfig->ndp_collector == true )
                                 {
 
                                     char *tok = NULL;
@@ -498,42 +498,42 @@ void Load_YAML_Config( char *yaml_file )
 
                                             if ( !strcmp(ptr1, "flow" ) )
                                                 {
-                                                    MeerConfig->ioc_routing_flow = true;
+                                                    MeerConfig->ndp_routing_flow = true;
                                                 }
 
                                             else if ( !strcmp(ptr1, "http" ) )
                                                 {
-                                                    MeerConfig->ioc_routing_http = true;
+                                                    MeerConfig->ndp_routing_http = true;
                                                 }
 
                                             else if ( !strcmp(ptr1, "ssh" ) )
                                                 {
-                                                    MeerConfig->ioc_routing_ssh = true;
+                                                    MeerConfig->ndp_routing_ssh = true;
                                                 }
 
                                             else if ( !strcmp(ptr1, "fileinfo" ) )
                                                 {
-                                                    MeerConfig->ioc_routing_fileinfo = true;
+                                                    MeerConfig->ndp_routing_fileinfo = true;
                                                 }
 
                                             else if ( !strcmp(ptr1, "tls" ) )
                                                 {
-                                                    MeerConfig->ioc_routing_tls = true;
+                                                    MeerConfig->ndp_routing_tls = true;
                                                 }
 
                                             else if ( !strcmp(ptr1, "dns" ) )
                                                 {
-                                                    MeerConfig->ioc_routing_dns = true;
+                                                    MeerConfig->ndp_routing_dns = true;
                                                 }
 
                                             else if ( !strcmp(ptr1, "smb" ) )
                                                 {
-                                                    MeerConfig->ioc_routing_smb = true;
+                                                    MeerConfig->ndp_routing_smb = true;
                                                 }
 
                                             else if ( !strcmp(ptr1, "ftp" ) )
                                                 {
-                                                    MeerConfig->ioc_routing_ftp = true;
+                                                    MeerConfig->ndp_routing_ftp = true;
                                                 }
 
                                             ptr1 = strtok_r(NULL, ",", &tok);
@@ -710,7 +710,7 @@ void Load_YAML_Config( char *yaml_file )
 
                                 }
 
-                            else if ( !strcmp(last_pass, "ioc-ignore-networks" )  && MeerConfig->ioc_collector == true )
+                            else if ( !strcmp(last_pass, "ndp-ignore-networks" )  && MeerConfig->ndp_collector == true )
                                 {
 
                                     char *ii_ptr = NULL;
@@ -734,36 +734,36 @@ void Load_YAML_Config( char *yaml_file )
 
                                             if ( ii_ipblock == NULL )
                                                 {
-                                                    Meer_Log(ERROR, "'ioc-ignore-networks' ip block %s is invalid.  Abort", ii_ptr);
+                                                    Meer_Log(ERROR, "'ndp-ignore-networks' ip block %s is invalid.  Abort", ii_ptr);
                                                 }
 
                                             if (!IP2Bit(ii_ipblock, ii_ipbits))
                                                 {
-                                                    Meer_Log(ERROR, "[%s, line %d] Invalid address %s in 'ioc-ignore-networks'. Abort", __FILE__, __LINE__, ii_ptr );
+                                                    Meer_Log(ERROR, "[%s, line %d] Invalid address %s in 'ndp-ignore-networks'. Abort", __FILE__, __LINE__, ii_ptr );
                                                 }
 
-                                            IOC_Ignore = (_IOC_Ignore *) realloc(IOC_Ignore, (MeerCounters->ioc_ignore_count+1) * sizeof(_IOC_Ignore));
+                                            NDP_Ignore = (_NDP_Ignore *) realloc(NDP_Ignore, (MeerCounters->ndp_ignore_count+1) * sizeof(_NDP_Ignore));
 
-                                            if ( IOC_Ignore == NULL )
+                                            if ( NDP_Ignore == NULL )
                                                 {
-                                                    Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _IOC_Ignore Abort!", __FILE__, __LINE__);
+                                                    Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _NDP_Ignore Abort!", __FILE__, __LINE__);
                                                 }
 
-                                            memset(&IOC_Ignore[MeerCounters->ioc_ignore_count], 0, sizeof(_IOC_Ignore));
+                                            memset(&NDP_Ignore[MeerCounters->ndp_ignore_count], 0, sizeof(_NDP_Ignore));
 
                                             ii_mask = atoi(ii_range);
 
 
                                             if ( ii_mask == 0 || !Mask2Bit(ii_mask, ii_maskbits))
                                                 {
-                                                    Meer_Log(ERROR, "[%s, line %d] Invalid mask for 'ioc-ignore-networks'. Abort", __FILE__, __LINE__);
+                                                    Meer_Log(ERROR, "[%s, line %d] Invalid mask for 'ndp-ignore-networks'. Abort", __FILE__, __LINE__);
                                                 }
 
 
 
-                                            memcpy(IOC_Ignore[MeerCounters->ioc_ignore_count].range.ipbits, ii_ipbits, sizeof(ii_ipbits));
-                                            memcpy(IOC_Ignore[MeerCounters->ioc_ignore_count].range.maskbits, ii_maskbits, sizeof(ii_maskbits));
-                                            MeerCounters->ioc_ignore_count++;
+                                            memcpy(NDP_Ignore[MeerCounters->ndp_ignore_count].range.ipbits, ii_ipbits, sizeof(ii_ipbits));
+                                            memcpy(NDP_Ignore[MeerCounters->ndp_ignore_count].range.maskbits, ii_maskbits, sizeof(ii_maskbits));
+                                            MeerCounters->ndp_ignore_count++;
 
 
                                             ii_ptr = strtok_r(NULL, ",", &tok);
@@ -1617,9 +1617,9 @@ void Load_YAML_Config( char *yaml_file )
                                             MeerOutput->elasticsearch_fingerprint = true;
                                         }
 
-                                    else if ( !strcmp(value, "ioc" ) )
+                                    else if ( !strcmp(value, "ndp" ) )
                                         {
-                                            MeerOutput->elasticsearch_ioc = true;
+                                            MeerOutput->elasticsearch_ndp = true;
                                         }
                                 }
 

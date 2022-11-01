@@ -52,7 +52,7 @@ libjson-c is required for Meer to function!
 #include "get-oui.h"
 #include "counters.h"
 #include "calculate-stats.h"
-#include "ioc-collector.h"
+#include "ndp-collector.h"
 
 #ifdef HAVE_LIBMAXMINDDB
 #include "get-geoip.h"
@@ -460,7 +460,7 @@ bool Decode_JSON( char *json_string )
 
 #ifdef WITH_ELASTICSEARCH
 
-    if ( MeerConfig->ioc_collector == true )
+    if ( MeerConfig->ndp_collector == true )
         {
 
             IOC_Collector( json_obj, json_string, event_type, src_ip, dest_ip, flow_id );

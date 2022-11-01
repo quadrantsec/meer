@@ -29,7 +29,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      oui.c \
 							      geoip.c \
 							      calculate-stats.c \
-							      ioc-collector.c \
+							      ndp-collector.c \
 							      decode-json.c \
 							      decode-output-json-client-stats.c \
 							      output-plugins/pipe.c \

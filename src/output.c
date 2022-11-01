@@ -408,7 +408,7 @@ void Init_Output( void )
             Meer_Log(NORMAL, "Record 'dnp3'        : %s", MeerOutput->elasticsearch_dnp3 ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Record 'anomaly'     : %s", MeerOutput->elasticsearch_anomaly ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "Record 'fingerprint' : %s", MeerOutput->elasticsearch_fingerprint ? "enabled" : "disabled" );
-            Meer_Log(NORMAL, "Record 'ioc'         : %s", MeerOutput->elasticsearch_ioc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Record 'ndp'         : %s", MeerOutput->elasticsearch_ndp ? "enabled" : "disabled" );
 
 
             Elasticsearch_Init();
@@ -1134,7 +1134,7 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type, con
             return(true);
         }
 
-    else if ( !strcmp(event_type, "ioc" ) && MeerOutput->elasticsearch_ioc == true )
+    else if ( !strcmp(event_type, "ndp" ) && MeerOutput->elasticsearch_ndp == true )
         {
             Output_Do_Elasticsearch( json_string, event_type, id );
             return(true);

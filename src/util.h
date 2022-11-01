@@ -33,8 +33,8 @@ struct _Fingerprint_Networks
 
 };
 
-typedef struct _IOC_Ignore _IOC_Ignore;
-struct _IOC_Ignore
+typedef struct _NDP_Ignore _NDP_Ignore;
+struct _NDP_Ignore
 {
 
     struct

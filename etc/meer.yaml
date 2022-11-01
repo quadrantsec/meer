@@ -142,17 +142,19 @@ meer-core:
     geoip_database: "/usr/local/share/GeoIP2/GeoLite2-City.mmdb"
 
     #########################################################################
-    # ioc-collector
+    # ndp-collector - "Network Data Point" collector. 
     #
-    # When enabled with the "Elasticsearch" output, "ioc-collector" allows 
+    # When enabled with the "Elasticsearch" output, "ndp-collector" allows 
     # Meer to store useful information (src_ip, dest_ip, hashes) into 
     # an Elasticsearch/Opensearch/Zincsearch backend for rapid retrieval. 
     # This stores data from Suricata/Sagan log files in a more "compressed" 
-    # and "non-repetitive" format.  The advantage to this allows for rapid
-    # looks to verify if hashes (sha1, sha256, etc), IP addresses, or domain
-    # names have been seen within your enviornment.
+    # and "non-repetitive" format.  
+    #
+    # This allows for rapid retrieval of hashes (sha1. sha256, etc), IP 
+    # addresses, domains, etc. that have been observed within your 
+    # environment.
     # 
-    # By default "ioc-collector" stores:
+    # By default "ndp-collector" stores:
     #
     # flow - src_ip, dest_ip.
     # fileinfo - file hashes (md5, sha1, sha256), filename, magic. 
@@ -167,19 +169,19 @@ meer-core:
     # ftp - command and command data.  Commands stored are "STOR", "RETR" and
     #       "USER". 
     #
-    # Hint: You'll likely want to add your network blocks to the "ioc-ignore"
+    # Hint: You'll likely want to add your network blocks to the "ndp-ignore"
     # list. 
     #########################################################################
 
-    ioc-collector: disabled
-    ioc-debug: disabled
-    ioc-ignore-networks: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
-    ioc-routing: "flow, http, ssh, fileinfo, tls, dns, smb, ftp"
+    ndp-collector: disabled
+    ndp-debug: disabled
+    ndp-ignore-networks: "10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12"
+    ndp-routing: "flow, http, ssh, fileinfo, tls, dns, smb, ftp"
 
-    ioc-smb: "SMB2_COMMAND_CREATE, SMB2_COMMAND_WRITE"
-    ioc-ftp: "STOR, RETR, USER"
+    ndp-smb: "SMB2_COMMAND_CREATE, SMB2_COMMAND_WRITE"
+    ndp-ftp: "STOR, RETR, USER"
 
-    ioc-smb-internal: true
+    ndp-smb-internal: true
 
 #############################################################################
 # Input Plugins 
@@ -476,6 +478,5 @@ output-plugins:
       - dnp3
       - anomaly
       - fingerprint
-      - ioc
-
+      - ndp 
 
