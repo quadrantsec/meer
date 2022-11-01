@@ -94,6 +94,12 @@ AC_ARG_ENABLE(tcmalloc,
   [ TCMALLOC="no" ]
 )
 
+AC_ARG_ENABLE(jemalloc,
+  [  --enable-jemalloc       Enable Jemalloc support.],
+  [ JEMALLOC="$enableval"],
+  [ JEMALLOC="no" ]
+)
+
 AC_SUBST(VERSION)
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_HEADER(config.h)
@@ -240,6 +246,11 @@ fi
 if test "$TCMALLOC" = "yes"; then
        AC_MSG_RESULT([------- TCMalloc support is enabled -------])
        AC_CHECK_LIB(tcmalloc_minimal,main,,AC_MSG_ERROR(The libtcmalloc_minimal library cannot be found.))
+       fi
+
+if test "$JEMALLOC" = "yes"; then
+       AC_MSG_RESULT([------- Jemalloc support is enabled -------])
+       AC_CHECK_LIB(jemalloc,main,,AC_MSG_ERROR(The libjemalloc library cannot be found.))
        fi
 
 if test "$BLUEDOT" = "yes"; then

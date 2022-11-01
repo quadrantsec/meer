@@ -432,6 +432,8 @@ void Init_Output( void )
 //           Meer_Log(NORMAL, "Input type: \"pipe\"");
 //       }
 
+#ifdef HAVE_LIBHIREDIS
+
     else if ( MeerInput->type == YAML_INPUT_REDIS )
         {
             Meer_Log(NORMAL, "Input type: \"redis\"");
@@ -442,10 +444,9 @@ void Init_Output( void )
                 {
                     Meer_Log(NORMAL, " * Password: yes");
                 }
-
-
-
         }
+
+#endif
 
 
     Meer_Log(NORMAL, "");

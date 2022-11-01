@@ -8,9 +8,9 @@
 #
 # - Disabled mysql/postgresql support (20211129)
 
-STANDARD="--disable-elasticsearch --disable-bluedot --disable-geoip --enable-redis"
-ALLFLAGS="--enable-elasticsearch --enable-bluedot --enable-geoip --enable-redis"
-NOFLAG="--disable-elasticsearch --disable-bluedot --disable-geoip --disable-redis"
+STANDARD="--disable-elasticsearch --disable-bluedot --disable-geoip --enable-redis --disable-jemalloc"
+ALLFLAGS="--enable-elasticsearch --enable-bluedot --enable-geoip --enable-redis --enable-jemalloc"
+NOFLAG="--disable-elasticsearch --disable-bluedot --disable-geoip --disable-redis --disable-jemalloc"
 
 LOG="output.log" 
 

@@ -27,6 +27,7 @@
 #endif
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <inttypes.h>
 
 #include "meer-def.h"
