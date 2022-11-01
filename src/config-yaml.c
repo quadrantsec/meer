@@ -70,8 +70,8 @@ extern struct _MeerCounters *MeerCounters;
 struct _Fingerprint_Networks *Fingerprint_Networks = NULL;
 struct _NDP_Ignore *NDP_Ignore = NULL;
 
-struct _IOC_SMB_Commands *IOC_SMB_Commands = NULL;
-struct _IOC_FTP_Commands *IOC_FTP_Commands = NULL;
+struct _NDP_SMB_Commands *NDP_SMB_Commands = NULL;
+struct _NDP_FTP_Commands *NDP_FTP_Commands = NULL;
 
 void Load_YAML_Config( char *yaml_file )
 {
@@ -430,18 +430,18 @@ void Load_YAML_Config( char *yaml_file )
 
                                             /* Allocate memory for classifications,  but not comments */
 
-                                            IOC_SMB_Commands = (_IOC_SMB_Commands *) realloc(IOC_SMB_Commands, (MeerCounters->SMB_Command_Count+1) * sizeof(_IOC_SMB_Commands));
+                                            NDP_SMB_Commands = (_NDP_SMB_Commands *) realloc(NDP_SMB_Commands, (MeerCounters->SMB_Command_Count+1) * sizeof(_NDP_SMB_Commands));
 
-                                            if ( IOC_SMB_Commands == NULL )
+                                            if ( NDP_SMB_Commands == NULL )
                                                 {
-                                                    Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _IOC_SMB_Commands. Abort!", __FILE__, __LINE__);
+                                                    Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _NDP_SMB_Commands. Abort!", __FILE__, __LINE__);
                                                 }
 
-                                            memset(&IOC_SMB_Commands[MeerCounters->SMB_Command_Count], 0, sizeof(struct _IOC_SMB_Commands));
+                                            memset(&NDP_SMB_Commands[MeerCounters->SMB_Command_Count], 0, sizeof(struct _NDP_SMB_Commands));
 
                                             /* Store into memory the values */
 
-                                            strlcpy(IOC_SMB_Commands[MeerCounters->SMB_Command_Count].command, ptr1, sizeof(IOC_SMB_Commands[MeerCounters->SMB_Command_Count].command));
+                                            strlcpy(NDP_SMB_Commands[MeerCounters->SMB_Command_Count].command, ptr1, sizeof(NDP_SMB_Commands[MeerCounters->SMB_Command_Count].command));
 
                                             MeerCounters->SMB_Command_Count++;
 
@@ -465,17 +465,17 @@ void Load_YAML_Config( char *yaml_file )
 
                                             /* Allocate memory for classifications,  but not comments */
 
-                                            IOC_FTP_Commands = (_IOC_FTP_Commands *) realloc(IOC_FTP_Commands, (MeerCounters->FTP_Command_Count+1) * sizeof(_IOC_FTP_Commands));
+                                            NDP_FTP_Commands = (_NDP_FTP_Commands *) realloc(NDP_FTP_Commands, (MeerCounters->FTP_Command_Count+1) * sizeof(_NDP_FTP_Commands));
 
-                                            if ( IOC_FTP_Commands == NULL )
+                                            if ( NDP_FTP_Commands == NULL )
                                                 {
-                                                    Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _IOC_FTP_Commands. Abort!", __FILE__, __LINE__);
+                                                    Meer_Log(ERROR, "[%s, line %d] Failed to reallocate memory for _NDP_FTP_Commands. Abort!", __FILE__, __LINE__);
                                                 }
 
-                                            memset(&IOC_FTP_Commands[MeerCounters->FTP_Command_Count], 0, sizeof(struct _IOC_FTP_Commands));
+                                            memset(&NDP_FTP_Commands[MeerCounters->FTP_Command_Count], 0, sizeof(struct _NDP_FTP_Commands));
                                             /* Store into memory the values */
 
-                                            strlcpy(IOC_FTP_Commands[MeerCounters->FTP_Command_Count].command, ptr1, sizeof(IOC_FTP_Commands[MeerCounters->FTP_Command_Count].command));
+                                            strlcpy(NDP_FTP_Commands[MeerCounters->FTP_Command_Count].command, ptr1, sizeof(NDP_FTP_Commands[MeerCounters->FTP_Command_Count].command));
 
                                             MeerCounters->FTP_Command_Count++;
 
@@ -2192,7 +2192,7 @@ void Load_YAML_Config( char *yaml_file )
 
     /* Sanity check on core configurations */
 
-    /* DEBUG:  ADD CHECK FOR IOC COLLECTOR AND ELASTIC */
+    /* DEBUG:  ADD CHECK FOR NDP COLLECTOR AND ELASTIC */
 
     if ( MeerConfig->interface[0] == '\0' )
         {

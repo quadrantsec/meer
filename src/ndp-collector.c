@@ -18,7 +18,7 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-/* System for collecting potential IOCs and putting them in Zinc,  OpenSearch
+/* System for collecting potential NDPs and putting them in Zinc,  OpenSearch
    or Elasticsearch */
 
 #ifdef HAVE_CONFIG_H
@@ -45,8 +45,8 @@ extern struct _NDP_Ignore *NDP_Ignore;
 
 /* Command Lists */
 
-extern struct _IOC_SMB_Commands *IOC_SMB_Commands;
-extern struct _IOC_FTP_Commands *IOC_FTP_Commands;
+extern struct _NDP_SMB_Commands *NDP_SMB_Commands;
+extern struct _NDP_FTP_Commands *NDP_FTP_Commands;
 
 
 /* Simple global cache system to skip repeat data */
@@ -62,10 +62,10 @@ char last_smb_id[MD5_SIZE] = { 0 };
 char last_ftp_id[MD5_SIZE] = { 0 };
 
 /*******************************************************************/
-/* IOC_Collector - Determines "what" we want to collect data from  */
+/* NDP_Collector - Determines "what" we want to collect data from  */
 /*******************************************************************/
 
-void IOC_Collector( struct json_object *json_obj, const char *json_string, const char *event_type, const char *src_ip, const char *dest_ip, const char *flow_id )
+void NDP_Collector( struct json_object *json_obj, const char *json_string, const char *event_type, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     /* SMB is used so heavy in lateral movement, we can log _all_ SMB commands/traffic
@@ -73,55 +73,55 @@ void IOC_Collector( struct json_object *json_obj, const char *json_string, const
 
     if ( !strcmp( event_type, "smb" ) && MeerConfig->ndp_routing_smb == true && MeerConfig->ndp_smb_internal == true )
         {
-            IOC_SMB( json_obj, src_ip, dest_ip, flow_id );
+            NDP_SMB( json_obj, src_ip, dest_ip, flow_id );
             return;
         }
 
-    /* Make sure potential IOC's are being collected only from data sources (src/dest)
+    /* Make sure potential NDP's are being collected only from data sources (src/dest)
     that we care about! */
 
-    if ( IOC_In_Range( (char*)src_ip ) == false ||  IOC_In_Range( (char*)dest_ip ) == false )
+    if ( NDP_In_Range( (char*)src_ip ) == false ||  NDP_In_Range( (char*)dest_ip ) == false )
         {
 
             if ( !strcmp( event_type, "flow" ) && MeerConfig->ndp_routing_flow == true )
                 {
-                    IOC_Flow( json_obj, src_ip, dest_ip, flow_id );
+                    NDP_Flow( json_obj, src_ip, dest_ip, flow_id );
                     return;
                 }
 
             else if ( !strcmp( event_type, "http" ) && MeerConfig->ndp_routing_http == true )
                 {
-                    IOC_HTTP( json_obj, src_ip, dest_ip, flow_id );
+                    NDP_HTTP( json_obj, src_ip, dest_ip, flow_id );
                     return;
                 }
 
             else if ( !strcmp( event_type, "ssh" ) && MeerConfig->ndp_routing_ssh == true )
                 {
-                    IOC_SSH( json_obj, src_ip, dest_ip, flow_id );
+                    NDP_SSH( json_obj, src_ip, dest_ip, flow_id );
                     return;
                 }
 
             else if ( !strcmp( event_type, "fileinfo" ) && MeerConfig->ndp_routing_fileinfo == true )
                 {
-                    IOC_FileInfo( json_obj, src_ip, dest_ip, flow_id );
+                    NDP_FileInfo( json_obj, src_ip, dest_ip, flow_id );
                     return;
                 }
 
             if ( !strcmp( event_type, "tls" ) && MeerConfig->ndp_routing_tls == true )
                 {
-                    IOC_TLS( json_obj, src_ip, dest_ip, flow_id );
+                    NDP_TLS( json_obj, src_ip, dest_ip, flow_id );
                     return;
                 }
 
             else if ( !strcmp( event_type, "dns" ) && MeerConfig->ndp_routing_dns == true )
                 {
-                    IOC_DNS( json_obj, src_ip, dest_ip, flow_id );
+                    NDP_DNS( json_obj, src_ip, dest_ip, flow_id );
                     return;
                 }
 
             else if ( !strcmp( event_type, "ftp" ) && MeerConfig->ndp_routing_ftp == true )
                 {
-                    IOC_FTP( json_obj, src_ip, dest_ip, flow_id );
+                    NDP_FTP( json_obj, src_ip, dest_ip, flow_id );
                     return;
                 }
 
@@ -129,7 +129,7 @@ void IOC_Collector( struct json_object *json_obj, const char *json_string, const
 
             else if ( !strcmp( event_type, "smb" ) && MeerConfig->ndp_routing_smb == true && MeerConfig->ndp_smb_internal == false )
                 {
-                    IOC_SMB( json_obj, src_ip, dest_ip, flow_id );
+                    NDP_SMB( json_obj, src_ip, dest_ip, flow_id );
                     return;
                 }
 
@@ -137,10 +137,10 @@ void IOC_Collector( struct json_object *json_obj, const char *json_string, const
 }
 
 /********************************************************************/
-/* IOC_Flow - Remove local IPs and collect IP addresses of interest */
+/* NDP_Flow - Remove local IPs and collect IP addresses of interest */
 /********************************************************************/
 
-void IOC_Flow( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
+void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char *tmp_type = NULL;
@@ -233,7 +233,6 @@ void IOC_Flow( struct json_object *json_obj, const char *src_ip, const char *des
         }
 
     json_object_put(json_obj_flow);
-    json_object_put(json_obj_state);
 
     /* State looks like something we're interested in */
 
@@ -254,7 +253,7 @@ void IOC_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                             strlcpy( tmp_ip, dest_ip, sizeof(tmp_ip) );
                         }
 
-                    if ( IOC_In_Range( tmp_ip ) == false && ( Is_IP( tmp_ip, IPv4 ) ) )
+                    if ( NDP_In_Range( tmp_ip ) == false && ( Is_IP( tmp_ip, IPv4 ) ) )
                         {
 
                             if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
@@ -457,10 +456,10 @@ void IOC_Flow( struct json_object *json_obj, const char *src_ip, const char *des
 }
 
 /**************************************/
-/* IOC_FileInfo - Collect file hashes */
+/* NDP_FileInfo - Collect file hashes */
 /**************************************/
 
-void IOC_FileInfo( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
+void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     uint64_t size = 0;
@@ -664,10 +663,10 @@ void IOC_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
 }
 
 /********************************************/
-/* IOC_TLS - Collect SNI, expire dates, etc */
+/* NDP_TLS - Collect SNI, expire dates, etc */
 /********************************************/
 
-void IOC_TLS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
+void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
@@ -943,10 +942,10 @@ void IOC_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
 }
 
 /*********************************************/
-/* IOC_DNS - Collect "queries" (not answers) */
+/* NDP_DNS - Collect "queries" (not answers) */
 /*********************************************/
 
-void IOC_DNS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
+void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
@@ -1130,10 +1129,10 @@ void IOC_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 }
 
 /********************************************/
-/* IOC_SSH - Collect SSH version / banners */
+/* NDP_SSH - Collect SSH version / banners */
 /********************************************/
 
-void IOC_SSH( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
+void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
@@ -1341,10 +1340,10 @@ void IOC_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
 }
 
 /**********************************************/
-/* IOC_HTTP - Collects user agents, URLs, etc */
+/* NDP_HTTP - Collects user agents, URLs, etc */
 /**********************************************/
 
-void IOC_HTTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
+void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
@@ -1618,11 +1617,11 @@ void IOC_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 }
 
 /************************************************************************/
-/* IOC_SMB - Grab data from SMB2_COMMAND_CREATE, SMB2_COMMAND_READ. and */
+/* NDP_SMB - Grab data from SMB2_COMMAND_CREATE, SMB2_COMMAND_READ. and */
 /* SMB2_COMMAND_WRITE.  SMB is used a lot in lateral movement.          */
 /************************************************************************/
 
-void IOC_SMB( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id  )
+void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id  )
 {
 
     char timestamp[64] = { 0 };
@@ -1676,7 +1675,7 @@ void IOC_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 
                     for ( i = 0; i < MeerCounters->SMB_Command_Count; i++ )
                         {
-                            if ( !strcmp( smb_command, IOC_SMB_Commands[i].command) )
+                            if ( !strcmp( smb_command, NDP_SMB_Commands[i].command) )
                                 {
                                     flag = true;
                                     continue;
@@ -1795,10 +1794,10 @@ void IOC_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 }
 
 /*****************************************************/
-/* IOC_FTP - Grabs files sent, received and username */
+/* NDP_FTP - Grabs files sent, received and username */
 /*****************************************************/
 
-void IOC_FTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
+void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
     char timestamp[64] = { 0 };
@@ -1853,7 +1852,7 @@ void IOC_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
 
                     for ( i = 0; i < MeerCounters->FTP_Command_Count; i++ )
                         {
-                            if ( !strcmp( ftp_command, IOC_FTP_Commands[i].command) )
+                            if ( !strcmp( ftp_command, NDP_FTP_Commands[i].command) )
                                 {
                                     flag = true;
                                     continue;
@@ -1975,11 +1974,11 @@ void IOC_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
 }
 
 /***************************************************************/
-/* IOC_In_Range - validate IP are within range of what we care */
+/* NDP_In_Range - validate IP are within range of what we care */
 /* about                                                       */
 /***************************************************************/
 
-bool IOC_In_Range( char *ip_address )
+bool NDP_In_Range( char *ip_address )
 {
 
     uint16_t z = 0;

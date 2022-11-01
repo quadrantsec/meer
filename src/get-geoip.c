@@ -78,7 +78,6 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
             strlcpy(dest_ip, json_object_get_string(tmp), sizeof( dest_ip ));
         }
 
-
     strlcpy( new_json_string, json_string, MeerConfig->payload_buffer_size);
 
     /*************************************************/
@@ -109,6 +108,8 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
             if ( GeoIP->country[0] != '\0' )
                 {
+
+		printf("GOT DATA\n");
 
                     json_object *jgeoip_country = json_object_new_string( GeoIP->country );
                     json_object_object_add(jobj_geoip,"country", jgeoip_country);
@@ -164,6 +165,8 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
             if ( GeoIP->country[0] != '\0' )
                 {
+
+		printf("GOT DATA DEST\n");
 
                     json_object *jgeoip_country = json_object_new_string( GeoIP->country );
                     json_object_object_add(jobj_geoip,"country", jgeoip_country);

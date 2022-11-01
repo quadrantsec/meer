@@ -14,30 +14,29 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-typedef struct _IOC_SMB_Commands _IOC_SMB_Commands;
-struct _IOC_SMB_Commands
+typedef struct _NDP_SMB_Commands _NDP_SMB_Commands;
+struct _NDP_SMB_Commands
 {
     char command[32];
 };
 
-typedef struct _IOC_FTP_Commands _IOC_FTP_Commands;
-struct _IOC_FTP_Commands
+typedef struct _NDP_FTP_Commands _NDP_FTP_Commands;
+struct _NDP_FTP_Commands
 {
     char command[5];
 };
 
 
-
-bool IOC_In_Range( char *ip_address );
-void IOC_Collector( struct json_object *json_obj, const char *json_string, const char *event_type, const char *src_ip, const char *dest_ip, const char *flow_id );
-void IOC_Flow( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
-void IOC_FileInfo( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
-void IOC_TLS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
-void IOC_DNS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
-void IOC_SSH( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
-void IOC_HTTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
-void IOC_SMB( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
-void IOC_FTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+bool NDP_In_Range( char *ip_address );
+void NDP_Collector( struct json_object *json_obj, const char *json_string, const char *event_type, const char *src_ip, const char *dest_ip, const char *flow_id );
+void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
+void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id );
 
 
 

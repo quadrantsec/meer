@@ -463,7 +463,7 @@ bool Decode_JSON( char *json_string )
     if ( MeerConfig->ndp_collector == true )
         {
 
-            IOC_Collector( json_obj, json_string, event_type, src_ip, dest_ip, flow_id );
+            NDP_Collector( json_obj, json_string, event_type, src_ip, dest_ip, flow_id );
 
         }
 

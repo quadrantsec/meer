@@ -18,11 +18,9 @@
 ** Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"             /* From autoconf */
 #endif
-
 
 #ifdef HAVE_LIBMAXMINDDB
 
@@ -43,6 +41,8 @@ MMDB_s 	geoip;
 
 void Open_GeoIP_Database( void )
 {
+
+    printf("OPEN\n");
 
     int status;
 
@@ -87,6 +87,8 @@ void GeoIP_Lookup( const char *ip_address, struct _GeoIP *GeoIP )
         {
             return;
         }
+
+   printf("DO LOOKUP\n");
 
     MMDB_lookup_result_s result = MMDB_lookup_string(&geoip, ip_address, &gai_error, &mmdb_error);
     MMDB_entry_data_s entry_data;
