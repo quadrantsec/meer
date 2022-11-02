@@ -407,6 +407,7 @@ bool Decode_JSON( char *json_string )
 	       This is for later use by things like NDP, etc. 
   	       There's got to be a better way to do this */
 
+/*
             if ( flag == true )
                 {
 
@@ -421,6 +422,7 @@ bool Decode_JSON( char *json_string )
                         }
 
                 }
+*/
 
 
         }
