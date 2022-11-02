@@ -88,8 +88,6 @@ void GeoIP_Lookup( const char *ip_address, struct _GeoIP *GeoIP )
             return;
         }
 
-   printf("DO LOOKUP\n");
-
     MMDB_lookup_result_s result = MMDB_lookup_string(&geoip, ip_address, &gai_error, &mmdb_error);
     MMDB_entry_data_s entry_data;
 
