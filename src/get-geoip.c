@@ -37,8 +37,10 @@ extern struct _MeerConfig *MeerConfig;
 
 #ifdef HAVE_LIBMAXMINDDB
 
-void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str )
+bool Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str )
 {
+
+    bool flag = false;
 
     struct json_object *tmp = NULL;
 
@@ -214,7 +216,9 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
     if ( geoip_src_json[0] != '\0' )
         {
 
-            new_json_string[ strlen(new_json_string) -2 ] = '\0';
+            flag = true;
+
+            new_json_string[ strlen(new_json_string) - 1 ] = '\0';
             snprintf(tmp_geoip, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src_json);
             tmp_geoip[ MeerConfig->payload_buffer_size - 1] = '\0';
 
@@ -226,7 +230,9 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
     if ( geoip_dest_json[0] != '\0' )
         {
 
-            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+            flag = true;
+
+            new_json_string[ strlen(new_json_string) - 1 ] = '\0';
 
             snprintf(tmp_geoip, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest_json);
             tmp_geoip[ MeerConfig->payload_buffer_size - 1] = '\0';
@@ -241,6 +247,8 @@ void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str
 
     free(tmp_geoip);
     free(new_json_string);
+
+    return(flag);
 
 }
 
