@@ -36,15 +36,13 @@ extern struct _MeerConfig *MeerConfig;
 
 #ifdef HAVE_LIBMAXMINDDB
 
-void Get_GeoIP( struct json_object *json_obj, const char *json_string, char *str, const char *src_ip, const char *dest_ip )
+void Get_GeoIP( struct json_object *json_obj, char *str, const char *src_ip, const char *dest_ip )
 {
 
-    struct json_object *tmp = NULL;
-
-    struct json_object *jobj_geoip_src;
+    struct json_object *jobj_geoip_src = NULL;
     jobj_geoip_src = json_object_new_object();
 
-    struct json_object *jobj_geoip_dest;
+    struct json_object *jobj_geoip_dest = NULL;
     jobj_geoip_dest = json_object_new_object();
 
     /*************************************************/
