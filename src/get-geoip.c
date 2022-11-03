@@ -62,8 +62,8 @@ void Get_GeoIP( struct json_object *json_obj, char *str, const char *src_ip, con
     if ( GeoIP->country[0] != '\0' )
         {
 
-	    /* Only allocate json_object when we actually need to tie it to *json_obj 
-               We won't need to deallocate it as it will become part of *json_obj! */
+            /* Only allocate json_object when we actually need to tie it to *json_obj
+                   We won't need to deallocate it as it will become part of *json_obj! */
 
             struct json_object *jobj_geoip_src = NULL;
             jobj_geoip_src = json_object_new_object();
