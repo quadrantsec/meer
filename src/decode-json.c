@@ -398,7 +398,7 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->geoip == true )
         {
-            Get_GeoIP( json_obj, json_string, new_json_string );
+            Get_GeoIP( json_obj, json_string, new_json_string, src_ip, dest_ip );
             json_string = new_json_string;
         }
 
