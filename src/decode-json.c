@@ -398,33 +398,8 @@ bool Decode_JSON( char *json_string )
 
     if ( MeerConfig->geoip == true )
         {
-            bool flag = false;
-
-            flag = Get_GeoIP( json_obj, json_string, new_json_string );
+            Get_GeoIP( json_obj, json_string, new_json_string );
             json_string = new_json_string;
-
-	    /* If we've added new GeoIP JSON data, we re-parse the JSON. 
-	       This is for later use by things like NDP, etc. 
-  	       There's got to be a better way to do this */
-
-/*
-            if ( flag == true )
-                {
-
-                    json_obj = json_tokener_parse(json_string);
-
-                    if ( json_obj == NULL )
-                        {
-                            Meer_Log(WARN, "[%s, line %d] Internal error with GeoIP . Unable t json_tokener_parse: %s", __FILE__, __LINE__, json_string);
-                            json_object_put(json_obj);
-                            free(new_json_string);
-                            return(false);
-                        }
-
-                }
-*/
-
-
         }
 
 #endif
