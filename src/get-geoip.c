@@ -39,11 +39,11 @@ extern struct _MeerConfig *MeerConfig;
 void Get_GeoIP( struct json_object *json_obj, char *str, const char *src_ip, const char *dest_ip )
 {
 
-    struct json_object *jobj_geoip_src = NULL;
-    jobj_geoip_src = json_object_new_object();
+//    struct json_object *jobj_geoip_src = NULL;
+//    jobj_geoip_src = json_object_new_object();
 
-    struct json_object *jobj_geoip_dest = NULL;
-    jobj_geoip_dest = json_object_new_object();
+//    struct json_object *jobj_geoip_dest = NULL;
+//    jobj_geoip_dest = json_object_new_object();
 
     /*************************************************/
     /* Add any GeoIP data for the source/destination */
@@ -67,6 +67,9 @@ void Get_GeoIP( struct json_object *json_obj, char *str, const char *src_ip, con
 
     if ( GeoIP->country[0] != '\0' )
         {
+
+            struct json_object *jobj_geoip_src = NULL;
+            jobj_geoip_src = json_object_new_object();
 
             json_object *jgeoip_country = json_object_new_string( GeoIP->country );
             json_object_object_add(jobj_geoip_src,"country", jgeoip_country);
@@ -122,6 +125,9 @@ void Get_GeoIP( struct json_object *json_obj, char *str, const char *src_ip, con
     if ( GeoIP->country[0] != '\0' )
         {
 
+            struct json_object *jobj_geoip_dest = NULL;
+            jobj_geoip_dest = json_object_new_object();
+
             json_object *jgeoip_country = json_object_new_string( GeoIP->country );
             json_object_object_add(jobj_geoip_dest,"country", jgeoip_country);
 
@@ -166,9 +172,7 @@ void Get_GeoIP( struct json_object *json_obj, char *str, const char *src_ip, con
         }
 
     snprintf(str, MeerConfig->payload_buffer_size, "%s", (char*)json_object_to_json_string(json_obj) );
-
-    json_object_put(jobj_geoip_src);
-    json_object_put(jobj_geoip_dest);
+    free(GeoIP);
 
 }
 
