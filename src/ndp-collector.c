@@ -143,32 +143,17 @@ void NDP_Collector( struct json_object *json_obj, const char *json_string, const
 void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
+    struct json_object *json_obj_flow = NULL;
+    struct json_object *json_obj_state = NULL;
+
     char *tmp_type = NULL;
     char tmp_ip[64] = { 0 };
     char id_md5[MD5_SIZE] = { 0 };
 
     uint8_t i = 0;
 
-    uint64_t bytes_toserver = 0;
-    uint64_t bytes_toclient = 0;
-    uint64_t age = 0;
-
     struct json_object *tmp = NULL;
     bool state_flag = false;
-
-/*
-    char timestamp[64] = { 0 };
-    char proto[16] = { 0 };
-    char app_proto[32] = { 0 };
-    char state[16] = { 0 };
-    char reason[16] = { 0 };
-    bool alerted = false;
-    char start[64] = { 0 };
-    char end[64] = { 0 };
-    char host[64] = { 0 };
-    char src_dns[256] = { 0 };
-    char dest_dns[256] = { 0 };
-*/
 
     MD5( (uint8_t*)src_ip, strlen(src_ip), id_md5, sizeof(id_md5) );
 
@@ -197,9 +182,6 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
             MeerCounters->ndp_skip++;
             return;
         }
-
-    struct json_object *json_obj_flow = NULL;
-    struct json_object *json_obj_state = NULL;
 
     if ( json_object_object_get_ex(json_obj, "flow", &tmp) )
         {
@@ -258,8 +240,8 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                     if ( NDP_In_Range( tmp_ip ) == false && ( Is_IP( tmp_ip, IPv4 ) ) )
                         {
 
-                            struct json_object *encode_json = NULL;
-                            encode_json = json_object_new_object();
+                            struct json_object *encode_json_flow = NULL;
+                            encode_json_flow = json_object_new_object();
 
                             struct json_object *jgeoip_src = NULL;
                             jgeoip_src = json_object_new_object();
@@ -268,54 +250,54 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                             jgeoip_dest = json_object_new_object();
 
                             json_object *jtype = json_object_new_string( "flow" );
-                            json_object_object_add(encode_json,"type", jtype);
+                            json_object_object_add(encode_json_flow,"type", jtype);
 
                             if ( MeerConfig->description[0] != '\0' )
                                 {
                                     json_object *jdesc = json_object_new_string( MeerConfig->description );
-                                    json_object_object_add(encode_json,"description", jdesc);
+                                    json_object_object_add(encode_json_flow,"description", jdesc);
                                 }
 
                             if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
                                 {
                                     json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"src_dns", jsrc_dns);
+                                    json_object_object_add(encode_json_flow,"src_dns", jsrc_dns);
                                 }
 
                             if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
                                 {
                                     json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"dest_dns", jdest_dns);
+                                    json_object_object_add(encode_json_flow,"dest_dns", jdest_dns);
                                 }
 
                             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                                 {
                                     jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"geoip_src", jgeoip_src);
+                                    json_object_object_add(encode_json_flow,"geoip_src", jgeoip_src);
                                 }
 
                             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                                 {
                                     jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"geoip_dest", jgeoip_dest);
+                                    json_object_object_add(encode_json_flow,"geoip_dest", jgeoip_dest);
                                 }
 
                             if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
                                 {
                                     json_object *jtimestamp = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"timestamp", jtimestamp);
+                                    json_object_object_add(encode_json_flow,"timestamp", jtimestamp);
                                 }
 
                             if ( json_object_object_get_ex(json_obj, "proto", &tmp) )
                                 {
                                     json_object *jproto = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"proto", jproto);
+                                    json_object_object_add(encode_json_flow,"proto", jproto);
                                 }
 
                             if ( json_object_object_get_ex(json_obj, "host", &tmp) )
                                 {
                                     json_object *jhost = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"host", jhost);
+                                    json_object_object_add(encode_json_flow,"host", jhost);
                                 }
 
                             /* Set a default value */
@@ -323,7 +305,7 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                             if ( json_object_object_get_ex(json_obj, "app_proto", &tmp) )
                                 {
                                     json_object *japp_proto = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"app_proto", japp_proto);
+                                    json_object_object_add(encode_json_flow,"app_proto", japp_proto);
 
                                 }
 
@@ -331,54 +313,54 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                                 {
 
                                     json_object *jbytes_toserver = json_object_new_int64( json_object_get_int64(tmp) );
-                                    json_object_object_add(encode_json,"bytes_toserver", jbytes_toserver);
+                                    json_object_object_add(encode_json_flow,"bytes_toserver", jbytes_toserver);
                                 }
 
                             if ( json_object_object_get_ex(json_obj_state, "bytes_toclient", &tmp) )
                                 {
                                     json_object *jbytes_toclient = json_object_new_int64( json_object_get_int64(tmp) );
-                                    json_object_object_add(encode_json,"bytes_toclient", jbytes_toclient);
+                                    json_object_object_add(encode_json_flow,"bytes_toclient", jbytes_toclient);
 
                                 }
 
                             if ( json_object_object_get_ex(json_obj_state, "age", &tmp) )
                                 {
                                     json_object *jage = json_object_new_int64( json_object_get_int64(tmp) );
-                                    json_object_object_add(encode_json,"age", jage);
+                                    json_object_object_add(encode_json_flow,"age", jage);
 
                                 }
 
                             if ( json_object_object_get_ex(json_obj_state, "state", &tmp) )
                                 {
                                     json_object *jstate = json_object_new_int64( json_object_get_int64(tmp) );
-                                    json_object_object_add(encode_json,"staet", jstate);
+                                    json_object_object_add(encode_json_flow,"state", jstate);
 
                                 }
 
                             if ( json_object_object_get_ex(json_obj_state, "reason", &tmp) )
                                 {
                                     json_object *jreason = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"reason", jreason);
+                                    json_object_object_add(encode_json_flow,"reason", jreason);
                                 }
 
                             if ( json_object_object_get_ex(json_obj_state, "alerted", &tmp) )
                                 {
                                     json_object *jalerted = json_object_new_boolean( json_object_get_boolean(tmp) );
-                                    json_object_object_add(encode_json,"alertedn", jalerted);
+                                    json_object_object_add(encode_json_flow,"alerted", jalerted);
 
                                 }
 
                             if ( json_object_object_get_ex(json_obj_state, "start", &tmp) )
                                 {
                                     json_object *jstart = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"start", jstart);
+                                    json_object_object_add(encode_json_flow,"start", jstart);
 
                                 }
 
                             if ( json_object_object_get_ex(json_obj_state, "end", &tmp) )
                                 {
                                     json_object *jend = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json,"end", jend);
+                                    json_object_object_add(encode_json_flow,"end", jend);
                                 }
 
                             /* Create new "id" based off the IP address */
@@ -387,18 +369,22 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
 
                             if ( MeerConfig->ndp_debug == true )
                                 {
-                                    Meer_Log(DEBUG, "[%s, line %d] INSERT FLOW %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json) );
+                                    Meer_Log(DEBUG, "[%s, line %d] INSERT FLOW %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_flow) );
                                 }
 
                             MeerCounters->ndp++;
                             strlcpy(last_flow_id, id_md5, MD5_SIZE);
-                            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json), "ndp", id_md5 );
+                            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_flow), "ndp", id_md5 );
 
-                            json_object_put(encode_json);
+                            json_object_put(encode_json_flow);
+			    json_object_put(jgeoip_src);
 
                         }
                 }
         }
+
+json_object_put(json_obj_state);
+
 }
 
 /**************************************/
