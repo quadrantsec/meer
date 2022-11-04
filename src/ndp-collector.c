@@ -377,7 +377,6 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                             Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_flow), "ndp", id_md5 );
 
                             json_object_put(encode_json_flow);
-			    json_object_put(jgeoip_src);
 
                         }
                 }
