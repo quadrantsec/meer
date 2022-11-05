@@ -1077,17 +1077,10 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
 {
 
     char timestamp[64] = { 0 };
-    char host[64] = { 0 };
-    char proto_version[64] = { 0 };
     char client_version[256] = { 0 };
     char server_version[256] = { 0 };
 
     char tmp_id[64] = { 0 };
-
-    char src_dns[256] = { 0 };
-    char dest_dns[256] = { 0 };
-
-    uint16_t src_port = 0;
     uint16_t dest_port = 0;
 
     char id_md5[MD5_SIZE] = { 0 };
@@ -1096,77 +1089,6 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
     struct json_object *json_obj_ssh = NULL;
     struct json_object *json_obj_ssh_client = NULL;
     struct json_object *json_obj_ssh_server = NULL;
-
-    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
-        {
-            strlcpy( src_dns, json_object_get_string(tmp), sizeof(src_dns) );
-        }
-
-    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
-        {
-            strlcpy( dest_dns, json_object_get_string(tmp), sizeof(dest_dns) );
-        }
-
-    if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
-        {
-            strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
-        }
-
-    if ( json_object_object_get_ex(json_obj, "src_port", &tmp) )
-        {
-            src_port = json_object_get_int(tmp);
-        }
-
-    if ( json_object_object_get_ex(json_obj, "dest_port", &tmp) )
-        {
-            dest_port = json_object_get_int(tmp);
-        }
-
-    if ( json_object_object_get_ex(json_obj, "host", &tmp) )
-        {
-            strlcpy( host, json_object_get_string(tmp), sizeof(host) );
-        }
-
-    if ( json_object_object_get_ex(json_obj, "ssh", &tmp) )
-        {
-
-            json_obj_ssh = json_tokener_parse(json_object_get_string(tmp));
-
-            if ( json_object_object_get_ex(json_obj_ssh, "client", &tmp) )
-                {
-
-                    json_obj_ssh_client = json_tokener_parse(json_object_get_string(tmp));
-
-                    if ( json_object_object_get_ex(json_obj_ssh_client, "proto_version", &tmp) )
-                        {
-                            strlcpy(proto_version, json_object_get_string(tmp), sizeof( proto_version ) );
-                        }
-
-                    if ( json_object_object_get_ex(json_obj_ssh_client, "software_version", &tmp) )
-                        {
-                            strlcpy(client_version, json_object_get_string(tmp), sizeof( client_version ) );
-                        }
-
-                }
-
-
-            if ( json_object_object_get_ex(json_obj_ssh, "server", &tmp) )
-                {
-
-                    json_obj_ssh_server = json_tokener_parse(json_object_get_string(tmp));
-
-                    if ( json_object_object_get_ex(json_obj_ssh_client, "software_version", &tmp) )
-                        {
-                            strlcpy(server_version, json_object_get_string(tmp), sizeof( server_version ) );
-                        }
-
-                }
-
-        }
-
-    /*******************************************/
-    /* New JSON object                         */
-    /*******************************************/
 
     struct json_object *encode_json_ssh = NULL;
     encode_json_ssh = json_object_new_object();
@@ -1183,64 +1105,84 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
     json_object *jflow_id = json_object_new_string( flow_id );
     json_object_object_add(encode_json_ssh,"flow_id", jflow_id);
 
-    if ( src_dns[0] != '\0' )
+    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
         {
-            json_object *jsrc_dns = json_object_new_string( src_dns );
+            json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
             json_object_object_add(encode_json_ssh,"src_dns", jsrc_dns);
         }
 
-    if ( dest_dns[0] != '\0' )
+    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
         {
-            json_object *jdest_dns = json_object_new_string( dest_dns );
-            json_object_object_add(encode_json_ssh,"dest_dns", jdest_dns);
+            json_object *jdest_dns = json_object_new_string( json_object_to_json_string( tmp ));
+            json_object_object_add(encode_json_ssh,"src_dest", jdest_dns);
         }
 
-    if ( timestamp[0] != '\0' )
+    if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
-            json_object *jtimestamp = json_object_new_string( timestamp );
+            json_object *jtimestamp = json_object_new_string( json_object_to_json_string( tmp ));
             json_object_object_add(encode_json_ssh,"timestamp", jtimestamp);
         }
 
-    if ( src_port != 0 )
+    if ( json_object_object_get_ex(json_obj, "src_port", &tmp) )
         {
-            json_object *jsrc_port = json_object_new_int( src_port );
+            json_object *jsrc_port = json_object_new_int( json_object_get_int(tmp) );
             json_object_object_add(encode_json_ssh,"src_port", jsrc_port);
         }
 
-    if ( dest_port != 0 )
+    if ( json_object_object_get_ex(json_obj, "dest_port", &tmp) )
         {
+            dest_port = json_object_get_int(tmp);
             json_object *jdest_port = json_object_new_int( dest_port );
             json_object_object_add(encode_json_ssh,"dest_port", jdest_port);
         }
 
-    if ( host[0] != '\0' )
+    if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
-            json_object *jhost = json_object_new_string( host );
+            json_object *jhost = json_object_new_string( json_object_to_json_string( tmp ));
             json_object_object_add(encode_json_ssh,"host", jhost);
         }
 
-    if ( MeerConfig->description[0] != '\0' )
+    if ( json_object_object_get_ex(json_obj, "ssh", &tmp) )
         {
-            json_object *jdesc = json_object_new_string( MeerConfig->description );
-            json_object_object_add(encode_json_ssh,"description", jdesc);
-        }
 
-    if ( proto_version[0] != '\0' )
-        {
-            json_object *jproto_version = json_object_new_string( proto_version );
-            json_object_object_add(encode_json_ssh,"proto_version", jproto_version);
-        }
+            json_obj_ssh = json_tokener_parse(json_object_get_string(tmp));
 
-    if ( server_version[0] != '\0' )
-        {
-            json_object *jserver_version = json_object_new_string( server_version );
-            json_object_object_add(encode_json_ssh,"server_version", jserver_version);
-        }
+            if ( json_object_object_get_ex(json_obj_ssh, "client", &tmp) )
+                {
 
-    if ( client_version[0] != '\0' )
-        {
-            json_object *jclient_version = json_object_new_string( client_version );
-            json_object_object_add(encode_json_ssh,"client_version", jclient_version);
+                    json_obj_ssh_client = json_tokener_parse(json_object_get_string(tmp));
+
+                    if ( json_object_object_get_ex(json_obj_ssh_client, "proto_version", &tmp) )
+                        {
+
+                            json_object *jproto_version = json_object_new_string( json_object_to_json_string( tmp ));
+                            json_object_object_add(encode_json_ssh,"client_proto_version", jproto_version);
+                        }
+
+                    if ( json_object_object_get_ex(json_obj_ssh_client, "software_version", &tmp) )
+                        {
+                            strlcpy( client_version, json_object_to_json_string( tmp ), sizeof( client_version ));
+                            json_object *jsoftware_version = json_object_new_string( client_version );
+                            json_object_object_add(encode_json_ssh,"client_software_version", jsoftware_version);
+                        }
+
+                }
+
+
+            if ( json_object_object_get_ex(json_obj_ssh, "server", &tmp) )
+                {
+
+                    json_obj_ssh_server = json_tokener_parse(json_object_get_string(tmp));
+
+                    if ( json_object_object_get_ex(json_obj_ssh_client, "software_version", &tmp) )
+                        {
+                            strlcpy(server_version, json_object_to_json_string( tmp ), sizeof(server_version));
+                            json_object *jserver_software_version = json_object_new_string( server_version );
+                            json_object_object_add(encode_json_ssh,"server_software_version", jserver_software_version);
+                        }
+
+                }
+
         }
 
     snprintf(tmp_id, sizeof(tmp_id), "%s:%d:%s:%s", dest_ip, dest_port, server_version, client_version);
