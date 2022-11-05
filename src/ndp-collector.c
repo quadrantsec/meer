@@ -744,37 +744,65 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
 void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
-    char timestamp[64] = { 0 };
+//    char timestamp[64] = { 0 };
     char rrname[8192] = { 0 };
-    char rrtype[16] = { 0 };
-    char host[64] = { 0 };
+//    char rrtype[16] = { 0 };
+//    char host[64] = { 0 };
 
-    char src_dns[256] = { 0 };
-    char dest_dns[256] = { 0 };
+//    char src_dns[256] = { 0 };
+//    char dest_dns[256] = { 0 };
 
     char id_md5[MD5_SIZE] = { 0 };
 
     struct json_object *tmp = NULL;
     struct json_object *json_obj_dns = NULL;
 
+    struct json_object *encode_json_dns = NULL;
+    encode_json_dns = json_object_new_object();
+
+    json_object *jtype = json_object_new_string( "dns" );
+    json_object_object_add(encode_json_dns,"type", jtype);
+
+    json_object *jsrc_ip = json_object_new_string( src_ip );
+    json_object_object_add(encode_json_dns,"src_ip", jsrc_ip);
+
+    json_object *jdest_ip = json_object_new_string( dest_ip );
+    json_object_object_add(encode_json_dns,"dest_ip", jdest_ip);
+
+    json_object *jflow_id = json_object_new_string( flow_id );
+    json_object_object_add(encode_json_dns,"flow_id", jflow_id);
+
+    if ( MeerConfig->description[0] != '\0' )
+        {
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_dns,"description", jdesc);
+        }
+
     if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
         {
-            strlcpy( src_dns, json_object_get_string(tmp), sizeof(src_dns) );
+            json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_dns,"src_dns", jsrc_dns);
         }
 
     if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
         {
-            strlcpy( dest_dns, json_object_get_string(tmp), sizeof(dest_dns) );
+            json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_dns,"dest_dns", jdest_dns);
+
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
-            strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
+            json_object *jtimestamp = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_dns,"timestamp", jtimestamp);
+
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
-            strlcpy( host, json_object_get_string(tmp), sizeof(host) );
+            json_object *jhost = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_dns,"host", jhost);
+
         }
 
     if ( json_object_object_get_ex(json_obj, "dns", &tmp) )
@@ -792,7 +820,9 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
                             if ( json_object_object_get_ex(json_obj_dns, "rrname", &tmp) )
                                 {
+
                                     strlcpy(rrname, json_object_get_string(tmp), sizeof( rrname ) );
+
                                     MD5( (uint8_t*)rrname, strlen(rrname), id_md5, sizeof(id_md5) );
 
                                     if ( !strcmp(last_dns_id, id_md5 ) )
@@ -805,15 +835,20 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
                                             MeerCounters->ndp_skip++;
 
+                                            json_object_put(encode_json_dns);
                                             json_object_put(json_obj_dns);
                                             return;
 
-
                                         }
+
+                                    json_object *jrrname = json_object_new_string( json_object_get_string(tmp) );
+                                    json_object_object_add(encode_json_dns,"rrname", jrrname);
+
 
                                     if ( json_object_object_get_ex(json_obj_dns, "rrtype", &tmp) )
                                         {
-                                            strlcpy(rrtype, json_object_get_string(tmp), sizeof( rrtype ) );
+                                            json_object *jrrtype = json_object_new_string( json_object_get_string(tmp) );
+                                            json_object_object_add(encode_json_dns,"rrtype", jrrtype);
                                         }
 
                                 }
@@ -822,6 +857,7 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
                                     /* It's not a "query", so skip it */
 
+                                    json_object_put(encode_json_dns);
                                     json_object_put(json_obj_dns);
                                     return;
 
@@ -833,78 +869,11 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
                             /* There's isn't a type! */
 
+                            json_object_put(encode_json_dns);
                             json_object_put(json_obj_dns);
                             return;
 
                         }
-                }
-
-            /**************************************************/
-            /* New JSON Object                                */
-            /**************************************************/
-
-            struct json_object *encode_json_dns = NULL;
-            encode_json_dns = json_object_new_object();
-
-            json_object *jtype = json_object_new_string( "dns" );
-            json_object_object_add(encode_json_dns,"type", jtype);
-
-            if ( src_dns[0] != '\0' )
-                {
-                    json_object *jsrc_dns = json_object_new_string( src_dns );
-                    json_object_object_add(encode_json_dns,"src_dns", jsrc_dns);
-                }
-
-            if ( dest_dns[0] != '\0' )
-                {
-                    json_object *jdest_dns = json_object_new_string( dest_dns );
-                    json_object_object_add(encode_json_dns,"dest_dns", jdest_dns);
-                }
-
-            if ( timestamp[0] != '\0' )
-                {
-                    json_object *jtimestamp = json_object_new_string( timestamp );
-                    json_object_object_add(encode_json_dns,"timestamp", jtimestamp);
-                }
-
-            if ( src_ip[0] != '\0' )
-                {
-                    json_object *jsrc_ip = json_object_new_string( src_ip );
-                    json_object_object_add(encode_json_dns,"src_ip", jsrc_ip);
-                }
-
-            if ( dest_ip[0] != '\0' )
-                {
-                    json_object *jdest_ip = json_object_new_string( dest_ip );
-                    json_object_object_add(encode_json_dns,"dest_ip", jdest_ip);
-                }
-
-
-            json_object *jflow_id = json_object_new_string( flow_id );
-            json_object_object_add(encode_json_dns,"flow_id", jflow_id);
-
-            if ( rrname[0] != '\0' )
-                {
-                    json_object *jrrname = json_object_new_string( rrname );
-                    json_object_object_add(encode_json_dns,"rrname", jrrname);
-                }
-
-            if ( rrtype[0] != '\0' )
-                {
-                    json_object *jrrtype = json_object_new_string( rrtype );
-                    json_object_object_add(encode_json_dns,"rrtype", jrrtype);
-                }
-
-            if ( host[0] != '\0' )
-                {
-                    json_object *jhost = json_object_new_string( host );
-                    json_object_object_add(encode_json_dns,"host", jhost);
-                }
-
-            if ( MeerConfig->description[0] != '\0' )
-                {
-                    json_object *jdesc = json_object_new_string( MeerConfig->description );
-                    json_object_object_add(encode_json_dns,"description", jdesc);
                 }
 
             if ( MeerConfig->ndp_debug == true )
