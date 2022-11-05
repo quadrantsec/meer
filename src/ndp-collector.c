@@ -165,6 +165,9 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                     Meer_Log(DEBUG, "[%s, line %d] SKIP FLOW %s", __FILE__, __LINE__, id_md5);
                 }
 
+            json_object_put(json_obj_flow);
+            json_object_put(json_obj_state);
+
             MeerCounters->ndp_skip++;
             return;
         }
@@ -178,6 +181,9 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                 {
                     Meer_Log(DEBUG, "[%s, line %d] SKIP FLOW %s", __FILE__, __LINE__, id_md5 );
                 }
+
+            json_object_put(json_obj_flow);
+            json_object_put(json_obj_state);
 
             MeerCounters->ndp_skip++;
             return;
@@ -1256,24 +1262,64 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
     struct json_object *tmp = NULL;
     struct json_object *json_obj_http = NULL;
 
+    struct json_object *encode_json_http = NULL;
+    encode_json_http = json_object_new_object();
+
+    struct json_object *encode_json_user_agent = NULL;
+    encode_json_user_agent = json_object_new_object();
+
+
+    json_object *jtype = json_object_new_string( "http" );
+    json_object_object_add(encode_json_http,"type", jtype);
+
+    json_object *jtype_ua = json_object_new_string( "user_agent" );
+    json_object_object_add(encode_json_user_agent,"type", jtype_ua);
+
+    json_object *jsrc_ip = json_object_new_string( src_ip );
+    json_object_object_add(encode_json_http,"src_ip", jsrc_ip);
+    json_object_object_add(encode_json_user_agent,"src_ip", jsrc_ip);
+
+    json_object *jdest_ip = json_object_new_string( dest_ip );
+    json_object_object_add(encode_json_http,"dest_ip", jdest_ip);
+    json_object_object_add(encode_json_user_agent,"dest_ip", jdest_ip);
+
+    json_object *jflow_id = json_object_new_string( flow_id );
+    json_object_object_add(encode_json_http,"flow_id", jflow_id);
+    json_object_object_add(encode_json_user_agent,"flow_id", jflow_id);
+
+    if ( MeerConfig->description[0] != '\0' )
+        {
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_http,"description", jdesc);
+            json_object_object_add(encode_json_user_agent,"description", jdesc);
+        }
+
     if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
         {
-            strlcpy( src_dns, json_object_get_string(tmp), sizeof(src_dns) );
+            json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
+            json_object_object_add(encode_json_http,"src_dns", jsrc_dns);
+            json_object_object_add(encode_json_user_agent,"src_dns", jsrc_dns);
         }
 
     if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
         {
-            strlcpy( dest_dns, json_object_get_string(tmp), sizeof(dest_dns) );
+            json_object *jdest_dns = json_object_new_string( json_object_to_json_string( tmp ));
+            json_object_object_add(encode_json_http,"dest_dns", jdest_dns);
+            json_object_object_add(encode_json_user_agent,"dest_dns", jdest_dns);
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
-            strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
+            json_object *jtimestamp = json_object_new_string( json_object_to_json_string( tmp ));
+            json_object_object_add(encode_json_http,"timestamp", jtimestamp);
+            json_object_object_add(encode_json_user_agent,"timestamp", jtimestamp);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
-            strlcpy( host, json_object_get_string(tmp), sizeof(host) );
+            json_object *jhost = json_object_new_string( json_object_to_json_string( tmp ));
+            json_object_object_add(encode_json_http,"host", jhost);
+            json_object_object_add(encode_json_user_agent,"host", jhost);
         }
 
     if ( json_object_object_get_ex(json_obj, "http", &tmp) )
@@ -1284,31 +1330,47 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
             if ( json_object_object_get_ex(json_obj_http, "http_user_agent", &tmp) )
                 {
                     strlcpy( http_user_agent, json_object_get_string(tmp), sizeof( http_user_agent ));
+
+                    json_object *jhttp_user_agent = json_object_new_string( http_user_agent );
+                    json_object_object_add(encode_json_http,"http_user_agent", jhttp_user_agent);
+                    json_object_object_add(encode_json_user_agent,"user_agent", jhttp_user_agent);
+
                 }
 
             if ( json_object_object_get_ex(json_obj_http, "hostname", &tmp) )
                 {
                     strlcpy( hostname, json_object_get_string(tmp), sizeof( hostname ));
+
+                    json_object *jhostname = json_object_new_string( hostname );
+                    json_object_object_add(encode_json_http,"hostname", jhostname);
+
                 }
 
             if ( json_object_object_get_ex(json_obj_http, "url", &tmp) )
                 {
                     strlcpy( url, json_object_get_string(tmp), sizeof( url ));
+
+                    json_object *jurl = json_object_new_string( url );
+                    json_object_object_add(encode_json_http,"url", jurl);
+
                 }
 
             if ( json_object_object_get_ex(json_obj_http, "method", &tmp) )
                 {
-                    strlcpy( method, json_object_get_string(tmp), sizeof( method ));
+                    json_object *jmethod = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_http,"method", jmethod);
                 }
 
             if ( json_object_object_get_ex(json_obj_http, "status", &tmp) )
                 {
-                    status = json_object_get_int(tmp);
+                    json_object *jstatus = json_object_new_int( json_object_get_int(tmp) );
+                    json_object_object_add(encode_json_http,"status", jstatus);
                 }
 
             if ( json_object_object_get_ex(json_obj_http, "length", &tmp) )
                 {
-                    length = json_object_get_int(tmp);
+                    json_object *jlength = json_object_new_int( json_object_get_int(tmp) );
+                    json_object_object_add(encode_json_http,"length", jlength);
                 }
 
             snprintf(full_url, sizeof(full_url), "%s%s", hostname, url);
@@ -1316,92 +1378,26 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 
             MD5( (uint8_t*)full_url, strlen(full_url), id_md5, sizeof(id_md5) );
 
-            if ( !strcmp(last_http_id, id_md5 ) )
-                {
+            /* We may still need the user_agent !? */
+            /*
+                        if ( !strcmp(last_http_id, id_md5 ) )
+                            {
 
-                    MeerCounters->ndp_skip++;
+                                MeerCounters->ndp_skip++;
 
-                    if ( MeerConfig->ndp_debug == true )
-                        {
-                            Meer_Log(DEBUG, "[%s, line %d] HTTP URL SKIP: %s", __FILE__, __LINE__, id_md5 );
-                        }
+                                if ( MeerConfig->ndp_debug == true )
+                                    {
+                                        Meer_Log(DEBUG, "[%s, line %d] HTTP URL SKIP: %s", __FILE__, __LINE__, id_md5 );
+                                    }
 
 
-                    json_object_put(json_obj_http);
+            		    json_object_put(encode_json_http);
+                                json_object_put(json_obj_http);
 
-                    return;
+                                return;
 
-                }
-
-            /****************************************/
-            /* New HTTP JSON object                 */
-            /****************************************/
-
-            struct json_object *encode_json_http = NULL;
-            encode_json_http = json_object_new_object();
-
-            json_object *jtype = json_object_new_string( "http" );
-            json_object_object_add(encode_json_http,"type", jtype);
-
-            json_object *jsrc_ip = json_object_new_string( src_ip );
-            json_object_object_add(encode_json_http,"src_ip", jsrc_ip);
-
-            json_object *jdest_ip = json_object_new_string( dest_ip );
-            json_object_object_add(encode_json_http,"dest_ip", jdest_ip);
-
-            json_object *jflow_id = json_object_new_string( flow_id );
-            json_object_object_add(encode_json_http,"flow_id", jflow_id);
-
-            if ( src_dns[0] != '\0' )
-                {
-                    json_object *jsrc_dns = json_object_new_string( src_dns );
-                    json_object_object_add(encode_json_http,"src_dns", jsrc_dns);
-                }
-
-            if ( dest_dns[0] != '\0' )
-                {
-                    json_object *jdest_dns = json_object_new_string( dest_dns );
-                    json_object_object_add(encode_json_http,"dest_dns", jdest_dns);
-                }
-
-            if ( timestamp[0] != '\0' )
-                {
-                    json_object *jtimestamp = json_object_new_string( timestamp );
-                    json_object_object_add(encode_json_http,"timestamp", jtimestamp);
-                }
-
-            if ( MeerConfig->description[0] != '\0' )
-                {
-                    json_object *jdesc = json_object_new_string( MeerConfig->description );
-                    json_object_object_add(encode_json_http,"description", jdesc);
-                }
-
-            if ( host[0] != '\0' )
-                {
-                    json_object *jhost = json_object_new_string( host );
-                    json_object_object_add(encode_json_http,"host", jhost);
-                }
-
-            json_object *jfull_url = json_object_new_string( full_url );
-            json_object_object_add(encode_json_http,"url", jfull_url);
-
-            if ( http_user_agent[0] != '\0' )
-                {
-                    json_object *juser_agent = json_object_new_string( http_user_agent );
-                    json_object_object_add(encode_json_http,"user_agent", juser_agent);
-                }
-
-            if ( method[0] != '\0' )
-                {
-                    json_object *jmethod = json_object_new_string( method );
-                    json_object_object_add(encode_json_http,"method", jmethod);
-                }
-
-            json_object *jstatus = json_object_new_int( status );
-            json_object_object_add(encode_json_http,"status", jstatus);
-
-            json_object *jlength = json_object_new_int( length);
-            json_object_object_add(encode_json_http,"length", jlength);
+                            }
+            */
 
             if ( MeerConfig->ndp_debug == true )
                 {
@@ -1430,68 +1426,9 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
                         }
 
                     json_object_put(json_obj_http);
+                    json_object_put(encode_json_user_agent);
 
                     return;
-                }
-
-            /****************************************/
-            /* New User Agent Object                */
-            /****************************************/
-
-            struct json_object *encode_json_user_agent = NULL;
-            encode_json_user_agent = json_object_new_object();
-
-            json_object *jtype_ua = json_object_new_string( "user_agent" );
-            json_object_object_add(encode_json_user_agent,"type", jtype_ua);
-
-            if ( src_dns[0] != '\0' )
-                {
-                    json_object *jsrc_dns = json_object_new_string( src_dns );
-                    json_object_object_add(encode_json_user_agent,"src_dns", jsrc_dns);
-                }
-
-            if ( dest_dns[0] != '\0' )
-                {
-                    json_object *jdest_dns = json_object_new_string( dest_dns );
-                    json_object_object_add(encode_json_user_agent,"dest_dns", jdest_dns);
-                }
-
-            if ( MeerConfig->description[0] != '\0' )
-                {
-                    json_object *jdesc_ua = json_object_new_string( MeerConfig->description );
-                    json_object_object_add(encode_json_user_agent,"description", jdesc_ua);
-                }
-
-            if ( host[0] != '\0' )
-                {
-                    json_object *jhost_ua = json_object_new_string( host );
-                    json_object_object_add(encode_json_user_agent,"host", jhost_ua);
-                }
-
-            if ( timestamp[0] != '\0' )
-                {
-                    json_object *jtimestamp_ua = json_object_new_string( timestamp );
-                    json_object_object_add(encode_json_user_agent,"timestamp", jtimestamp_ua);
-                }
-
-            json_object *jsrc_ip_ua = json_object_new_string( src_ip );
-            json_object_object_add(encode_json_user_agent,"src_ip", jsrc_ip_ua);
-
-            json_object *jdest_ip_ua = json_object_new_string( dest_ip );
-            json_object_object_add(encode_json_user_agent,"dest_ip", jdest_ip_ua);
-
-            json_object *jflow_id_ua = json_object_new_string( flow_id );
-            json_object_object_add(encode_json_user_agent,"flow_id", jflow_id_ua);
-
-            if ( http_user_agent[0] != '\0' )
-                {
-                    json_object *juser_agent_ua = json_object_new_string( http_user_agent );
-                    json_object_object_add(encode_json_user_agent,"user_agent", juser_agent_ua);
-                }
-
-            if ( MeerConfig->ndp_debug == true )
-                {
-                    Meer_Log(DEBUG, "[%s, line %d] INSERT USER_AGENT: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_user_agent) );
                 }
 
             MeerCounters->ndp++;
