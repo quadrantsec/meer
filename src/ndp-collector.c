@@ -1405,8 +1405,8 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
-    char timestamp[64] = { 0 };
-    char host[64] = { 0 };
+//    char timestamp[64] = { 0 };
+//    char host[64] = { 0 };
 
     bool flag = false;
     uint8_t i = 0;
@@ -1420,28 +1420,51 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
     struct json_object *tmp = NULL;
     struct json_object *json_obj_ftp = NULL;
 
-    char src_dns[256] = { 0 };
-    char dest_dns[256] = { 0 };
+    struct json_object *encode_json_ftp = NULL;
+    encode_json_ftp = json_object_new_object();
+
+    json_object *jtype = json_object_new_string( "ftp" );
+    json_object_object_add(encode_json_ftp,"type", jtype);
+
+    json_object *jsrc_ip = json_object_new_string( src_ip );
+    json_object_object_add(encode_json_ftp,"src_ip", jsrc_ip);
+
+    json_object *jdest_ip = json_object_new_string( dest_ip );
+    json_object_object_add(encode_json_ftp,"dest_ip", jdest_ip);
+
+    json_object *jflow_id = json_object_new_string( flow_id );
+    json_object_object_add(encode_json_ftp,"flow_id", jflow_id);
 
     if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
         {
-            strlcpy( src_dns, json_object_get_string(tmp), sizeof(src_dns) );
+            json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_ftp,"src_dns", jsrc_dns);
         }
 
     if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
         {
-            strlcpy( dest_dns, json_object_get_string(tmp), sizeof(dest_dns) );
+            json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_ftp,"dest_dns", jdest_dns);
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
-            strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
+            json_object *jtimestamp = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_ftp,"timestamp", jtimestamp);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
-            strlcpy( host, json_object_get_string(tmp), sizeof(host) );
+            json_object *jhost = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_ftp,"host", jhost);
         }
+
+    if ( MeerConfig->description[0] != '\0' )
+        {
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_ftp,"description", jdesc);
+        }
+
 
     if ( json_object_object_get_ex(json_obj, "ftp", &tmp) )
         {
@@ -1489,72 +1512,17 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
                                                 }
 
 
+                                            json_object_put(encode_json_ftp);
                                             json_object_put(json_obj_ftp);
                                             return;
 
                                         }
 
+                                    json_object *jftp_command = json_object_new_string( ftp_command );
+                                    json_object_object_add(encode_json_ftp,"command", jftp_command);
 
-                                    /****************************************/
-                                    /* New FTP JSON object                  */
-                                    /****************************************/
-
-                                    struct json_object *encode_json_ftp = NULL;
-                                    encode_json_ftp = json_object_new_object();
-
-                                    json_object *jtype = json_object_new_string( "ftp" );
-                                    json_object_object_add(encode_json_ftp,"type", jtype);
-
-                                    json_object *jsrc_ip = json_object_new_string( src_ip );
-                                    json_object_object_add(encode_json_ftp,"src_ip", jsrc_ip);
-
-                                    json_object *jdest_ip = json_object_new_string( dest_ip );
-                                    json_object_object_add(encode_json_ftp,"dest_ip", jdest_ip);
-
-                                    json_object *jflow_id = json_object_new_string( flow_id );
-                                    json_object_object_add(encode_json_ftp,"flow_id", jflow_id);
-
-                                    if ( src_dns[0] != '\0' )
-                                        {
-                                            json_object *jsrc_dns = json_object_new_string( src_dns );
-                                            json_object_object_add(encode_json_ftp,"src_dns", jsrc_dns);
-                                        }
-
-                                    if ( dest_dns[0] != '\0' )
-                                        {
-                                            json_object *jdest_dns = json_object_new_string( dest_dns );
-                                            json_object_object_add(encode_json_ftp,"dest_dns", jdest_dns);
-                                        }
-
-                                    if ( timestamp[0] != '\0' )
-                                        {
-                                            json_object *jtimestamp = json_object_new_string( timestamp );
-                                            json_object_object_add(encode_json_ftp,"timestamp", jtimestamp);
-                                        }
-
-                                    if ( MeerConfig->description[0] != '\0' )
-                                        {
-                                            json_object *jdesc = json_object_new_string( MeerConfig->description );
-                                            json_object_object_add(encode_json_ftp,"description", jdesc);
-                                        }
-
-                                    if ( host[0] != '\0' )
-                                        {
-                                            json_object *jhost = json_object_new_string( host );
-                                            json_object_object_add(encode_json_ftp,"host", jhost);
-                                        }
-
-                                    if ( ftp_command[0] != '\0' )
-                                        {
-                                            json_object *jftp_command = json_object_new_string( ftp_command );
-                                            json_object_object_add(encode_json_ftp,"command", jftp_command);
-                                        }
-
-                                    if ( ftp_command_data[0] != '\0' )
-                                        {
-                                            json_object *jftp_command_data = json_object_new_string( ftp_command_data );
-                                            json_object_object_add(encode_json_ftp,"command_data", jftp_command_data);
-                                        }
+                                    json_object *jftp_command_data = json_object_new_string( ftp_command_data );
+                                    json_object_object_add(encode_json_ftp,"command_data", jftp_command_data);
 
                                     if ( MeerConfig->ndp_debug == true )
                                         {
@@ -1574,6 +1542,7 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
                 }
         }
 
+    json_object_put(encode_json_ftp);
     json_object_put(json_obj_ftp);
 
 }
