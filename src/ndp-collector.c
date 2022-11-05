@@ -411,46 +411,49 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
 
     uint64_t size = 0;
 
-    char app_proto[32] = { 0 };
-    char timestamp[64] = { 0 };
-
     char md5[MD5_SIZE] = { 0 };
-    char sha1[SHA1_SIZE] = { 0 };
-    char sha256[SHA256_SIZE] = { 0 };
-    char filename[8192] = { 0 };
-    char magic[512] = { 0 };
-    char host[64] = { 0 };
-
-    char src_dns[256] = { 0 };
-    char dest_dns[256] = { 0 };
 
     struct json_object *tmp = NULL;
 
     struct json_object *json_obj_fileinfo = NULL;
 
-    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
-        {
-            strlcpy( src_dns, json_object_get_string(tmp), sizeof(src_dns) );
-        }
+    struct json_object *encode_json_fileinfo = NULL;
+    encode_json_fileinfo = json_object_new_object();
 
-    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
-        {
-            strlcpy( dest_dns, json_object_get_string(tmp), sizeof(dest_dns) );
-        }
+    json_object *jtype = json_object_new_string( "fileinfo" );
+    json_object_object_add(encode_json_fileinfo,"type", jtype);
+
+    json_object *jsrc_ip = json_object_new_string( src_ip );
+    json_object_object_add(encode_json_fileinfo,"src_ip", jsrc_ip);
+
+    json_object *jdest_ip = json_object_new_string( dest_ip );
+    json_object_object_add(encode_json_fileinfo,"dest_ip", jdest_ip);
+
+    json_object *jflow_id = json_object_new_string( flow_id );
+    json_object_object_add(encode_json_fileinfo,"flow_id", jflow_id );
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
-            strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
+            json_object *jtimestamp = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_fileinfo,"timestamp", jtimestamp);
         }
 
     if ( json_object_object_get_ex(json_obj, "app_proto", &tmp) )
         {
-            strlcpy( app_proto, json_object_get_string(tmp), sizeof(app_proto) );
+            json_object *japp_proto = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_fileinfo,"app_proto", japp_proto);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
-            strlcpy( host, json_object_get_string(tmp), sizeof(host) );
+            json_object *jhost = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_fileinfo,"host", jhost);
+        }
+
+    if ( MeerConfig->description[0] != '\0' )
+        {
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_fileinfo,"description", jdesc);
         }
 
     if ( json_object_object_get_ex(json_obj, "fileinfo", &tmp) )
@@ -471,6 +474,7 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
                                 }
 
                             MeerCounters->ndp_skip++;
+                            json_object_put(encode_json_fileinfo);
                             json_object_put(json_obj_fileinfo);
                             return;
 
@@ -480,119 +484,37 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
 
             if ( json_object_object_get_ex(json_obj_fileinfo, "sha1", &tmp) )
                 {
-                    strlcpy(sha1, json_object_get_string(tmp), sizeof(sha1) );
+                    json_object *jsha1 = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_fileinfo,"sha1", jsha1);
                 }
 
             if ( json_object_object_get_ex(json_obj_fileinfo, "sha256", &tmp) )
                 {
-                    strlcpy(sha256, json_object_get_string(tmp), sizeof(sha256) );
+                    json_object *jsha256 = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_fileinfo,"sha256", jsha256);
+
                 }
 
             if ( json_object_object_get_ex(json_obj_fileinfo, "filename", &tmp) )
                 {
-                    strlcpy(filename, json_object_get_string(tmp), sizeof(filename) );
+                    json_object *jfilename = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_fileinfo,"filename", jfilename);
                 }
 
             if ( json_object_object_get_ex(json_obj_fileinfo, "magic", &tmp) )
                 {
-                    strlcpy(magic, json_object_get_string(tmp), sizeof(magic) );
+                    json_object *jmagic = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_fileinfo,"magic", jmagic);
                 }
 
             if ( json_object_object_get_ex(json_obj_fileinfo, "size", &tmp) )
                 {
-                    size = json_object_get_int64(tmp);
+
+                    json_object *jsize = json_object_new_int( json_object_get_int(tmp) );
+                    json_object_object_add(encode_json_fileinfo,"size", jsize);
+
                 }
 
-        }
-
-    /*************************************/
-    /* New JSON object                   */
-    /*************************************/
-
-    struct json_object *encode_json_fileinfo = NULL;
-    encode_json_fileinfo = json_object_new_object();
-
-    json_object *jtype = json_object_new_string( "fileinfo" );
-    json_object_object_add(encode_json_fileinfo,"type", jtype);
-
-    json_object *jsrc_ip = json_object_new_string( src_ip );
-    json_object_object_add(encode_json_fileinfo,"src_ip", jsrc_ip);
-
-    json_object *jdest_ip = json_object_new_string( dest_ip );
-    json_object_object_add(encode_json_fileinfo,"dest_ip", jdest_ip);
-
-    if ( src_dns[0] != '\0' )
-        {
-            json_object *jsrc_dns = json_object_new_string( src_dns );
-            json_object_object_add(encode_json_fileinfo,"src_dns", jsrc_dns);
-        }
-
-    if ( dest_dns[0] != '\0' )
-        {
-            json_object *jdest_dns = json_object_new_string( dest_dns );
-            json_object_object_add(encode_json_fileinfo,"dest_dns", jdest_dns);
-        }
-
-    if ( timestamp[0] != '\0' )
-        {
-            json_object *jtimestamp = json_object_new_string( timestamp );
-            json_object_object_add(encode_json_fileinfo,"timestamp", jtimestamp);
-        }
-
-    if ( app_proto[0] != '\0' )
-        {
-            json_object *japp_proto = json_object_new_string( app_proto );
-            json_object_object_add(encode_json_fileinfo,"app_proto", japp_proto);
-        }
-
-    if ( md5[0] != '\0' )
-        {
-            json_object *jmd5 = json_object_new_string( md5 );
-            json_object_object_add(encode_json_fileinfo,"md5", jmd5);
-        }
-
-    if ( sha1[0] != '\0' )
-        {
-            json_object *jsha1 = json_object_new_string( sha1 );
-            json_object_object_add(encode_json_fileinfo,"sha1", jsha1);
-        }
-
-    if ( sha256[0] != '\0' )
-        {
-            json_object *jsha256 = json_object_new_string( sha256 );
-            json_object_object_add(encode_json_fileinfo,"sha256", jsha256);
-        }
-
-    if ( filename[0] != '\0' )
-        {
-            json_object *jfilename = json_object_new_string( filename );
-            json_object_object_add(encode_json_fileinfo,"filename", jfilename);
-        }
-
-    if ( magic[0] != '\0' )
-        {
-            json_object *jmagic = json_object_new_string( magic );
-            json_object_object_add(encode_json_fileinfo,"magic", jmagic);
-        }
-
-    /* Size can be zero */
-
-    json_object *jsize = json_object_new_int64( size );
-    json_object_object_add(encode_json_fileinfo,"size", jsize);
-
-    json_object *jflow_id = json_object_new_string( flow_id );
-    json_object_object_add(encode_json_fileinfo,"flow_id", jflow_id);
-
-    if ( host[0] != '\0' )
-        {
-            json_object *jhost = json_object_new_string( host );
-            json_object_object_add(encode_json_fileinfo,"host", jhost);
-        }
-
-    if ( MeerConfig->description[0] != '\0' )
-        {
-            json_object *jdesc = json_object_new_string( MeerConfig->description );
-            json_object_object_add(encode_json_fileinfo,"description", jdesc);
         }
 
     if ( MeerConfig->ndp_debug == true )
@@ -1242,8 +1164,6 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
 void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
-    char timestamp[64] = { 0 };
-    char host[64] = { 0 };
 
     char id_md5[MD5_SIZE] = { 0 };
 
@@ -1251,13 +1171,6 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
     char hostname[256] = { 0 };
     char url[10240] = { 0 };
     char full_url[256 + 10240] = { 0 };
-    char method[16] = { 0 };
-
-    char src_dns[256] = { 0 };
-    char dest_dns[256] = { 0 };
-
-    uint8_t status = 0;
-    uint64_t length = 0;
 
     struct json_object *tmp = NULL;
     struct json_object *json_obj_http = NULL;
