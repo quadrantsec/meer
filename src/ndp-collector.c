@@ -538,22 +538,8 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
 void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
-    char timestamp[64] = { 0 };
 
     char id_md5[MD5_SIZE] = { 0 };
-
-    char fingerprint[128] = { 0 };
-    char subject[1024] = { 0 };
-    char issuerdn[1024] = { 0 };
-    char serial[512] = { 0 };
-    char sni[512] = { 0 };
-    char version[16] = { 0 };
-    char notbefore[64]= { 0 };
-    char notafter[64] = { 0 };
-    char host[64] = { 0 };
-
-    char src_dns[256] = { 0 };
-    char dest_dns[256] = { 0 };
 
     char ja3[41] = { 0 };
     char ja3s[41] = { 0 };
@@ -565,25 +551,51 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
     struct json_object *json_obj_ja3 = NULL;
     struct json_object *json_obj_ja3s = NULL;
 
+    struct json_object *encode_json_tls = NULL;
+    encode_json_tls = json_object_new_object();
+
+    json_object *jtype = json_object_new_string( "tls" );
+    json_object_object_add(encode_json_tls,"type", jtype);
+
+    json_object *jflow_id = json_object_new_string( flow_id );
+    json_object_object_add(encode_json_tls,"flow_id", jflow_id);
+
+    json_object *jsrc_ip = json_object_new_string( src_ip );
+    json_object_object_add(encode_json_tls,"src_ip", jsrc_ip);
+
+    json_object *jdest_ip = json_object_new_string( dest_ip );
+    json_object_object_add(encode_json_tls,"dest_ip", jdest_ip);
+
     if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
         {
-            strlcpy( src_dns, json_object_get_string(tmp), sizeof(src_dns) );
+            json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_tls,"src_dns", jsrc_dns);
         }
 
     if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
         {
-            strlcpy( dest_dns, json_object_get_string(tmp), sizeof(dest_dns) );
+            json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_tls,"dest_dns", jdest_dns);
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
-            strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
+            json_object *jtimestamp = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_tls,"timestamp", jtimestamp);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
-            strlcpy( host, json_object_get_string(tmp), sizeof(host) );
+            json_object *jhost = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_tls,"host", jhost);
         }
+
+    if ( MeerConfig->description[0] != '\0' )
+        {
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_tls,"description", jdesc);
+        }
+
 
     if ( json_object_object_get_ex(json_obj, "tls", &tmp) )
         {
@@ -592,42 +604,54 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
 
             if ( json_object_object_get_ex(json_obj_tls, "fingerprint", &tmp) )
                 {
-                    strlcpy(fingerprint, json_object_get_string(tmp), sizeof(fingerprint) );
+                    json_object *jfingerprint = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"fingerprint", jfingerprint);
                 }
 
             if ( json_object_object_get_ex(json_obj_tls, "subject", &tmp) )
                 {
-                    strlcpy(subject, json_object_get_string(tmp), sizeof(subject) );
+                    json_object *jsubject = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"subject", jsubject);
+
                 }
 
             if ( json_object_object_get_ex(json_obj_tls, "issuerdn", &tmp) )
                 {
-                    strlcpy(issuerdn, json_object_get_string(tmp), sizeof(issuerdn) );
+                    json_object *jissuerdn = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"issuerdn", jissuerdn);
+
                 }
 
             if ( json_object_object_get_ex(json_obj_tls, "serial", &tmp) )
                 {
-                    strlcpy(serial, json_object_get_string(tmp), sizeof(serial) );
+                    json_object *jserial = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"serial", jserial);
                 }
 
             if ( json_object_object_get_ex(json_obj_tls, "sni", &tmp) )
                 {
-                    strlcpy(sni, json_object_get_string(tmp), sizeof(sni) );
+                    json_object *jsni = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"sni", jsni);
+
                 }
 
             if ( json_object_object_get_ex(json_obj_tls, "version", &tmp) )
                 {
-                    strlcpy(version, json_object_get_string(tmp), sizeof(version) );
+                    json_object *jversion = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"version", jversion);
                 }
 
             if ( json_object_object_get_ex(json_obj_tls, "notbefore", &tmp) )
                 {
-                    strlcpy(notbefore, json_object_get_string(tmp), sizeof(notbefore) );
+                    json_object *jnotbefore = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"notbefore", jnotbefore);
                 }
 
             if ( json_object_object_get_ex(json_obj_tls, "notafter", &tmp) )
                 {
-                    strlcpy(notafter, json_object_get_string(tmp), sizeof(notafter) );
+                    json_object *jnotafter = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"notafter", jnotafter);
+
                 }
 
             if ( json_object_object_get_ex(json_obj_tls, "ja3", &tmp) )
@@ -638,6 +662,9 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
                     if ( json_object_object_get_ex(json_obj_ja3, "hash", &tmp) )
                         {
                             strlcpy(ja3, json_object_get_string(tmp), sizeof(ja3) );
+                            json_object *jja3 = json_object_new_string( json_object_get_string(tmp) );
+                            json_object_object_add(encode_json_tls,"ja3", jja3);
+
                         }
 
                 }
@@ -650,6 +677,10 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
                     if ( json_object_object_get_ex(json_obj_ja3s, "hash", &tmp) )
                         {
                             strlcpy(ja3s, json_object_get_string(tmp), sizeof(ja3s) );
+                            json_object *jja3s = json_object_new_string( json_object_get_string(tmp) );
+                            json_object_object_add(encode_json_tls,"ja3s", jja3s);
+
+
                         }
                 }
         }
@@ -662,6 +693,7 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
             json_object_put(json_obj_ja3);
             json_object_put(json_obj_ja3s);
             json_object_put(json_obj_tls);
+            json_object_put(encode_json_tls);
             return;
         }
 
@@ -684,114 +716,9 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
             json_object_put(json_obj_ja3);
             json_object_put(json_obj_ja3s);
             json_object_put(json_obj_tls);
+            json_object_put(encode_json_tls);
             return;
 
-        }
-
-
-    /**********************************/
-    /* New JSON object                */
-    /**********************************/
-
-    struct json_object *encode_json_tls = NULL;
-    encode_json_tls = json_object_new_object();
-
-    json_object *jtype = json_object_new_string( "tls" );
-    json_object_object_add(encode_json_tls,"type", jtype);
-
-    json_object *jflow_id = json_object_new_string( flow_id );
-    json_object_object_add(encode_json_tls,"flow_id", jflow_id);
-
-    json_object *jsrc_ip = json_object_new_string( src_ip );
-    json_object_object_add(encode_json_tls,"src_ip", jsrc_ip);
-
-    json_object *jdest_ip = json_object_new_string( dest_ip );
-    json_object_object_add(encode_json_tls,"dest_ip", jdest_ip);
-
-    if ( src_dns[0] != '\0' )
-        {
-            json_object *jsrc_dns = json_object_new_string( src_dns );
-            json_object_object_add(encode_json_tls,"src_dns", jsrc_dns);
-        }
-
-    if ( dest_dns[0] != '\0' )
-        {
-            json_object *jdest_dns = json_object_new_string( dest_dns );
-            json_object_object_add(encode_json_tls,"dest_dns", jdest_dns);
-        }
-
-    if ( timestamp[0] != '\0' )
-        {
-            json_object *jtimestamp = json_object_new_string( timestamp );
-            json_object_object_add(encode_json_tls,"timestamp", jtimestamp);
-        }
-
-    if ( fingerprint[0] != '\0' )
-        {
-            json_object *jfingerprint = json_object_new_string( fingerprint );
-            json_object_object_add(encode_json_tls,"fingerprint", jfingerprint);
-        }
-
-    if ( issuerdn[0] != '\0' )
-        {
-            json_object *jissuerdn = json_object_new_string( issuerdn );
-            json_object_object_add(encode_json_tls,"issuerdn", jissuerdn);
-        }
-
-    if ( subject[0] != '\0' )
-        {
-            json_object *jsubject = json_object_new_string( subject );
-            json_object_object_add(encode_json_tls,"subject", jsubject );
-        }
-
-    if ( serial[0] != '\0' )
-        {
-            json_object *jserial = json_object_new_string( serial );
-            json_object_object_add(encode_json_tls,"serial", jserial );
-        }
-
-    if ( sni[0] != '\0' )
-        {
-            json_object *jsni = json_object_new_string( sni );
-            json_object_object_add(encode_json_tls,"sni", jsni );
-        }
-
-    if ( version[0] != '\0' )
-        {
-            json_object *jversion = json_object_new_string( version );
-            json_object_object_add(encode_json_tls,"version", jversion );
-        }
-
-    if ( notbefore[0] != 0 )
-        {
-            json_object *jnotbefore = json_object_new_string( notbefore );
-            json_object_object_add(encode_json_tls,"notbefore", jnotbefore );
-        }
-
-    if ( notafter[0] != 0 )
-        {
-            json_object *jnotafter = json_object_new_string( notafter );
-            json_object_object_add(encode_json_tls,"notafter", jnotafter );
-        }
-
-    /* We've already tested for JA3/JA3S */
-
-    json_object *jja3 = json_object_new_string( ja3 );
-    json_object_object_add(encode_json_tls,"ja3", jja3 );
-
-    json_object *jja3s = json_object_new_string( ja3s );
-    json_object_object_add(encode_json_tls,"ja3s", jja3s );
-
-    if ( host[0] != '\0' )
-        {
-            json_object *jhost = json_object_new_string( host );
-            json_object_object_add(encode_json_tls,"host", jhost);
-        }
-
-    if ( MeerConfig->description[0] != '\0' )
-        {
-            json_object *jdesc = json_object_new_string( MeerConfig->description );
-            json_object_object_add(encode_json_tls,"description", jdesc);
         }
 
     if ( MeerConfig->ndp_debug == true )
