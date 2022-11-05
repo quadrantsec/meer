@@ -1105,6 +1105,13 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
     json_object *jflow_id = json_object_new_string( flow_id );
     json_object_object_add(encode_json_ssh,"flow_id", jflow_id);
 
+    if ( MeerConfig->description[0] != '\0' )
+        {
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_ssh,"description", jdesc);
+        }
+
+
     if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
         {
             json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
@@ -1525,24 +1532,49 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
     struct json_object *tmp = NULL;
     struct json_object *json_obj_smb = NULL;
 
+    struct json_object *encode_json_smb = NULL;
+    encode_json_smb = json_object_new_object();
+
+    json_object *jtype = json_object_new_string( "smb" );
+    json_object_object_add(encode_json_smb,"type", jtype);
+
+    json_object *jsrc_ip = json_object_new_string( src_ip );
+    json_object_object_add(encode_json_smb,"src_ip", jsrc_ip);
+
+    json_object *jdest_ip = json_object_new_string( dest_ip );
+    json_object_object_add(encode_json_smb,"dest_ip", jdest_ip);
+
+    json_object *jflow_id = json_object_new_string( flow_id );
+    json_object_object_add(encode_json_smb,"flow_id", jflow_id);
+
     if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
         {
-            strlcpy( src_dns, json_object_get_string(tmp), sizeof(src_dns) );
+            json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
+            json_object_object_add(encode_json_smb,"src_dns", jsrc_dns);
         }
 
     if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
         {
-            strlcpy( dest_dns, json_object_get_string(tmp), sizeof(dest_dns) );
+            json_object *jdest_dns = json_object_new_string( json_object_to_json_string( tmp ));
+            json_object_object_add(encode_json_smb,"dest_dns", jdest_dns);
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
-            strlcpy( timestamp, json_object_get_string(tmp), sizeof(timestamp) );
+            json_object *jtimestamp = json_object_new_string( json_object_to_json_string( tmp ));
+            json_object_object_add(encode_json_smb,"timestamp", jtimestamp);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
-            strlcpy( host, json_object_get_string(tmp), sizeof(host) );
+            json_object *jhost = json_object_new_string( json_object_to_json_string( tmp ));
+            json_object_object_add(encode_json_smb,"host", jhost);
+        }
+
+    if ( MeerConfig->description[0] != '\0' )
+        {
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_smb,"description", jdesc);
         }
 
     if ( json_object_object_get_ex(json_obj, "smb", &tmp) )
@@ -1577,7 +1609,6 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
                                     command_filename[ sizeof(command_filename) - 1] = '\0';
 
                                     MD5( (uint8_t*)command_filename, strlen(command_filename), id_md5, sizeof(id_md5) );
-
                                     if ( !strcmp(last_smb_id, id_md5 ) )
                                         {
 
@@ -1588,71 +1619,17 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
                                                     Meer_Log(DEBUG, "[%s, line %d] SKIP SMB: %s", __FILE__, __LINE__, id_md5 );
                                                 }
 
+                                            json_object_put(encode_json_smb);
                                             json_object_put(json_obj_smb);
                                             return;
 
                                         }
 
-                                    /****************************************/
-                                    /* New SMB JSON object                   */
-                                    /****************************************/
+                                    json_object *jsmb_command = json_object_new_string( smb_command );
+                                    json_object_object_add(encode_json_smb,"command", jsmb_command);
 
-                                    struct json_object *encode_json_smb = NULL;
-                                    encode_json_smb = json_object_new_object();
-
-                                    json_object *jtype = json_object_new_string( "smb" );
-                                    json_object_object_add(encode_json_smb,"type", jtype);
-
-                                    json_object *jsrc_ip = json_object_new_string( src_ip );
-                                    json_object_object_add(encode_json_smb,"src_ip", jsrc_ip);
-
-                                    json_object *jdest_ip = json_object_new_string( dest_ip );
-                                    json_object_object_add(encode_json_smb,"dest_ip", jdest_ip);
-
-                                    json_object *jflow_id = json_object_new_string( flow_id );
-                                    json_object_object_add(encode_json_smb,"flow_id", jflow_id);
-
-                                    if ( src_dns[0] != '\0' )
-                                        {
-                                            json_object *jsrc_dns = json_object_new_string( src_dns );
-                                            json_object_object_add(encode_json_smb,"src_dns", jsrc_dns);
-                                        }
-
-                                    if ( dest_dns[0] != '\0' )
-                                        {
-                                            json_object *jdest_dns = json_object_new_string( dest_dns );
-                                            json_object_object_add(encode_json_smb,"dest_dns", jdest_dns);
-                                        }
-
-                                    if ( timestamp[0] != '\0' )
-                                        {
-                                            json_object *jtimestamp = json_object_new_string( timestamp );
-                                            json_object_object_add(encode_json_smb,"timestamp", jtimestamp);
-                                        }
-
-                                    if ( MeerConfig->description[0] != '\0' )
-                                        {
-                                            json_object *jdesc = json_object_new_string( MeerConfig->description );
-                                            json_object_object_add(encode_json_smb,"description", jdesc);
-                                        }
-
-                                    if ( host[0] != '\0' )
-                                        {
-                                            json_object *jhost = json_object_new_string( host );
-                                            json_object_object_add(encode_json_smb,"host", jhost);
-                                        }
-
-                                    if ( smb_command[0] != '\0' )
-                                        {
-                                            json_object *jsmb_command = json_object_new_string( smb_command );
-                                            json_object_object_add(encode_json_smb,"command", jsmb_command);
-                                        }
-
-                                    if ( smb_filename[0] != '\0' )
-                                        {
-                                            json_object *jsmb_filename = json_object_new_string( smb_filename );
-                                            json_object_object_add(encode_json_smb,"filename", jsmb_filename);
-                                        }
+                                    json_object *jsmb_filename = json_object_new_string( smb_filename );
+                                    json_object_object_add(encode_json_smb,"filename", jsmb_filename);
 
                                     if ( MeerConfig->ndp_debug == true )
                                         {
@@ -1665,7 +1642,6 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
                                     Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_smb), "ndp", id_md5 );
 
                                     json_object_put(encode_json_smb);
-
 
                                 }
                         }
