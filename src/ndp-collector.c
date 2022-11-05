@@ -1242,7 +1242,6 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 
 #endif
 
-
     json_object *jtype = json_object_new_string( "http" );
     json_object_object_add(encode_json_http,"type", jtype);
 
@@ -1379,38 +1378,30 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 
             MD5( (uint8_t*)full_url, strlen(full_url), id_md5, sizeof(id_md5) );
 
-            /* We may still need the user_agent !? */
-            /*
-                        if ( !strcmp(last_http_id, id_md5 ) )
-                            {
-
-                                MeerCounters->ndp_skip++;
-
-                                if ( MeerConfig->ndp_debug == true )
-                                    {
-                                        Meer_Log(DEBUG, "[%s, line %d] HTTP URL SKIP: %s", __FILE__, __LINE__, id_md5 );
-                                    }
-
-
-            		    json_object_put(encode_json_http);
-                                json_object_put(json_obj_http);
-
-                                return;
-
-                            }
-            */
-
-            if ( MeerConfig->ndp_debug == true )
+            if ( strcmp(last_http_id, id_md5 ) )
                 {
-                    Meer_Log(DEBUG, "[%s, line %d] INSERT HTTP URL: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_http) );
+
+                    if ( MeerConfig->ndp_debug == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] INSERT HTTP URL: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_http) );
+                        }
+
+                    MeerCounters->ndp++;
+                    strlcpy(last_http_id, id_md5, MD5_SIZE);
+                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_http), "ndp", id_md5 );
+
+                }
+            else
+                {
+
+                    MeerCounters->ndp_skip++;
+
+                    if ( MeerConfig->ndp_debug == true )
+                        {
+                            Meer_Log(DEBUG, "[%s, line %d] HTTP URL SKIP: %s", __FILE__, __LINE__, id_md5 );
+                        }
                 }
 
-
-            MeerCounters->ndp++;
-            strlcpy(last_http_id, id_md5, MD5_SIZE);
-            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_http), "ndp", id_md5 );
-
-            json_object_put(encode_json_http);
 
             /* Check User_agent */
 
@@ -1427,6 +1418,7 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
                         }
 
                     json_object_put(json_obj_http);
+		    json_object_put(encode_json_http);
                     json_object_put(encode_json_user_agent);
 
                     return;
@@ -1436,10 +1428,11 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
             strlcpy(last_user_agent_id, id_md5, MD5_SIZE);
             Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_user_agent), "ndp", id_md5 );
 
-            json_object_put(encode_json_user_agent);
 
         }
 
+    json_object_put(encode_json_http);
+    json_object_put(encode_json_user_agent);
     json_object_put(json_obj_http);
 
 }
