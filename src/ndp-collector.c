@@ -48,7 +48,6 @@ extern struct _NDP_Ignore *NDP_Ignore;
 extern struct _NDP_SMB_Commands *NDP_SMB_Commands;
 extern struct _NDP_FTP_Commands *NDP_FTP_Commands;
 
-
 /* Simple global cache system to skip repeat data */
 
 char last_flow_id[MD5_SIZE] = { 0 };
@@ -250,11 +249,15 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                             struct json_object *encode_json_flow = NULL;
                             encode_json_flow = json_object_new_object();
 
+#ifdef HAVE_LIBMAXMINDDB
+
                             struct json_object *jgeoip_src = NULL;
                             jgeoip_src = json_object_new_object();
 
                             struct json_object *jgeoip_dest = NULL;
                             jgeoip_dest = json_object_new_object();
+
+#endif
 
                             json_object *jtype = json_object_new_string( "flow" );
                             json_object_object_add(encode_json_flow,"type", jtype);
@@ -274,29 +277,41 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                                     json_object_object_add(encode_json_flow,"description", jdesc);
                                 }
 
-                            if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+                            if ( MeerConfig->dns == true )
                                 {
-                                    json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json_flow,"src_dns", jsrc_dns);
+
+                                    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+                                        {
+                                            json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
+                                            json_object_object_add(encode_json_flow,"src_dns", jsrc_dns);
+                                        }
+
+                                    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+                                        {
+                                            json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
+                                            json_object_object_add(encode_json_flow,"dest_dns", jdest_dns);
+                                        }
                                 }
 
-                            if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+#ifdef HAVE_LIBMAXMINDDB
+
+                            if ( MeerConfig->geoip == true )
                                 {
-                                    json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json_flow,"dest_dns", jdest_dns);
+                                    if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
+                                        {
+                                            jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
+                                            json_object_object_add(encode_json_flow,"geoip_src", jgeoip_src);
+                                        }
+
+                                    if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
+                                        {
+                                            jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
+                                            json_object_object_add(encode_json_flow,"geoip_dest", jgeoip_dest);
+                                        }
                                 }
 
-                            if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
-                                {
-                                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json_flow,"geoip_src", jgeoip_src);
-                                }
+#endif
 
-                            if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
-                                {
-                                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
-                                    json_object_object_add(encode_json_flow,"geoip_dest", jgeoip_dest);
-                                }
 
                             if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
                                 {
@@ -420,6 +435,16 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
     struct json_object *encode_json_fileinfo = NULL;
     encode_json_fileinfo = json_object_new_object();
 
+#ifdef HAVE_LIBMAXMINDDB
+
+    struct json_object *jgeoip_src = NULL;
+    jgeoip_src = json_object_new_object();
+
+    struct json_object *jgeoip_dest = NULL;
+    jgeoip_dest = json_object_new_object();
+
+#endif
+
     json_object *jtype = json_object_new_string( "fileinfo" );
     json_object_object_add(encode_json_fileinfo,"type", jtype);
 
@@ -431,6 +456,48 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
 
     json_object *jflow_id = json_object_new_string( flow_id );
     json_object_object_add(encode_json_fileinfo,"flow_id", jflow_id );
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    if ( MeerConfig->geoip == true )
+        {
+
+            if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
+                {
+                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_fileinfo,"geoip_src", jgeoip_src);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
+                {
+                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_fileinfo,"geoip_dest", jgeoip_dest);
+                }
+
+        }
+#endif
+
+    if ( MeerConfig->dns == true )
+        {
+
+            if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+                {
+                    json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_fileinfo,"src_dns", jsrc_dns);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+                {
+                    json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_fileinfo,"dest_dns", jdest_dns);
+                }
+        }
+
+    if ( MeerConfig->description[0] != '\0' )
+        {
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_fileinfo,"description", jdesc);
+        }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
         {
@@ -448,12 +515,6 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
         {
             json_object *jhost = json_object_new_string( json_object_get_string(tmp) );
             json_object_object_add(encode_json_fileinfo,"host", jhost);
-        }
-
-    if ( MeerConfig->description[0] != '\0' )
-        {
-            json_object *jdesc = json_object_new_string( MeerConfig->description );
-            json_object_object_add(encode_json_fileinfo,"description", jdesc);
         }
 
     if ( json_object_object_get_ex(json_obj, "fileinfo", &tmp) )
@@ -554,6 +615,16 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
     struct json_object *encode_json_tls = NULL;
     encode_json_tls = json_object_new_object();
 
+#ifdef HAVE_LIBMAXMINDDB
+
+    struct json_object *jgeoip_src = NULL;
+    jgeoip_src = json_object_new_object();
+
+    struct json_object *jgeoip_dest = NULL;
+    jgeoip_dest = json_object_new_object();
+
+#endif
+
     json_object *jtype = json_object_new_string( "tls" );
     json_object_object_add(encode_json_tls,"type", jtype);
 
@@ -566,16 +637,45 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
     json_object *jdest_ip = json_object_new_string( dest_ip );
     json_object_object_add(encode_json_tls,"dest_ip", jdest_ip);
 
-    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+#ifdef HAVE_LIBMAXMINDDB
+
+    if ( MeerConfig->geoip == true )
         {
-            json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
-            json_object_object_add(encode_json_tls,"src_dns", jsrc_dns);
+
+            if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
+                {
+                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"geoip_src", jgeoip_src);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
+                {
+                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"geoip_dest", jgeoip_dest);
+                }
+
+        }
+#endif
+
+    if  ( MeerConfig->dns == true )
+        {
+            if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+                {
+                    json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"src_dns", jsrc_dns);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+                {
+                    json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"dest_dns", jdest_dns);
+                }
         }
 
-    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+    if ( MeerConfig->description[0] != '\0' )
         {
-            json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
-            json_object_object_add(encode_json_tls,"dest_dns", jdest_dns);
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_tls,"description", jdesc);
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
@@ -589,13 +689,6 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
             json_object *jhost = json_object_new_string( json_object_get_string(tmp) );
             json_object_object_add(encode_json_tls,"host", jhost);
         }
-
-    if ( MeerConfig->description[0] != '\0' )
-        {
-            json_object *jdesc = json_object_new_string( MeerConfig->description );
-            json_object_object_add(encode_json_tls,"description", jdesc);
-        }
-
 
     if ( json_object_object_get_ex(json_obj, "tls", &tmp) )
         {
@@ -744,13 +837,7 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
 void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
-//    char timestamp[64] = { 0 };
     char rrname[8192] = { 0 };
-//    char rrtype[16] = { 0 };
-//    char host[64] = { 0 };
-
-//    char src_dns[256] = { 0 };
-//    char dest_dns[256] = { 0 };
 
     char id_md5[MD5_SIZE] = { 0 };
 
@@ -759,6 +846,16 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
     struct json_object *encode_json_dns = NULL;
     encode_json_dns = json_object_new_object();
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    struct json_object *jgeoip_src = NULL;
+    jgeoip_src = json_object_new_object();
+
+    struct json_object *jgeoip_dest = NULL;
+    jgeoip_dest = json_object_new_object();
+
+#endif
 
     json_object *jtype = json_object_new_string( "dns" );
     json_object_object_add(encode_json_dns,"type", jtype);
@@ -778,16 +875,42 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
             json_object_object_add(encode_json_dns,"description", jdesc);
         }
 
-    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
-        {
-            json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
-            json_object_object_add(encode_json_dns,"src_dns", jsrc_dns);
-        }
+#ifdef HAVE_LIBMAXMINDDB
 
-    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+    if ( MeerConfig->geoip == true )
         {
-            json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
-            json_object_object_add(encode_json_dns,"dest_dns", jdest_dns);
+
+            if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
+                {
+                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_dns,"geoip_src", jgeoip_src);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
+                {
+                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_dns,"geoip_dest", jgeoip_dest);
+                }
+
+        }
+#endif
+
+
+    if ( MeerConfig->dns == true )
+        {
+
+            if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+                {
+                    json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_dns,"src_dns", jsrc_dns);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+                {
+                    json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_dns,"dest_dns", jdest_dns);
+
+                }
 
         }
 
@@ -917,6 +1040,16 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
     struct json_object *encode_json_ssh = NULL;
     encode_json_ssh = json_object_new_object();
 
+#ifdef HAVE_LIBMAXMINDDB
+
+    struct json_object *jgeoip_src = NULL;
+    jgeoip_src = json_object_new_object();
+
+    struct json_object *jgeoip_dest = NULL;
+    jgeoip_dest = json_object_new_object();
+
+#endif
+
     json_object *jtype = json_object_new_string( "ssh" );
     json_object_object_add(encode_json_ssh,"type", jtype);
 
@@ -935,17 +1068,40 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
             json_object_object_add(encode_json_ssh,"description", jdesc);
         }
 
+#ifdef HAVE_LIBMAXMINDDB
 
-    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+    if ( MeerConfig->geoip == true )
         {
-            json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
-            json_object_object_add(encode_json_ssh,"src_dns", jsrc_dns);
+
+            if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
+                {
+                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_ssh,"geoip_src", jgeoip_src);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
+                {
+                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_ssh,"geoip_dest", jgeoip_dest);
+                }
+
         }
+#endif
 
-    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+    if ( MeerConfig->dns == true )
         {
-            json_object *jdest_dns = json_object_new_string( json_object_to_json_string( tmp ));
-            json_object_object_add(encode_json_ssh,"src_dest", jdest_dns);
+
+            if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+                {
+                    json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
+                    json_object_object_add(encode_json_ssh,"src_dns", jsrc_dns);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+                {
+                    json_object *jdest_dns = json_object_new_string( json_object_to_json_string( tmp ));
+                    json_object_object_add(encode_json_ssh,"src_dest", jdest_dns);
+                }
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
@@ -1060,7 +1216,6 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
 void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
-
     char id_md5[MD5_SIZE] = { 0 };
 
     char http_user_agent[2048] = { 0 };
@@ -1076,6 +1231,16 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 
     struct json_object *encode_json_user_agent = NULL;
     encode_json_user_agent = json_object_new_object();
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    struct json_object *jgeoip_src = NULL;
+    jgeoip_src = json_object_new_object();
+
+    struct json_object *jgeoip_dest = NULL;
+    jgeoip_dest = json_object_new_object();
+
+#endif
 
 
     json_object *jtype = json_object_new_string( "http" );
@@ -1103,18 +1268,45 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
             json_object_object_add(encode_json_user_agent,"description", jdesc);
         }
 
-    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
-        {
-            json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
-            json_object_object_add(encode_json_http,"src_dns", jsrc_dns);
-            json_object_object_add(encode_json_user_agent,"src_dns", jsrc_dns);
-        }
+#ifdef HAVE_LIBMAXMINDDB
 
-    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+    if ( MeerConfig->geoip == true )
         {
-            json_object *jdest_dns = json_object_new_string( json_object_to_json_string( tmp ));
-            json_object_object_add(encode_json_http,"dest_dns", jdest_dns);
-            json_object_object_add(encode_json_user_agent,"dest_dns", jdest_dns);
+
+            if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
+                {
+                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_http,"geoip_src", jgeoip_src);
+                    json_object_object_add(encode_json_user_agent,"geoip_src", jgeoip_src);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
+                {
+                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_http,"geoip_dest", jgeoip_dest);
+                    json_object_object_add(encode_json_http,"user_agent", jgeoip_dest);
+                }
+
+        }
+#endif
+
+    if ( MeerConfig->dns == true )
+        {
+
+            if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+                {
+                    json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
+                    json_object_object_add(encode_json_http,"src_dns", jsrc_dns);
+                    json_object_object_add(encode_json_user_agent,"src_dns", jsrc_dns);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+                {
+                    json_object *jdest_dns = json_object_new_string( json_object_to_json_string( tmp ));
+                    json_object_object_add(encode_json_http,"dest_dns", jdest_dns);
+                    json_object_object_add(encode_json_user_agent,"dest_dns", jdest_dns);
+                }
+
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
@@ -1270,9 +1462,6 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
     char smb_command[64] = { 0 };
     char smb_filename[10240] = { 0 };
 
-    char src_dns[256] = { 0 };
-    char dest_dns[256] = { 0 };
-
     char command_filename[64 + 10240 + 1] = { 0 };   /* SMB_COMMAND|/file/path */
 
     struct json_object *tmp = NULL;
@@ -1280,6 +1469,17 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 
     struct json_object *encode_json_smb = NULL;
     encode_json_smb = json_object_new_object();
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    struct json_object *jgeoip_src = NULL;
+    jgeoip_src = json_object_new_object();
+
+    struct json_object *jgeoip_dest = NULL;
+    jgeoip_dest = json_object_new_object();
+
+#endif
+
 
     json_object *jtype = json_object_new_string( "smb" );
     json_object_object_add(encode_json_smb,"type", jtype);
@@ -1293,16 +1493,48 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
     json_object *jflow_id = json_object_new_string( flow_id );
     json_object_object_add(encode_json_smb,"flow_id", jflow_id);
 
-    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+    if ( MeerConfig->description[0] != '\0' )
         {
-            json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
-            json_object_object_add(encode_json_smb,"src_dns", jsrc_dns);
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_smb,"description", jdesc);
         }
 
-    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+
+#ifdef HAVE_LIBMAXMINDDB
+
+    if ( MeerConfig->geoip == true )
         {
-            json_object *jdest_dns = json_object_new_string( json_object_to_json_string( tmp ));
-            json_object_object_add(encode_json_smb,"dest_dns", jdest_dns);
+
+            if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
+                {
+                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_smb,"geoip_src", jgeoip_src);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
+                {
+                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_smb,"geoip_dest", jgeoip_dest);
+                }
+
+        }
+#endif
+
+    if ( MeerConfig->dns == true )
+        {
+
+            if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+                {
+                    json_object *jsrc_dns = json_object_new_string( json_object_to_json_string( tmp ));
+                    json_object_object_add(encode_json_smb,"src_dns", jsrc_dns);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+                {
+                    json_object *jdest_dns = json_object_new_string( json_object_to_json_string( tmp ));
+                    json_object_object_add(encode_json_smb,"dest_dns", jdest_dns);
+                }
+
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
@@ -1315,12 +1547,6 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
         {
             json_object *jhost = json_object_new_string( json_object_to_json_string( tmp ));
             json_object_object_add(encode_json_smb,"host", jhost);
-        }
-
-    if ( MeerConfig->description[0] != '\0' )
-        {
-            json_object *jdesc = json_object_new_string( MeerConfig->description );
-            json_object_object_add(encode_json_smb,"description", jdesc);
         }
 
     if ( json_object_object_get_ex(json_obj, "smb", &tmp) )
@@ -1387,13 +1613,12 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
                                     strlcpy(last_smb_id, id_md5, MD5_SIZE);
                                     Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_smb), "ndp", id_md5 );
 
-                                    json_object_put(encode_json_smb);
-
                                 }
                         }
                 }
         }
 
+    json_object_put(encode_json_smb);
     json_object_put(json_obj_smb);
 
 }
@@ -1404,9 +1629,6 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 
 void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
-
-//    char timestamp[64] = { 0 };
-//    char host[64] = { 0 };
 
     bool flag = false;
     uint8_t i = 0;
@@ -1423,6 +1645,16 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
     struct json_object *encode_json_ftp = NULL;
     encode_json_ftp = json_object_new_object();
 
+#ifdef HAVE_LIBMAXMINDDB
+
+    struct json_object *jgeoip_src = NULL;
+    jgeoip_src = json_object_new_object();
+
+    struct json_object *jgeoip_dest = NULL;
+    jgeoip_dest = json_object_new_object();
+
+#endif
+
     json_object *jtype = json_object_new_string( "ftp" );
     json_object_object_add(encode_json_ftp,"type", jtype);
 
@@ -1435,16 +1667,46 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
     json_object *jflow_id = json_object_new_string( flow_id );
     json_object_object_add(encode_json_ftp,"flow_id", jflow_id);
 
-    if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+#ifdef HAVE_LIBMAXMINDDB
+
+    if ( MeerConfig->geoip == true )
         {
-            json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
-            json_object_object_add(encode_json_ftp,"src_dns", jsrc_dns);
+
+            if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
+                {
+                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_ftp,"geoip_src", jgeoip_src);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
+                {
+                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_ftp,"geoip_dest", jgeoip_dest);
+                }
+
+        }
+#endif
+
+    if ( MeerConfig->dns == true )
+        {
+
+            if ( json_object_object_get_ex(json_obj, "src_dns", &tmp) )
+                {
+                    json_object *jsrc_dns = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_ftp,"src_dns", jsrc_dns);
+                }
+
+            if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+                {
+                    json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_ftp,"dest_dns", jdest_dns);
+                }
         }
 
-    if ( json_object_object_get_ex(json_obj, "dest_dns", &tmp) )
+    if ( MeerConfig->description[0] != '\0' )
         {
-            json_object *jdest_dns = json_object_new_string( json_object_get_string(tmp) );
-            json_object_object_add(encode_json_ftp,"dest_dns", jdest_dns);
+            json_object *jdesc = json_object_new_string( MeerConfig->description );
+            json_object_object_add(encode_json_ftp,"description", jdesc);
         }
 
     if ( json_object_object_get_ex(json_obj, "timestamp", &tmp) )
@@ -1458,13 +1720,6 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
             json_object *jhost = json_object_new_string( json_object_get_string(tmp) );
             json_object_object_add(encode_json_ftp,"host", jhost);
         }
-
-    if ( MeerConfig->description[0] != '\0' )
-        {
-            json_object *jdesc = json_object_new_string( MeerConfig->description );
-            json_object_object_add(encode_json_ftp,"description", jdesc);
-        }
-
 
     if ( json_object_object_get_ex(json_obj, "ftp", &tmp) )
         {
