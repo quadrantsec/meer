@@ -42,8 +42,6 @@ MMDB_s 	geoip;
 void Open_GeoIP_Database( void )
 {
 
-    printf("OPEN\n");
-
     int status;
 
     /*

@@ -599,7 +599,6 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
 void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest_ip, const char *flow_id )
 {
 
-
     char id_md5[MD5_SIZE] = { 0 };
 
     char ja3[41] = { 0 };
@@ -617,11 +616,11 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
 
 #ifdef HAVE_LIBMAXMINDDB
 
-    struct json_object *jgeoip_src = NULL;
-    jgeoip_src = json_object_new_object();
+    struct json_object *jgeoip_src_tls = NULL;
+    jgeoip_src_tls = json_object_new_object();
 
-    struct json_object *jgeoip_dest = NULL;
-    jgeoip_dest = json_object_new_object();
+    struct json_object *jgeoip_dest_tls = NULL;
+    jgeoip_dest_tls = json_object_new_object();
 
 #endif
 
@@ -644,14 +643,14 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
 
             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                 {
-                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_tls,"geoip_src", jgeoip_src);
+                    jgeoip_src_tls = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"geoip_src", jgeoip_src_tls);
                 }
 
             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                 {
-                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_tls,"geoip_dest", jgeoip_dest);
+                    jgeoip_dest_tls = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_tls,"geoip_dest", jgeoip_dest_tls);
                 }
 
         }
@@ -827,6 +826,10 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
     json_object_put(json_obj_ja3);
     json_object_put(json_obj_ja3s);
     json_object_put(json_obj_tls);
+
+    json_object_put(jgeoip_src_tls);
+    json_object_put(jgeoip_dest_tls);
+
 
 }
 
@@ -1465,11 +1468,11 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 
 #ifdef HAVE_LIBMAXMINDDB
 
-    struct json_object *jgeoip_src = NULL;
-    jgeoip_src = json_object_new_object();
+    struct json_object *jgeoip_src_smb = NULL;
+    jgeoip_src_smb = json_object_new_object();
 
-    struct json_object *jgeoip_dest = NULL;
-    jgeoip_dest = json_object_new_object();
+    struct json_object *jgeoip_dest_smb = NULL;
+    jgeoip_dest_smb = json_object_new_object();
 
 #endif
 
@@ -1500,14 +1503,14 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 
             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                 {
-                    jgeoip_src = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_smb,"geoip_src", jgeoip_src);
+                    jgeoip_src_smb = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_smb,"geoip_src", jgeoip_src_smb);
                 }
 
             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                 {
-                    jgeoip_dest = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_smb,"geoip_dest", jgeoip_dest);
+                    jgeoip_dest_smb = json_tokener_parse( json_object_get_string(tmp) );
+                    json_object_object_add(encode_json_smb,"geoip_dest", jgeoip_dest_smb);
                 }
 
         }
@@ -1584,8 +1587,16 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
                                                     Meer_Log(DEBUG, "[%s, line %d] SKIP SMB: %s", __FILE__, __LINE__, id_md5 );
                                                 }
 
+
                                             json_object_put(encode_json_smb);
                                             json_object_put(json_obj_smb);
+
+#ifdef HAVE_LIBMAXMINDDB
+					    json_object_put(jgeoip_src_smb);
+					    json_object_put(jgeoip_dest_smb);
+
+#endif
+
                                             return;
 
                                         }
@@ -1616,8 +1627,8 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 
 #ifdef HAVE_LIBMAXMINDDB
 
-    json_object_put(jgeoip_src);
-    json_object_put(jgeoip_dest);
+    json_object_put(jgeoip_src_smb);
+    json_object_put(jgeoip_dest_smb);
 
 #endif
 
