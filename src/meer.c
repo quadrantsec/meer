@@ -198,31 +198,31 @@ int main (int argc, char *argv[])
 
     Meer_Log(NORMAL, "");
     Meer_Log(NORMAL, "Fingerprint support    : %s", MeerConfig->fingerprint ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "- Fingerprint reader   : %s", MeerConfig->fingerprint_reader ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "- Fingerprint writer   : %s", MeerConfig->fingerprint_writer ? "enabled" : "disabled" );
-    Meer_Log(NORMAL, "");
 
-    if ( MeerConfig->calculate_stats == true )
+    if ( MeerConfig->fingerprint == true )
         {
-
-            Meer_Log(NORMAL, "Calculate stats        : %s", MeerConfig->calculate_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "- Fingerprint reader   : %s", MeerConfig->fingerprint_reader ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "- Fingerprint writer   : %s", MeerConfig->fingerprint_writer ? "enabled" : "disabled" );
             Meer_Log(NORMAL, "");
         }
 
+    Meer_Log(NORMAL, "Calculate stats        : %s", MeerConfig->calculate_stats ? "enabled" : "disabled" );
+
+
 #ifdef HAVE_LIBMAXMINDDB
 
-    Meer_Log(NORMAL, "GeoIP support          : %s", MeerConfig->geoip ? "enabled" : "disabled" );
+//    Meer_Log(NORMAL, "GeoIP support          : %s", MeerConfig->geoip ? "enabled" : "disabled" );
 
     if ( MeerConfig->geoip == true )
         {
-            Meer_Log(NORMAL, "GeoIP database         : %s", MeerConfig->geoip_database );
+//            Meer_Log(NORMAL, "GeoIP database         : %s", MeerConfig->geoip_database );
 
             Open_GeoIP_Database();
 
 
         }
 
-    Meer_Log(NORMAL, "");
+//    Meer_Log(NORMAL, "");
 
 
 
