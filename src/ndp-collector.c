@@ -1614,6 +1614,13 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
     json_object_put(encode_json_smb);
     json_object_put(json_obj_smb);
 
+#ifdef HAVE_LIBMAXMINDDB
+
+    json_object_put(jgeoip_src);
+    json_object_put(jgeoip_dest);
+
+#endif
+
 }
 
 /*****************************************************/
