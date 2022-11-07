@@ -827,10 +827,6 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
     json_object_put(json_obj_ja3s);
     json_object_put(json_obj_tls);
 
-    json_object_put(jgeoip_src_tls);
-    json_object_put(jgeoip_dest_tls);
-
-
 }
 
 /*********************************************/
@@ -1624,13 +1620,6 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 
     json_object_put(encode_json_smb);
     json_object_put(json_obj_smb);
-
-#ifdef HAVE_LIBMAXMINDDB
-
-    json_object_put(jgeoip_src_smb);
-    json_object_put(jgeoip_dest_smb);
-
-#endif
 
 }
 
