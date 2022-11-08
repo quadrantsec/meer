@@ -1678,7 +1678,9 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
                     free(new_json_string);
 
                     json_object_put(json_obj_http);
-                    json_object_put(encode_json_user_agent);
+
+		    json_object_put(encode_json_http);
+//                    json_object_put(encode_json_user_agent);
 
                     return;
                 }
@@ -1716,7 +1718,8 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
     free(geoip_tmp);
     free(new_json_string);
 
-    json_object_put(encode_json_user_agent);
+    json_object_put(encode_json_http);
+//    json_object_put(encode_json_user_agent);
     json_object_put(json_obj_http);
 
 }
