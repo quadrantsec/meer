@@ -149,10 +149,31 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
     char tmp_ip[64] = { 0 };
     char id_md5[MD5_SIZE] = { 0 };
 
+    char geoip_src[2048] = { 0 };
+    char geoip_dest[2048] = { 0 };
+
     uint8_t i = 0;
 
     struct json_object *tmp = NULL;
     bool state_flag = false;
+
+    char *new_json_string = malloc(MeerConfig->payload_buffer_size);
+
+    if ( new_json_string == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(new_json_string, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
+
+    char *geoip_tmp = malloc(MeerConfig->payload_buffer_size);
+
+    if ( geoip_tmp == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(geoip_tmp, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
     MD5( (uint8_t*)src_ip, strlen(src_ip), id_md5, sizeof(id_md5) );
 
@@ -163,6 +184,9 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                 {
                     Meer_Log(DEBUG, "[%s, line %d] SKIP FLOW %s", __FILE__, __LINE__, id_md5);
                 }
+
+            free(new_json_string);
+            free(geoip_tmp);
 
             json_object_put(json_obj_flow);
             json_object_put(json_obj_state);
@@ -180,6 +204,9 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                 {
                     Meer_Log(DEBUG, "[%s, line %d] SKIP FLOW %s", __FILE__, __LINE__, id_md5 );
                 }
+
+            free(new_json_string);
+            free(geoip_tmp);
 
             json_object_put(json_obj_flow);
             json_object_put(json_obj_state);
@@ -245,19 +272,8 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                     if ( NDP_In_Range( tmp_ip ) == false && ( Is_IP( tmp_ip, IPv4 ) ) )
                         {
 
-
                             struct json_object *encode_json_flow = NULL;
                             encode_json_flow = json_object_new_object();
-
-#ifdef HAVE_LIBMAXMINDDB
-
-                            struct json_object *jgeoip_src_flow = NULL;
-                            jgeoip_src_flow = json_object_new_object();
-
-                            struct json_object *jgeoip_dest_flow = NULL;
-                            jgeoip_dest_flow = json_object_new_object();
-
-#endif
 
                             json_object *jtype = json_object_new_string( "flow" );
                             json_object_object_add(encode_json_flow,"type", jtype);
@@ -299,14 +315,12 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                                 {
                                     if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                                         {
-                                            jgeoip_src_flow = json_tokener_parse( json_object_get_string(tmp) );
-                                            json_object_object_add(encode_json_flow,"geoip_src", jgeoip_src_flow);
+                                            strlcpy(geoip_src,  (char*)json_object_get_string(tmp), sizeof(geoip_src));
                                         }
 
                                     if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                                         {
-                                            jgeoip_dest_flow = json_tokener_parse( json_object_get_string(tmp) );
-                                            json_object_object_add(encode_json_flow,"geoip_dest", jgeoip_dest_flow);
+                                            strlcpy(geoip_dest,  (char*)json_object_get_string(tmp), sizeof(geoip_dest));
                                         }
                                 }
 
@@ -387,6 +401,34 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                                     json_object_object_add(encode_json_flow,"end", jend);
                                 }
 
+                            /* Tried to do this properly with json-c, but kept leading to memory leaks.... and
+                               if json_object_put() the object,  it would lead to faults! So, we are back to
+                               string manipulation */
+
+                            strlcpy(new_json_string, (char*)json_object_to_json_string(encode_json_flow), MeerConfig->payload_buffer_size );
+
+                            if ( geoip_src[0] != '\0' )
+                                {
+                                    new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                                    snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src);
+
+                                    geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                                    strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                                    strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                                }
+
+                            if ( geoip_dest[0] != '\0' )
+                                {
+                                    new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                                    snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest);
+
+                                    geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                                    strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                                    strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                                }
+
                             /* Create new "id" based off the IP address */
 
                             MD5( (uint8_t*)tmp_ip, strlen(tmp_ip), id_md5, sizeof(id_md5) );
@@ -398,13 +440,16 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
 
                             MeerCounters->ndp++;
                             strlcpy(last_flow_id, id_md5, MD5_SIZE);
-                            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_flow), "ndp", id_md5 );
+                            Output_Elasticsearch ( new_json_string, "ndp", id_md5 );
 
                             json_object_put(encode_json_flow);
 
                         }
                 }
         }
+
+    free(new_json_string);
+    free(geoip_tmp);
 
     json_object_put(json_obj_state);
 
@@ -421,6 +466,9 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
 
     char md5[MD5_SIZE] = { 0 };
 
+    char geoip_src[2048] = { 0 };
+    char geoip_dest[2048] = { 0 };
+
     struct json_object *tmp = NULL;
 
     struct json_object *json_obj_fileinfo = NULL;
@@ -428,15 +476,23 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
     struct json_object *encode_json_fileinfo = NULL;
     encode_json_fileinfo = json_object_new_object();
 
-#ifdef HAVE_LIBMAXMINDDB
+    char *new_json_string = malloc(MeerConfig->payload_buffer_size);
 
-    struct json_object *jgeoip_src_fileinfo = NULL;
-    jgeoip_src_fileinfo = json_object_new_object();
+    if ( new_json_string == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
 
-    struct json_object *jgeoip_dest_fileinfo = NULL;
-    jgeoip_dest_fileinfo = json_object_new_object();
+    memset(new_json_string, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
-#endif
+    char *geoip_tmp = malloc(MeerConfig->payload_buffer_size);
+
+    if ( geoip_tmp == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(geoip_tmp, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
     json_object *jtype = json_object_new_string( "fileinfo" );
     json_object_object_add(encode_json_fileinfo,"type", jtype);
@@ -457,14 +513,12 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
 
             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                 {
-                    jgeoip_src_fileinfo = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_fileinfo,"geoip_src", jgeoip_src_fileinfo);
+                    strlcpy(geoip_src,  (char*)json_object_to_json_string(tmp), sizeof(geoip_src));
                 }
 
             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                 {
-                    jgeoip_dest_fileinfo = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_fileinfo,"geoip_dest", jgeoip_dest_fileinfo);
+                    strlcpy(geoip_dest,  (char*)json_object_to_json_string(tmp), sizeof(geoip_dest));
                 }
 
         }
@@ -528,8 +582,13 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
                                 }
 
                             MeerCounters->ndp_skip++;
+
+                            free(geoip_tmp);
+                            free(new_json_string);
+
                             json_object_put(encode_json_fileinfo);
                             json_object_put(json_obj_fileinfo);
+
                             return;
 
                         }
@@ -568,8 +627,37 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
                     json_object_object_add(encode_json_fileinfo,"size", jsize);
 
                 }
-
         }
+
+    /* Tried to do this properly with json-c, but kept leading to memory leaks.... and
+           if json_object_put() the object,  it would lead to faults! So, we are back to
+           string manipulation */
+
+
+    strlcpy(new_json_string, (char*)json_object_to_json_string(encode_json_fileinfo), MeerConfig->payload_buffer_size );
+
+    if ( geoip_src[0] != '\0' )
+        {
+            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src);
+
+            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+        }
+
+    if ( geoip_dest[0] != '\0' )
+        {
+            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest);
+
+            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+        }
+
 
     if ( MeerConfig->ndp_debug == true )
         {
@@ -578,7 +666,10 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
 
     MeerCounters->ndp++;
     strlcpy(last_fileinfo_id, md5, MD5_SIZE);
-    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_fileinfo), "ndp", md5 );
+    Output_Elasticsearch ( new_json_string, "ndp", md5 );
+
+    free(geoip_tmp);
+    free(new_json_string);
 
     json_object_put(encode_json_fileinfo);
     json_object_put(json_obj_fileinfo);
@@ -599,6 +690,9 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
 
     char id[68] = { 0 };
 
+    char geoip_src[2048] = { 0 };
+    char geoip_dest[2048] = { 0 };
+
     struct json_object *tmp = NULL;
     struct json_object *json_obj_tls = NULL;
     struct json_object *json_obj_ja3 = NULL;
@@ -607,15 +701,23 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
     struct json_object *encode_json_tls = NULL;
     encode_json_tls = json_object_new_object();
 
-#ifdef HAVE_LIBMAXMINDDB
+    char *new_json_string = malloc(MeerConfig->payload_buffer_size);
 
-    struct json_object *jgeoip_src_tls = NULL;
-    jgeoip_src_tls = json_object_new_object();
+    if ( new_json_string == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
 
-    struct json_object *jgeoip_dest_tls = NULL;
-    jgeoip_dest_tls = json_object_new_object();
+    memset(new_json_string, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
-#endif
+    char *geoip_tmp = malloc(MeerConfig->payload_buffer_size);
+
+    if ( geoip_tmp == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(geoip_tmp, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
     json_object *jtype = json_object_new_string( "tls" );
     json_object_object_add(encode_json_tls,"type", jtype);
@@ -636,14 +738,12 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
 
             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                 {
-                    jgeoip_src_tls = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_tls,"geoip_src", jgeoip_src_tls);
+                    strlcpy(geoip_src,  (char*)json_object_to_json_string(tmp), sizeof(geoip_src));
                 }
 
             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                 {
-                    jgeoip_dest_tls = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_tls,"geoip_dest", jgeoip_dest_tls);
+                    strlcpy(geoip_dest,  (char*)json_object_to_json_string(tmp), sizeof(geoip_dest));
                 }
 
         }
@@ -763,8 +863,6 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
                             strlcpy(ja3s, json_object_get_string(tmp), sizeof(ja3s) );
                             json_object *jja3s = json_object_new_string( json_object_get_string(tmp) );
                             json_object_object_add(encode_json_tls,"ja3s", jja3s);
-
-
                         }
                 }
         }
@@ -774,10 +872,15 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
     if ( ja3s[0] == '\0' && ja3[0] == '\0' )
         {
             Meer_Log(WARN, "[%s, line %d] No JA3 or JA3S hash located.  Are you sure Suricata is sending this data?", __FILE__, __LINE__);
+
+            free(geoip_tmp);
+            free(new_json_string);
+
             json_object_put(json_obj_ja3);
             json_object_put(json_obj_ja3s);
             json_object_put(json_obj_tls);
             json_object_put(encode_json_tls);
+
             return;
         }
 
@@ -797,12 +900,45 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
                     Meer_Log(DEBUG, "[%s, line %d] SKIP TLS: %s", __FILE__, __LINE__, id_md5);
                 }
 
+            free(geoip_tmp);
+            free(new_json_string);
+
             json_object_put(json_obj_ja3);
             json_object_put(json_obj_ja3s);
             json_object_put(json_obj_tls);
             json_object_put(encode_json_tls);
+
             return;
 
+        }
+
+    /* Tried to do this properly with json-c, but kept leading to memory leaks.... and
+           if json_object_put() the object,  it would lead to faults! So, we are back to
+           string manipulation */
+
+
+    strlcpy(new_json_string, (char*)json_object_to_json_string(encode_json_tls), MeerConfig->payload_buffer_size );
+
+    if ( geoip_src[0] != '\0' )
+        {
+            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src);
+
+            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+        }
+
+    if ( geoip_dest[0] != '\0' )
+        {
+            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest);
+
+            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
         }
 
     if ( MeerConfig->ndp_debug == true )
@@ -812,7 +948,10 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
 
     MeerCounters->ndp++;
     strlcpy(last_tls_id, id_md5, MD5_SIZE);
-    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_tls), "ndp", id_md5 );
+    Output_Elasticsearch ( new_json_string, "ndp", id_md5 );
+
+    free(geoip_tmp);
+    free(new_json_string);
 
     json_object_put(encode_json_tls);
     json_object_put(json_obj_ja3);
@@ -859,7 +998,6 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
     memset(geoip_tmp, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
-
     json_object *jtype = json_object_new_string( "dns" );
     json_object_object_add(encode_json_dns,"type", jtype);
 
@@ -880,22 +1018,17 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
 #ifdef HAVE_LIBMAXMINDDB
 
-
     if ( MeerConfig->geoip == true )
         {
 
             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                 {
-
-                    strlcpy(geoip_src,  (char*)json_object_to_json_string(encode_json_dns), sizeof(geoip_src));
-
+                    strlcpy(geoip_src,  (char*)json_object_to_json_string(tmp), sizeof(geoip_src));
                 }
 
             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                 {
-
-                    strlcpy(geoip_src,  (char*)json_object_to_json_string(encode_json_dns), sizeof(geoip_src));
-
+                    strlcpy(geoip_src,  (char*)json_object_to_json_string(tmp), sizeof(geoip_src));
                 }
 
         }
@@ -1023,7 +1156,6 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
             if ( geoip_src[0] != '\0' )
                 {
-
                     new_json_string[ strlen(new_json_string) - 2 ] = '\0';
 
                     snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src);
@@ -1032,12 +1164,10 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
                     strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
                     strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
-
                 }
 
             if ( geoip_dest[0] != '\0' )
                 {
-
                     new_json_string[ strlen(new_json_string) - 2 ] = '\0';
 
                     snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest);
@@ -1046,7 +1176,6 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
                     strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
                     strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
-
                 }
 
 
@@ -1057,7 +1186,6 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
             MeerCounters->ndp++;
             strlcpy(last_dns_id, id_md5, MD5_SIZE);
-
             Output_Elasticsearch ( new_json_string, "ndp", id_md5 );
 
         }
@@ -1085,6 +1213,9 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
     char tmp_id[64] = { 0 };
     uint16_t dest_port = 0;
 
+    char geoip_src[2048] = { 0 };
+    char geoip_dest[2048] = { 0 };
+
     char id_md5[MD5_SIZE] = { 0 };
 
     struct json_object *tmp = NULL;
@@ -1095,15 +1226,23 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
     struct json_object *encode_json_ssh = NULL;
     encode_json_ssh = json_object_new_object();
 
-#ifdef HAVE_LIBMAXMINDDB
+    char *new_json_string = malloc(MeerConfig->payload_buffer_size);
 
-    struct json_object *jgeoip_src_ssh = NULL;
-    jgeoip_src_ssh = json_object_new_object();
+    if ( new_json_string == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
 
-    struct json_object *jgeoip_dest_ssh = NULL;
-    jgeoip_dest_ssh = json_object_new_object();
+    memset(new_json_string, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
-#endif
+    char *geoip_tmp = malloc(MeerConfig->payload_buffer_size);
+
+    if ( geoip_tmp == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(geoip_tmp, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
     json_object *jtype = json_object_new_string( "ssh" );
     json_object_object_add(encode_json_ssh,"type", jtype);
@@ -1130,14 +1269,12 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
 
             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                 {
-                    jgeoip_src_ssh = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_ssh,"geoip_src", jgeoip_src_ssh);
+                    strlcpy(geoip_src,  (char*)json_object_to_json_string(tmp), sizeof(geoip_src));
                 }
 
             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                 {
-                    jgeoip_dest_ssh = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_ssh,"geoip_dest", jgeoip_dest_ssh);
+                    strlcpy(geoip_dest,  (char*)json_object_to_json_string(tmp), sizeof(geoip_dest));
                 }
 
         }
@@ -1227,6 +1364,36 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
 
         }
 
+    /* Tried to do this properly with json-c, but kept leading to memory leaks.... and
+       if json_object_put() the object,  it would lead to faults! So, we are back to
+       string manipulation */
+
+
+    strlcpy(new_json_string, (char*)json_object_to_json_string(encode_json_ssh), MeerConfig->payload_buffer_size );
+
+    if ( geoip_src[0] != '\0' )
+        {
+            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src);
+
+            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+        }
+
+    if ( geoip_dest[0] != '\0' )
+        {
+            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest);
+
+            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+        }
+
+
     snprintf(tmp_id, sizeof(tmp_id), "%s:%d:%s:%s", dest_ip, dest_port, server_version, client_version);
     tmp_id[ sizeof( tmp_id ) - 1] = '\0';
 
@@ -1244,7 +1411,7 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
 
             MeerCounters->ndp++;
             strlcpy(last_ssh_id, id_md5, MD5_SIZE);
-            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_ssh), "ndp", id_md5 );
+            Output_Elasticsearch ( new_json_string, "ndp", id_md5 );
         }
     else
         {
@@ -1256,6 +1423,9 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
 
             MeerCounters->ndp_skip++;
         }
+
+    free(geoip_tmp);
+    free(new_json_string);
 
     json_object_put(encode_json_ssh);
     json_object_put(json_obj_ssh);
@@ -1278,24 +1448,35 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
     char url[10240] = { 0 };
     char full_url[256 + 10240] = { 0 };
 
+    char geoip_src[2048] = { 0 };
+    char geoip_dest[2048] = { 0 };
+
     struct json_object *tmp = NULL;
     struct json_object *json_obj_http = NULL;
+
+    char *new_json_string = malloc(MeerConfig->payload_buffer_size);
+
+    if ( new_json_string == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(new_json_string, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
+
+    char *geoip_tmp = malloc(MeerConfig->payload_buffer_size);
+
+    if ( geoip_tmp == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(geoip_tmp, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
     struct json_object *encode_json_http = NULL;
     encode_json_http = json_object_new_object();
 
     struct json_object *encode_json_user_agent = NULL;
     encode_json_user_agent = json_object_new_object();
-
-#ifdef HAVE_LIBMAXMINDDB
-
-    struct json_object *jgeoip_src_http = NULL;
-    jgeoip_src_http = json_object_new_object();
-
-    struct json_object *jgeoip_dest_http = NULL;
-    jgeoip_dest_http = json_object_new_object();
-
-#endif
 
     json_object *jtype = json_object_new_string( "http" );
     json_object_object_add(encode_json_http,"type", jtype);
@@ -1329,16 +1510,12 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 
             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                 {
-                    jgeoip_src_http = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_http,"geoip_src", jgeoip_src_http);
-                    json_object_object_add(encode_json_user_agent,"geoip_src", jgeoip_src_http);
+                    strlcpy(geoip_src,  (char*)json_object_to_json_string(tmp), sizeof(geoip_src));
                 }
 
             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                 {
-                    jgeoip_dest_http = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_http,"geoip_dest", jgeoip_dest_http);
-                    json_object_object_add(encode_json_http,"user_agent", jgeoip_dest_http);
+                    strlcpy(geoip_dest,  (char*)json_object_to_json_string(tmp), sizeof(geoip_dest));
                 }
 
         }
@@ -1398,7 +1575,6 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 
                     json_object *jhostname = json_object_new_string( hostname );
                     json_object_object_add(encode_json_http,"hostname", jhostname);
-
                 }
 
             if ( json_object_object_get_ex(json_obj_http, "url", &tmp) )
@@ -1407,7 +1583,6 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 
                     json_object *jurl = json_object_new_string( url );
                     json_object_object_add(encode_json_http,"url", jurl);
-
                 }
 
             if ( json_object_object_get_ex(json_obj_http, "method", &tmp) )
@@ -1441,9 +1616,37 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
                             Meer_Log(DEBUG, "[%s, line %d] INSERT HTTP URL: %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_http) );
                         }
 
+                    /* Tried to do this properly with json-c, but kept leading to memory leaks.... and
+                           if json_object_put() the object,  it would lead to faults! So, we are back to
+                           string manipulation */
+
+                    strlcpy(new_json_string, (char*)json_object_to_json_string(encode_json_http), MeerConfig->payload_buffer_size );
+
+                    if ( geoip_src[0] != '\0' )
+                        {
+                            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src);
+
+                            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                        }
+
+                    if ( geoip_dest[0] != '\0' )
+                        {
+                            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest);
+
+                            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                        }
+
                     MeerCounters->ndp++;
                     strlcpy(last_http_id, id_md5, MD5_SIZE);
-                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_http), "ndp", id_md5 );
+                    Output_Elasticsearch ( new_json_string, "ndp", id_md5 );
 
                 }
             else
@@ -1471,21 +1674,48 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
                             Meer_Log(DEBUG, "[%s, line %d] SKIP HTTP USER_AGENT: %s", __FILE__, __LINE__, id_md5);
                         }
 
+                    free(geoip_tmp);
+                    free(new_json_string);
+
                     json_object_put(json_obj_http);
-//		    json_object_put(encode_json_http);
                     json_object_put(encode_json_user_agent);
 
                     return;
                 }
 
+            strlcpy(new_json_string, (char*)json_object_to_json_string(encode_json_user_agent), MeerConfig->payload_buffer_size );
+
+            if ( geoip_src[0] != '\0' )
+                {
+                    new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                    snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src);
+
+                    geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                    strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                    strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                }
+
+            if ( geoip_dest[0] != '\0' )
+                {
+                    new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                    snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest);
+
+                    geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                    strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                    strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                }
+
+
             MeerCounters->ndp++;
             strlcpy(last_user_agent_id, id_md5, MD5_SIZE);
-            Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_user_agent), "ndp", id_md5 );
-
-
+            Output_Elasticsearch ( new_json_string, "ndp", id_md5 );
         }
 
-//   json_object_put(encode_json_http);
+    free(geoip_tmp);
+    free(new_json_string);
+
     json_object_put(encode_json_user_agent);
     json_object_put(json_obj_http);
 
@@ -1502,6 +1732,9 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
     char timestamp[64] = { 0 };
     char host[64] = { 0 };
 
+    char geoip_src[2048] = { 0 };
+    char geoip_dest[2048] = { 0 };
+
     char id_md5[MD5_SIZE] = { 0 };
     bool flag = false;
     uint8_t i = 0;
@@ -1511,22 +1744,29 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 
     char command_filename[64 + 10240 + 1] = { 0 };   /* SMB_COMMAND|/file/path */
 
+    char *new_json_string = malloc(MeerConfig->payload_buffer_size);
+
+    if ( new_json_string == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(new_json_string, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
+
+    char *geoip_tmp = malloc(MeerConfig->payload_buffer_size);
+
+    if ( geoip_tmp == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(geoip_tmp, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
+
     struct json_object *tmp = NULL;
     struct json_object *json_obj_smb = NULL;
 
     struct json_object *encode_json_smb = NULL;
     encode_json_smb = json_object_new_object();
-
-#ifdef HAVE_LIBMAXMINDDB
-
-    struct json_object *jgeoip_src_smb = NULL;
-    jgeoip_src_smb = json_object_new_object();
-
-    struct json_object *jgeoip_dest_smb = NULL;
-    jgeoip_dest_smb = json_object_new_object();
-
-#endif
-
 
     json_object *jtype = json_object_new_string( "smb" );
     json_object_object_add(encode_json_smb,"type", jtype);
@@ -1546,7 +1786,6 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
             json_object_object_add(encode_json_smb,"description", jdesc);
         }
 
-
 #ifdef HAVE_LIBMAXMINDDB
 
     if ( MeerConfig->geoip == true )
@@ -1554,14 +1793,12 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
 
             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                 {
-                    jgeoip_src_smb = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_smb,"geoip_src", jgeoip_src_smb);
+                    strlcpy(geoip_src, (char*)json_object_to_json_string(tmp), sizeof(geoip_src));
                 }
 
             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                 {
-                    jgeoip_dest_smb = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_smb,"geoip_dest", jgeoip_dest_smb);
+                    strlcpy(geoip_dest, (char*)json_object_to_json_string(tmp), sizeof(geoip_dest));
                 }
 
         }
@@ -1638,6 +1875,8 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
                                                     Meer_Log(DEBUG, "[%s, line %d] SKIP SMB: %s", __FILE__, __LINE__, id_md5 );
                                                 }
 
+                                            free(geoip_tmp);
+                                            free(new_json_string);
 
                                             json_object_put(encode_json_smb);
                                             json_object_put(json_obj_smb);
@@ -1652,20 +1891,51 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
                                     json_object *jsmb_filename = json_object_new_string( smb_filename );
                                     json_object_object_add(encode_json_smb,"filename", jsmb_filename);
 
+                                    /* Tried to do this properly with json-c, but kept leading to memory leaks.... and
+                                                   if json_object_put() the object,  it would lead to faults! So, we are back to
+                                                   string manipulation */
+
+
+                                    strlcpy(new_json_string, (char*)json_object_to_json_string(encode_json_smb), MeerConfig->payload_buffer_size );
+
+                                    if ( geoip_src[0] != '\0' )
+                                        {
+                                            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                                            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src);
+
+                                            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                                            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                                            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                                        }
+
+                                    if ( geoip_dest[0] != '\0' )
+                                        {
+                                            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                                            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest);
+
+                                            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                                            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                                            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                                        }
+
                                     if ( MeerConfig->ndp_debug == true )
                                         {
                                             Meer_Log(DEBUG, "[%s, line %d] INSERT SMB %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_smb) );
                                         }
 
-
                                     MeerCounters->ndp++;
                                     strlcpy(last_smb_id, id_md5, MD5_SIZE);
-                                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_smb), "ndp", id_md5 );
+                                    Output_Elasticsearch ( new_json_string, "ndp", id_md5 );
 
                                 }
                         }
                 }
         }
+
+    free(geoip_tmp);
+    free(new_json_string);
 
     json_object_put(encode_json_smb);
     json_object_put(json_obj_smb);
@@ -1688,21 +1958,34 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
     char ftp_command_data[10240] = { 0 };
     char ftp_plus_data[10240+64+1] = { 0 }; 		/* COMMAND|COMMAND_DATA */
 
+    char geoip_src[2048] = { 0 };
+    char geoip_dest[2048] = { 0 };
+
     struct json_object *tmp = NULL;
     struct json_object *json_obj_ftp = NULL;
 
     struct json_object *encode_json_ftp = NULL;
     encode_json_ftp = json_object_new_object();
 
-#ifdef HAVE_LIBMAXMINDDB
+    char *new_json_string = malloc(MeerConfig->payload_buffer_size);
 
-    struct json_object *jgeoip_src_ftp = NULL;
-    jgeoip_src_ftp = json_object_new_object();
+    if ( new_json_string == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
 
-    struct json_object *jgeoip_dest_ftp = NULL;
-    jgeoip_dest_ftp = json_object_new_object();
+    memset(new_json_string, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
 
-#endif
+    char *geoip_tmp = malloc(MeerConfig->payload_buffer_size);
+
+    if ( geoip_tmp == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Fatal Error: Can't allocate memory! Abort!\n", __FILE__, __LINE__);
+        }
+
+    memset(geoip_tmp, 0, sizeof(MeerConfig->payload_buffer_size *sizeof(char) ) );
+
+
 
     json_object *jtype = json_object_new_string( "ftp" );
     json_object_object_add(encode_json_ftp,"type", jtype);
@@ -1723,16 +2006,13 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
 
             if ( json_object_object_get_ex(json_obj, "geoip_src", &tmp) )
                 {
-                    jgeoip_src_ftp = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_ftp,"geoip_src", jgeoip_src_ftp);
+                    strlcpy(geoip_src,  (char*)json_object_to_json_string(tmp), sizeof(geoip_src));
                 }
 
             if ( json_object_object_get_ex(json_obj, "geoip_dest", &tmp) )
                 {
-                    jgeoip_dest_ftp = json_tokener_parse( json_object_get_string(tmp) );
-                    json_object_object_add(encode_json_ftp,"geoip_dest", jgeoip_dest_ftp);
+                    strlcpy(geoip_dest, json_object_to_json_string(tmp), sizeof(geoip_dest));
                 }
-
         }
 #endif
 
@@ -1815,6 +2095,8 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
                                                     Meer_Log(DEBUG, "[%s, line %d] SKIP FTP : %s", __FILE__, __LINE__, id_md5);
                                                 }
 
+                                            free(geoip_tmp);
+                                            free(new_json_string);
 
                                             json_object_put(encode_json_ftp);
                                             json_object_put(json_obj_ftp);
@@ -1828,6 +2110,35 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
                                     json_object *jftp_command_data = json_object_new_string( ftp_command_data );
                                     json_object_object_add(encode_json_ftp,"command_data", jftp_command_data);
 
+                                    /* Tried to do this properly with json-c, but kept leading to memory leaks.... and
+                                                   if json_object_put() the object,  it would lead to faults! So, we are back to
+                                                   string manipulation */
+
+                                    strlcpy(new_json_string, (char*)json_object_to_json_string(encode_json_ftp), MeerConfig->payload_buffer_size );
+
+                                    if ( geoip_src[0] != '\0' )
+                                        {
+                                            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                                            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_src\": %s", new_json_string, geoip_src);
+
+                                            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                                            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                                            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                                        }
+
+                                    if ( geoip_dest[0] != '\0' )
+                                        {
+                                            new_json_string[ strlen(new_json_string) - 2 ] = '\0';
+                                            snprintf(geoip_tmp, MeerConfig->payload_buffer_size, "%s, \"geoip_dest\": %s", new_json_string, geoip_dest);
+
+                                            geoip_tmp[ MeerConfig->payload_buffer_size - 1] = '\0';
+
+                                            strlcpy(new_json_string, geoip_tmp, MeerConfig->payload_buffer_size);
+                                            strlcat(new_json_string, " }", MeerConfig->payload_buffer_size);
+                                        }
+
+
                                     if ( MeerConfig->ndp_debug == true )
                                         {
                                             Meer_Log(DEBUG, "[%s, line %d] INSERT FTP : %s: %s", __FILE__, __LINE__, id_md5, json_object_to_json_string(encode_json_ftp) );
@@ -1836,15 +2147,15 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
 
                                     MeerCounters->ndp++;
                                     strlcpy(last_ftp_id, id_md5, MD5_SIZE);
-                                    Output_Elasticsearch ( (char*)json_object_to_json_string(encode_json_ftp), "ndp", id_md5 );
-
-//                                    json_object_put(encode_json_ftp);
-
+                                    Output_Elasticsearch ( new_json_string, "ndp", id_md5 );
 
                                 }
                         }
                 }
         }
+
+    free(geoip_tmp);
+    free(new_json_string);
 
     json_object_put(encode_json_ftp);
     json_object_put(json_obj_ftp);
