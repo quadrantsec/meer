@@ -333,6 +333,12 @@ void NDP_Flow( struct json_object *json_obj, const char *src_ip, const char *des
                                     json_object_object_add(encode_json_flow,"timestamp", jtimestamp);
                                 }
 
+                            if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
+                                {
+                                    json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
+                                    json_object_object_add(encode_json_flow,"community_id", jcommunity_id);
+                                }
+
                             if ( json_object_object_get_ex(json_obj, "proto", &tmp) )
                                 {
                                     json_object *jproto = json_object_new_string( json_object_get_string(tmp) );
@@ -551,6 +557,13 @@ void NDP_FileInfo( struct json_object *json_obj, const char *src_ip, const char 
             json_object *jtimestamp = json_object_new_string( json_object_get_string(tmp) );
             json_object_object_add(encode_json_fileinfo,"timestamp", jtimestamp);
         }
+
+    if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
+        {
+            json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_fileinfo,"community_id", jcommunity_id);
+        }
+
 
     if ( json_object_object_get_ex(json_obj, "app_proto", &tmp) )
         {
@@ -774,6 +787,12 @@ void NDP_TLS( struct json_object *json_obj, const char *src_ip, const char *dest
         {
             json_object *jtimestamp = json_object_new_string( json_object_get_string(tmp) );
             json_object_object_add(encode_json_tls,"timestamp", jtimestamp);
+        }
+
+    if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
+        {
+            json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_tls,"community_id", jcommunity_id);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
@@ -1061,6 +1080,12 @@ void NDP_DNS( struct json_object *json_obj, const char *src_ip, const char *dest
 
         }
 
+    if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
+        {
+            json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_dns,"community_id", jcommunity_id);
+        }
+
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
             json_object *jhost = json_object_new_string( json_object_get_string(tmp) );
@@ -1300,6 +1325,12 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
         {
             json_object *jtimestamp = json_object_new_string( json_object_to_json_string( tmp ));
             json_object_object_add(encode_json_ssh,"timestamp", jtimestamp);
+        }
+
+    if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
+        {
+            json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_ssh,"community_id", jcommunity_idp);
         }
 
     if ( json_object_object_get_ex(json_obj, "src_port", &tmp) )
@@ -1547,6 +1578,12 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
             json_object_object_add(encode_json_user_agent,"timestamp", jtimestamp);
         }
 
+    if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
+        {
+            json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_user_agent,"community_id", jcommunity_id);
+        }
+
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
         {
             json_object *jhost = json_object_new_string( json_object_to_json_string( tmp ));
@@ -1679,7 +1716,7 @@ void NDP_HTTP( struct json_object *json_obj, const char *src_ip, const char *des
 
                     json_object_put(json_obj_http);
 
-		    json_object_put(encode_json_http);
+                    json_object_put(encode_json_http);
 //                    json_object_put(encode_json_user_agent);
 
                     return;
@@ -1828,6 +1865,12 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
         {
             json_object *jtimestamp = json_object_new_string( json_object_to_json_string( tmp ));
             json_object_object_add(encode_json_smb,"timestamp", jtimestamp);
+        }
+
+    if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
+        {
+            json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_flow,"community_id", jcommunity_id);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
@@ -2045,6 +2088,12 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
         {
             json_object *jtimestamp = json_object_new_string( json_object_get_string(tmp) );
             json_object_object_add(encode_json_ftp,"timestamp", jtimestamp);
+        }
+
+    if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
+        {
+            json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
+            json_object_object_add(encode_json_flow,"community_id", jcommunity_id);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
