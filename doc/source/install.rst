@@ -72,22 +72,6 @@ For TCMalloc support,  on Debian/Ubuntu systems,  install the TCMalloc library:
 .. option:: apt-get install libtcmalloc-minimal4
 
 
-Quick start from source
-------------------------
-
-Installation of Meer using common configuration options.::
-
-    sudo apt-get install libjson-c-dev libyaml-dev libmaxminddb-dev libcurl4-openssl-dev libhiredis-dev libevent-dev
-    git clone https://github.com/quadrantsec/meer
-    cd meer
-    ./autogen.sh
-    ./configure --enable-redis --enable-elasticsearch --enable-geoip
-    make
-    sudo make install
-
-By default, this will install Meer into the ``/usr/local/bin/`` directory with the default Meer configuration file in the ``/usr/local/etc/`` directory.  By default (without any flags), Meer will compile with only Redis support.
-
-
 Common configure options
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
