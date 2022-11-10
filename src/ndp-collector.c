@@ -1330,7 +1330,7 @@ void NDP_SSH( struct json_object *json_obj, const char *src_ip, const char *dest
     if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
         {
             json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
-            json_object_object_add(encode_json_ssh,"community_id", jcommunity_idp);
+            json_object_object_add(encode_json_ssh,"community_id", jcommunity_id);
         }
 
     if ( json_object_object_get_ex(json_obj, "src_port", &tmp) )
@@ -1870,7 +1870,7 @@ void NDP_SMB( struct json_object *json_obj, const char *src_ip, const char *dest
     if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
         {
             json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
-            json_object_object_add(encode_json_flow,"community_id", jcommunity_id);
+            json_object_object_add(encode_json_smb,"community_id", jcommunity_id);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
@@ -2093,7 +2093,7 @@ void NDP_FTP( struct json_object *json_obj, const char *src_ip, const char *dest
     if ( json_object_object_get_ex(json_obj, "community_id", &tmp) )
         {
             json_object *jcommunity_id = json_object_new_string( json_object_get_string(tmp) );
-            json_object_object_add(encode_json_flow,"community_id", jcommunity_id);
+            json_object_object_add(encode_json_ftp,"community_id", jcommunity_id);
         }
 
     if ( json_object_object_get_ex(json_obj, "host", &tmp) )
