@@ -1,7 +1,7 @@
 What is Meer
 ============
 
-"Meer" is a dedicated data broker for the `Suricata <https://suricata-ids.org>`_ IDS/IPS systems and the `Sagan <https://sagan.io/>` log analysis engine. 
+"Meer" is a dedicated data broker for the `Suricata <https://suricata-ids.org>`_ IDS/IPS system and the `Sagan <https://sagan.io/>`_ log analysis engine. 
 
 Meer takes EVE data (JSON) from Suricata or Sagan (via an ``input-plugin``),  augments it by enriching it 
 with DNS, GeoIP, and other information (via the ``meer-core``),  and then pushes the data to a database (via a ``output-plugin``) of your choice. 
