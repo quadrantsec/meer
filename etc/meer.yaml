@@ -20,7 +20,7 @@ meer-core:
   core:
 
     hostname: "mysensor"  # Unique name for this sensor (no spaces)
-    interface: "eth0"     # Can be anything.  Sagan "syslog", suricata "eth0".
+    interface: "eth0"     # Can be anything.  Sagan "syslog", Suricata "eth0".
 
     description: "My awesome sensor!"   # Description of this sensor.  This 
                                         # will be added to _all_ logs!
@@ -34,7 +34,7 @@ meer-core:
     payload-buffer-size: 1024kb         # This is the max size buffer that can
                                         # be read in/written out.  It should
                                         # match your payload-buffer-size in 
-                                        # Surcata or be larger.  Valid 
+                                        # Suricata or be larger.  Valid 
                                         # Notations are "kb", "mb" and "gb".
 
     runas: "suricata"	  # User to "drop privileges" too. 
@@ -55,9 +55,9 @@ meer-core:
     # accumulation over the run time (ie - 1000,2000,3000,4000).  While this
     # works well with tools like RRTool and LibreNMS,  it doesn't work well 
     # if you want to extract data from specific time ranges.  When this option
-    # is enabled,  a new key/value pair of "caclulated" is add to the event
+    # is enabled,  a new key/value pair of "calculated" is add to the event
     # type of "stats".  This is the amount of data _between_ stats recordings
-    # (ie - 1000,1000,1000,1000).  This can be useful when creating visulations
+    # (ie - 1000,1000,1000,1000).  This can be useful when creating visualizations
     # of data around certain time ranges.  The new key/value pair "calculated"
     # only performs the math on the follow:
     #
@@ -309,7 +309,7 @@ output-plugins:
   # Python, Perl, etc). 
   #
   # This can be useful for automatic firewalling,  building block lists, 
-  # replicating "snortsam" functionality, etc.  See the "tools/external"
+  # replicating "Snortsam" functionality, etc.  See the "tools/external"
   # directory for example routines that use this feature.
   #
   # If this option is enabled, any rule that has the metadata of "meer 
