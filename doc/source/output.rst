@@ -2,7 +2,7 @@
 Output Plugins
 ==============
 
-Redis
+redis
 -----
 
 This controls how Meer logs to a Redis database.  Meer can record alert records to 
@@ -78,49 +78,19 @@ data if enabled.
       - client_stats
 
 
-enabled
-~~~~~~~
-
-Enable or disable the Redis output.
-
-debug
-~~~~~
-
-Enable or disabled Redis debugging.
-
-server
-~~~~~~
-
-The Redis server address you want to store data to.
-
-port
-~~~~
-
-Port of the target Redis server.
-
-batch
-~~~~~
-
-The ``batch`` is the amount of data to collect before sending it to Redis.  This has no 
-affect when using Redis with either ``client_stats`` or ``fingerprint`` data.
-
-key
-~~~
-
-The ``key`` is the default Redis channel or key to use. 
-
-mode
-~~~~
-
 The ``mode`` controls how data is stored to Redis.  Valid options are ``list``, ``lpush``, 
 ``rpush``, ``channel`` or ``publish``.  The default is ``list``.  The method Meer stores the
 data is compatible with Suricata's Redis output format.  Note; This option does not have any
 affect on ``client_stats`` or ``fingerprint`` recording.
 
-Elasticsearch
+The ``routing`` option tells Meer "what" Suricata or Sagan to store in Redis.
+
+
+elasticsearch
 -------------
 
-This option enables the Elasticseaerch output.
+This option enables the Elasticsearch output.  This option is compatible with 
+Opensearch, Elasticsearch and Zincsearch (https://github.com/zinclabs/zinc).
 
 ::
 
@@ -171,9 +141,10 @@ This option enables the Elasticseaerch output.
       - dnp3
       - anomaly
       - fingerprint
+      - ndp
 
 
-External
+external
 --------
 
 This option allows signatures to call "external" programs.  For example,  if a signature the
@@ -235,11 +206,12 @@ can be written in any language that suites you.
     # If you run your network with an iron fist start here.
 
     # I can't seem to find any documentation on what "max-detect-ips" is :(
+   
     program: "/usr/local/bin/external_program"
 
     #meer_metadata: enabled
     #cisco_policies: "policy-security-ips,policy-max-detect-ips,policy-connectivity-ips,policy-balanced-ips"
-    #et_signature_severity: "critical,major"            # Critical,Major,Minor,Informational
+    #et_signature_severity: "critical,major"		# Critical,Major,Minor,Informational
 
     # You likely don't want to route to much data to a external program. External
     # output is slow.
@@ -249,45 +221,7 @@ can be written in any language that suites you.
       - alert
 
 
-enabled
-~~~~~~~
-
-Keyword is used to enable/disable ``external`` output. 
-
-debug
-~~~~~
-
-When enabled,  this option will display and log debugging information. 
-
-policy-security-ips
-~~~~~~~~~~~~~~~~~~~
-
-Execute ``external`` program when the ``policy-security-ips`` is encountered.
-
-policy-max-detect-ips
-~~~~~~~~~~~~~~~~~~~~~
-
-Execute ``external`` program when the ``policy-max-detect-ips`` is encountered.
-
-policy-connectivity-ips
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Execute ``external`` program when the ``policy-connectivity-ips`` is encountered.
-
-policy-balanced-ips
-~~~~~~~~~~~~~~~~~~~
-
-Execute ``external`` program when the ``policy-balanced-ips`` is encountered.
-
-
-program
-~~~~~~~
-
-``external`` program to execute when conditions are met. 
-
-
-
-Pipe
+pipe
 ----
 
 Below is an example of the "pipe" output plugin.  This takes data being written to the EVE
@@ -339,24 +273,4 @@ program (for example, Sagan - https://sagan.io) to analyze the data.
       - anomaly
       - fingerprint
   
-
-enabled
-~~~~~~~
-
-Enabled/disabled the 'pipe' output. 
-
-pipe_location
-~~~~~~~~~~~~~
-
-Location of the named pipe on the file system.
-
-pipe_size
-~~~~~~~~~
-
-Number of bytes will set the size of the named pipe/FIFO to.  
-
-File
-----
-
-This configures the 'file' output plugin.
 

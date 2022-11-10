@@ -179,9 +179,9 @@ meer-core:
     ndp-routing: "flow, http, ssh, fileinfo, tls, dns, smb, ftp"
 
     ndp-smb: "SMB2_COMMAND_CREATE, SMB2_COMMAND_WRITE"
-    ndp-ftp: "STOR, RETR, USER"
-
     ndp-smb-internal: true
+
+    ndp-ftp: "STOR, RETR, USER"
 
 #############################################################################
 # Input Plugins 

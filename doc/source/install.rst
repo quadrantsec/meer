@@ -1,7 +1,23 @@
 Installation
 ============
 
-There are currently no binary packages of Meer available.  However,  installation from source is pretty straightforward.
+Quick start from source
+------------------------
+
+Quick installation using common flags.  For more information on packages and flags,  skip to ``Required Prerequisites`` and ``Optional Prerequisites``.
+
+::
+
+    sudo apt-get install libjson-c-dev libyaml-dev libmaxminddb-dev libcurl4-openssl-dev libhiredis-dev libevent-dev
+    git clone https://github.com/quadrantsec/meer
+    cd meer
+    ./autogen.sh
+    ./configure --enable-redis --enable-elasticsearch --enable-geoip
+    make
+    sudo make install
+
+By default, this will install Meer into the ``/usr/local/bin/`` directory with the default Meer configuration file in the ``/usr/local/etc/`` directory.  By default (without any flags), Meer will compile with only Redis support.
+
 
 Required Prerequisites
 ----------------------
@@ -34,21 +50,43 @@ If you would like Meer to use the 'elasticsearch' output plugin,  then you'll ne
 
 .. option:: apt-get install libcurl4-openssl-dev
 
-Source
-------
+Maxmind (GeoIP support) 
+~~~~~~~~~~~~~~~~~~~~~~~
 
-Installation from source distributions files gives
+If you would like Meer to add GeoIP data to Suricata/Sagan EVE data,  you'll want to install the Maxmind (https://maxmind.com) library.  To do this on Ubuntu/Debian systems,  do the following:
 
-Basic steps::
+.. option:: apt-get install libmaxminddb-dev
 
+JEMalloc
+~~~~~~~~
+
+For JEMalloc support,  on Debian/Ubuntu systems,  install the JEMalloc library:
+
+.. option:: apt-get install libjemalloc-dev
+
+TCMalloc
+~~~~~~~~
+
+For TCMalloc support,  on Debian/Ubuntu systems,  install the TCMalloc library:
+
+.. option:: apt-get install libtcmalloc-minimal4
+
+
+Quick start from source
+------------------------
+
+Installation of Meer using common configuration options.::
+
+    sudo apt-get install libjson-c-dev libyaml-dev libmaxminddb-dev libcurl4-openssl-dev libhiredis-dev libevent-dev
     git clone https://github.com/quadrantsec/meer
     cd meer
     ./autogen.sh
-    ./configure
+    ./configure --enable-redis --enable-elasticsearch --enable-geoip
     make
     sudo make install
 
-By default, this will install Meer into the ``/usr/local/bin/`` directory with the default Meer configuration file in the ``/usr/local/etc/`` directory.  By default, Meer will compile with only Redis support.
+By default, this will install Meer into the ``/usr/local/bin/`` directory with the default Meer configuration file in the ``/usr/local/etc/`` directory.  By default (without any flags), Meer will compile with only Redis support.
+
 
 Common configure options
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -97,5 +135,9 @@ Common configure options
 .. option:: --enable-tcmalloc
 
    This options enables support for Google's TCMalloc.  For more information, see https://github.com/google/tcmalloc
+
+.. option:: --enable-jemalloc
+
+   This options enables support for JEMalloc.  For more information, see https://jemalloc.net.
 
 

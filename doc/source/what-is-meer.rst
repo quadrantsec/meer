@@ -1,9 +1,19 @@
 What is Meer
 ============
 
-“Meer” is a dedicated “spooler” for the Suricata IDS/IPS and Sagan log analysis engines. This means that as `Suricata <https://suricata-ids.org>`_ or `Sagan <https://sagan.io/>`_ write alerts out to a file, Meer can ‘follow’ that file and store the alert information into a database. You can think of the “spool” file as a ‘queuing’ system for alerts from Suricata or Sagan. Using a “spooling” system ensures the delivery of alerts to a back end database. This task was traditionally accomplished by using a file format called “unified2” which was developed by the SourceFire/Snort team and a program called Barnyard2. While unified2 has been useful, its binary nature makes it difficult to work with and it has not been extended in quite some time. Instead of following "unified2" files, Meer follows Suricata and Sagan’s “EVE” (JSON) output format. Since the EVE output format is JSON,  it is easier to work with. The EVE output also contains valuable information that does not exist in "unified2".
+"Meer" is a dedicated data broker for the `Suricata <https://suricata-ids.org>`_ IDS/IPS systems and the `Sagan <https://sagan.io/>` log analysis engine. 
 
-Meer is meant to be modular and simple. This project does not aim to replicate all features of Barnyard2. The idea is to replicate the more useful features and abandon the “cruft”.
+Meer takes EVE data (JSON) from Suricata or Sagan (via an ``input-plugin``),  augments it by enriching it 
+with DNS, GeoIP, and other information (via the ``meer-core``),  and then pushes the data to a database (via a ``output-plugin``) of your choice. 
+
+Meer is written in C which makes it fast and very light weight.  This makes is suitable for processing data on systems with limited resource. 
+
+Meer ``input-plugins`` that are currently supported are Suricata/Sagan EVE ("spool") files and Redis. 
+
+Meer ``output-plugins`` that are currently supported are Elasticsearch, Opensearch, Zincsearch 
+(https://github.com/zinclabs/zinc), Redis, named pipes, files, and "external" programs.   Meer release 1.0.0 
+supports SQL (MariaDB, MySQL and PostgreSQL) that is compatible with older "Barnyard2" systems.  Meer versions 
+_after_ 1.0.0 do _not_ support SQL.
 
 The primary Meer site is located at:
 

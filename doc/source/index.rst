@@ -10,6 +10,7 @@ Meer User Guide
    command-line-options
    starting-meer
    core
+   input
    output
    console-output
    getting-help
