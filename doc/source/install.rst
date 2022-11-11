@@ -8,7 +8,7 @@ Quick installation using common flags.  For more information on packages and fla
 
 ::
 
-    sudo apt-get install libjson-c-dev libyaml-dev libmaxminddb-dev libcurl4-openssl-dev libhiredis-dev libevent-dev
+    sudo apt-get install libjson-c-dev libyaml-dev libmaxminddb-dev libcurl4-openssl-dev libhiredis-dev libevent-dev zlib1g-dev
     git clone https://github.com/quadrantsec/meer
     cd meer
     ./autogen.sh
