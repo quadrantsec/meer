@@ -57,7 +57,6 @@ extern struct _MeerWaldo *MeerWaldo;
 void Input_File()
 {
 
-
     int fd_int;
     FILE *fd_file;
 
@@ -72,6 +71,7 @@ void Input_File()
     FILE *meer_log_fd_test;
 
     char *buf = malloc(MeerConfig->payload_buffer_size);
+
     if ( buf == NULL )
         {
             fprintf(stderr, "[%s, line %d] Fatal Error:  Can't allocate memory for buf! Abort!\n", __FILE__, __LINE__);

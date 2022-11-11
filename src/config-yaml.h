@@ -63,6 +63,7 @@ void Load_YAML_Config ( char *yaml_file );
 #define		YAML_INPUT_FILE		1
 #define		YAML_INPUT_PIPE		2
 #define		YAML_INPUT_REDIS 	3
+#define		YAML_INPUT_COMMAND_LINE 4
 
 
 #endif

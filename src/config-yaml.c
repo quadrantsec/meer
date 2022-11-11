@@ -117,14 +117,16 @@ void Load_YAML_Config( char *yaml_file )
 
     memset(MeerOutput, 0, sizeof(_MeerOutput));
 
-    MeerInput = (struct _MeerInput *) malloc(sizeof(_MeerInput));
+    /*
+        MeerInput = (struct _MeerInput *) malloc(sizeof(_MeerInput));
 
-    if ( MeerInput == NULL )
-        {
-            Meer_Log(ERROR, "[%s, line %d] Failed to allocate memory for _MeerInput. Abort!", __FILE__, __LINE__);
-        }
+        if ( MeerInput == NULL )
+            {
+                Meer_Log(ERROR, "[%s, line %d] Failed to allocate memory for _MeerInput. Abort!", __FILE__, __LINE__);
+            }
 
-    memset(MeerInput, 0, sizeof(_MeerInput));
+        memset(MeerInput, 0, sizeof(_MeerInput));
+    */
 
 #ifdef HAVE_LIBHIREDIS
 
@@ -544,11 +546,13 @@ void Load_YAML_Config( char *yaml_file )
 
                             else if ( !strcmp(last_pass, "input-type" ) || !strcmp(last_pass, "input_type" ) )
                                 {
-
-                                    if ( !strcmp(value, "file" ))
+                                    if ( MeerInput->type != YAML_INPUT_COMMAND_LINE )
                                         {
-                                            MeerInput->type = YAML_INPUT_FILE;
-                                        }
+
+                                            if ( !strcmp(value, "file" ))
+                                                {
+                                                    MeerInput->type = YAML_INPUT_FILE;
+                                                }
 
 //                                    if ( !strcmp(value, "pipe" ))
 //                                        {
@@ -557,12 +561,13 @@ void Load_YAML_Config( char *yaml_file )
 
 #ifdef HAVE_LIBHIREDIS
 
-                                    else if ( !strcmp(value, "redis" ))
-                                        {
-                                            MeerInput->type = YAML_INPUT_REDIS;
-                                        }
+                                            else if ( !strcmp(value, "redis" ))
+                                                {
+                                                    MeerInput->type = YAML_INPUT_REDIS;
+                                                }
 #endif
 
+                                        }
                                 }
 
                             else if ( !strcmp(last_pass, "payload-buffer-size" ) )

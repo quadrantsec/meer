@@ -58,6 +58,7 @@
 #include "daemonize.h"
 
 #include "input-plugins/file.h"
+#include "input-plugins/commandline.h"
 
 #ifdef HAVE_LIBHIREDIS
 #include "input-plugins/redis.h"
@@ -98,14 +99,24 @@ int main (int argc, char *argv[])
         { "daemon",       no_argument,          NULL,   'D' },
 //        { "credits",      no_argument,          NULL,   'C' },
         { "config",       required_argument,    NULL,   'c' },
+        { "file", 	  required_argument,    NULL,   'f' },
         {0, 0, 0, 0}
     };
 
     static const char *short_options =
-        "c:hDq";
+        "cf:hDq";
 
     signed char c;
     int option_index = 0;
+
+    MeerInput = (struct _MeerInput *) malloc(sizeof(_MeerInput));
+
+    if ( MeerInput == NULL )
+        {
+            Meer_Log(ERROR, "[%s, line %d] Failed to allocate memory for _MeerInput. Abort!", __FILE__, __LINE__);
+        }
+
+    memset(MeerInput, 0, sizeof(_MeerInput));
 
     MeerConfig = (struct _MeerConfig *) malloc(sizeof(_MeerConfig));
 
@@ -141,6 +152,10 @@ int main (int argc, char *argv[])
 
                 case 'q':
                     MeerConfig->quiet = true;
+                    break;
+                case 'f':
+                    MeerInput->type = YAML_INPUT_COMMAND_LINE;
+                    strlcpy(MeerConfig->command_line,optarg,sizeof(MeerConfig->command_line));
                     break;
 
                 default:
@@ -229,6 +244,13 @@ int main (int argc, char *argv[])
 #endif
 
     Init_Output();
+
+    if ( MeerInput->type == YAML_INPUT_COMMAND_LINE )
+        {
+            Command_Line();
+            //printf("GOT IT\n");
+            //exit(0);
+        }
 
     if (  MeerInput->type == YAML_INPUT_FILE )
         {

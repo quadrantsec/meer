@@ -39,7 +39,8 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      output-plugins/elasticsearch.c \
 							      output-plugins/file.c \
 							      input-plugins/file.c \
-							      input-plugins/redis.c
+							      input-plugins/redis.c \
+							      input-plugins/commandline.c
 
 
                                                        install-data-local:

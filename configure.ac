@@ -64,6 +64,12 @@ echo -n "installation for $host OS... "
 
 AC_C_BIGENDIAN(AC_SUBST([ENDIAN],[big]),AC_SUBST([ENDIAN],[little]))
 
+AC_ARG_ENABLE(gzip,
+  [  --enable-gzip           Enable libz/gzip file support.],
+  [ GZIP="$enableval"],
+  [ GZIP="no" ]
+)
+
 AC_ARG_ENABLE(elasticsearch,
   [  --enable-elasticsearch          Enable Elasticsearch output support.],
   [ ELASTICSEARCH="$enableval"],
@@ -242,6 +248,14 @@ if test "$LIBYAML" = "no"; then
     echo
     exit 1
 fi
+
+if test "$GZIP" = "yes"; then
+       AC_MSG_RESULT([------- libz / gzip support is enabled -------])
+       AC_CHECK_HEADER([libz.h])
+       AC_CHECK_LIB(z, main,,AC_MSG_ERROR(The libz library cannot be found.
+If you're not interested in libz/gzip support use the --disable-gzip flag.))
+       fi
+
 
 if test "$TCMALLOC" = "yes"; then
        AC_MSG_RESULT([------- TCMalloc support is enabled -------])

@@ -49,6 +49,7 @@ struct _MeerConfig
 {
 
     char yaml_file[256];
+    char command_line[1024];
 
     char interface[64];
     char hostname[64];
