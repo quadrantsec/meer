@@ -37,7 +37,6 @@ extern struct _MeerOutput *MeerOutput;
 
 bool Output_Do_File ( const char *json_string )
 {
-
     fprintf(MeerOutput->file_fd, "%s\n", json_string);
     fflush(MeerOutput->file_fd);
     return(true);

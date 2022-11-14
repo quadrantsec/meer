@@ -45,6 +45,10 @@
 #include <stdbool.h>
 #include <json-c/json.h>
 
+#ifdef WITH_SYSLOG
+#include <syslog.h>
+#endif
+
 #include "meer.h"
 #include "meer-def.h"
 #include "config-yaml.h"
@@ -117,16 +121,14 @@ void Load_YAML_Config( char *yaml_file )
 
     memset(MeerOutput, 0, sizeof(_MeerOutput));
 
-    /*
-        MeerInput = (struct _MeerInput *) malloc(sizeof(_MeerInput));
+#ifdef WITH_SYSLOG
 
-        if ( MeerInput == NULL )
-            {
-                Meer_Log(ERROR, "[%s, line %d] Failed to allocate memory for _MeerInput. Abort!", __FILE__, __LINE__);
-            }
+    MeerOutput->syslog_facility = LOG_AUTH;
+    MeerOutput->syslog_priority = LOG_ALERT;
+    MeerOutput->syslog_options = LOG_PID;
 
-        memset(MeerInput, 0, sizeof(_MeerInput));
-    */
+#endif
+
 
 #ifdef HAVE_LIBHIREDIS
 
@@ -325,6 +327,13 @@ void Load_YAML_Config( char *yaml_file )
                                     sub_type = YAML_MEER_FILE;
                                     routing = false;
                                 }
+
+                            if ( !strcmp(value, "syslog") )
+                                {
+                                    sub_type = YAML_MEER_SYSLOG;
+                                    routing = false;
+                                }
+
 
 #ifdef WITH_BLUEDOT
 
@@ -1751,6 +1760,440 @@ void Load_YAML_Config( char *yaml_file )
 
 #endif
 
+
+#ifdef WITH_SYSLOG
+
+
+                    if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_SYSLOG )
+                        {
+
+                            if ( !strcmp(last_pass, "enabled" ) )
+                                {
+
+                                    if ( !strcasecmp(value, "yes") || !strcasecmp(value, "true" ) || !strcasecmp(value, "enabled"))
+                                        {
+                                            MeerOutput->syslog_enabled = true;
+                                        }
+                                }
+
+                            else if (!strcmp(last_pass, "facility") && MeerOutput->syslog_enabled == true )
+                                {
+
+#ifdef LOG_AUTH
+                                    if (!strcmp(value, "LOG_AUTH"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_AUTH;
+                                        }
+#endif
+
+#ifdef LOG_AUTHPRIV
+                                    if (!strcmp(value, "LOG_AUTHPRIV"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_AUTHPRIV;
+                                        }
+#endif
+
+#ifdef LOG_CRON
+                                    if (!strcmp(value, "LOG_CRON"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_CRON;
+                                        }
+#endif
+
+#ifdef LOG_DAEMON
+                                    if (!strcmp(value, "LOG_DAEMON"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_DAEMON;
+                                        }
+#endif
+
+#ifdef LOG_FTP
+                                    if (!strcmp(value, "LOG_FTP"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_FTP;
+                                        }
+#endif
+
+#ifdef LOG_INSTALL
+                                    if (!strcmp(value, "LOG_INSTALL"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_INSTALL;
+                                        }
+#endif
+
+#ifdef LOG_KERN
+                                    if (!strcmp(value, "LOG_KERN"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_KERN;
+                                        }
+#endif
+
+#ifdef LOG_LPR
+                                    if (!strcmp(value, "LOG_LPR"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_LPR;
+                                        }
+#endif
+
+#ifdef LOG_MAIL
+                                    if (!strcmp(value, "LOG_MAIL"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_MAIL;
+                                        }
+#endif
+
+#ifdef LOG_NETINFO
+                                    if (!strcmp(value, "LOG_NETINFO"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_NETINFO;
+                                        }
+#endif
+
+#ifdef LOG_RAS
+                                    if (!strcmp(value, "LOG_RAS"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_RAS;
+                                        }
+#endif
+
+#ifdef LOG_REMOTEAUTH
+                                    if (!strcmp(value, "LOG_REMOTEAUTH"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_REMOTEAUTH;
+                                        }
+#endif
+
+#ifdef LOG_NEWS
+                                    if (!strcmp(value, "LOG_NEWS"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_NEWS;
+                                        }
+#endif
+
+#ifdef LOG_SYSLOG
+                                    if (!strcmp(value, "LOG_SYSLOG"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_SYSLOG;
+                                        }
+#endif
+
+#ifdef LOG_USER
+                                    if (!strcmp(value, "LOG_USER"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_USER;
+                                        }
+#endif
+
+#ifdef LOG_UUCP
+                                    if (!strcmp(value, "LOG_UUCP"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_UUCP;
+                                        }
+#endif
+
+#ifdef LOG_LOCAL0
+                                    if (!strcmp(value, "LOG_LOCAL0"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_LOCAL0;
+                                        }
+#endif
+
+#ifdef LOG_LOCAL1
+                                    if (!strcmp(value, "LOG_LOCAL1"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_LOCAL1;
+                                        }
+#endif
+
+#ifdef LOG_LOCAL2
+                                    if (!strcmp(value, "LOG_LOCAL2"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_LOCAL2;
+                                        }
+#endif
+
+#ifdef LOG_LOCAL3
+                                    if (!strcmp(value, "LOG_LOCAL3"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_LOCAL3;
+                                        }
+#endif
+
+#ifdef LOG_LOCAL4
+                                    if (!strcmp(value, "LOG_LOCAL4"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_LOCAL4;
+                                        }
+#endif
+
+#ifdef LOG_LOCAL5
+                                    if (!strcmp(value, "LOG_LOCAL5"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_LOCAL5;
+                                        }
+#endif
+
+#ifdef LOG_LOCAL6
+                                    if (!strcmp(value, "LOG_LOCAL6"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_LOCAL6;
+                                        }
+#endif
+
+#ifdef LOG_LOCAL7
+                                    if (!strcmp(value, "LOG_LOCAL7"))
+                                        {
+                                            MeerOutput->syslog_facility = LOG_LOCAL7;
+                                        }
+#endif
+
+
+                                }  /* facility */
+
+                            else if (!strcmp(last_pass, "priority") && MeerOutput->syslog_enabled == true )
+                                {
+
+#ifdef LOG_EMERG
+                                    if (!strcmp(value, "LOG_EMERG"))
+                                        {
+                                            MeerOutput->syslog_priority = LOG_EMERG;
+                                        }
+#endif
+
+#ifdef LOG_ALERT
+                                    if (!strcmp(value, "LOG_ALERT"))
+                                        {
+                                            MeerOutput->syslog_priority = LOG_ALERT;
+                                        }
+#endif
+
+#ifdef LOG_CRIT
+                                    if (!strcmp(value, "LOG_CRIT"))
+                                        {
+                                            MeerOutput->syslog_priority = LOG_CRIT;
+                                        }
+#endif
+
+#ifdef LOG_ERR
+                                    if (!strcmp(value, "LOG_ERR"))
+                                        {
+                                            MeerOutput->syslog_priority = LOG_ERR;
+                                        }
+#endif
+
+#ifdef LOG_WARNING
+                                    if (!strcmp(value, "LOG_WARNING"))
+                                        {
+                                            MeerOutput->syslog_priority = LOG_WARNING;
+                                        }
+#endif
+
+
+#ifdef LOG_NOTICE
+                                    if (!strcmp(value, "LOG_NOTICE"))
+                                        {
+                                            MeerOutput->syslog_priority = LOG_NOTICE;
+                                        }
+#endif
+
+#ifdef LOG_INFO
+                                    if (!strcmp(value, "LOG_INFO"))
+                                        {
+                                            MeerOutput->syslog_priority = LOG_INFO;
+                                        }
+#endif
+
+#ifdef LOG_DEBUG
+                                    if (!strcmp(value, "LOG_DEBUG"))
+                                        {
+                                            MeerOutput->syslog_priority = LOG_DEBUG;
+                                        }
+#endif
+
+                                } /* priority */
+
+                            else if (!strcmp(last_pass, "extra") && MeerOutput->syslog_enabled == true )
+                                {
+
+#ifdef LOG_CONS
+                                    if (!strcmp(value, "LOG_CONS"))
+                                        {
+                                            MeerOutput->syslog_options |= LOG_CONS;
+                                        }
+#endif
+
+#ifdef LOG_NDELAY
+                                    if (!strcmp(value, "LOG_NDELAY"))
+                                        {
+                                            MeerOutput->syslog_options |= LOG_NDELAY;
+                                        }
+#endif
+
+#ifdef LOG_PERROR
+                                    if (!strcmp(value, "LOG_PERROR"))
+                                        {
+                                            MeerOutput->syslog_options |= LOG_PERROR;
+                                        }
+#endif
+
+#ifdef LOG_PID
+                                    if (!strcmp(value, "LOG_PID"))
+                                        {
+                                            MeerOutput->syslog_options |= LOG_PID;
+                                        }
+#endif
+
+#ifdef LOG_NOWAIT
+                                    if (!strcmp(value, "LOG_NOWAIT"))
+                                        {
+                                            MeerOutput->syslog_options |= LOG_NOWAIT;
+                                        }
+#endif
+                                } /* extra */
+
+                            if ( !strcmp(last_pass, "routing" ) && MeerOutput->syslog_enabled == true )
+                                {
+                                    routing = true;
+                                }
+
+                            if ( routing == true && MeerOutput->file_enabled == true )
+                                {
+
+                                    if ( !strcmp(value, "alert" ) )
+                                        {
+                                            MeerOutput->syslog_alert = true;
+                                        }
+
+                                    else if ( !strcmp(value, "files" ) )
+                                        {
+                                            MeerOutput->syslog_files = true;
+                                        }
+
+                                    else if ( !strcmp(value, "flow" ) )
+                                        {
+                                            MeerOutput->syslog_flow = true;
+                                        }
+
+                                    else if ( !strcmp(value, "dns" ) )
+                                        {
+                                            MeerOutput->syslog_dns = true;
+                                        }
+
+                                    else if ( !strcmp(value, "http" ) )
+                                        {
+                                            MeerOutput->syslog_http = true;
+                                        }
+
+                                    else if ( !strcmp(value, "tls" ) )
+                                        {
+                                            MeerOutput->syslog_tls = true;
+                                        }
+
+                                    else if ( !strcmp(value, "ssh" ) )
+                                        {
+                                            MeerOutput->syslog_ssh = true;
+                                        }
+
+                                    else if ( !strcmp(value, "smtp" ) )
+                                        {
+                                            MeerOutput->syslog_smtp = true;
+                                        }
+
+                                    else if ( !strcmp(value, "email" ) )
+                                        {
+                                            MeerOutput->syslog_email = true;
+                                        }
+
+                                    else if ( !strcmp(value, "fileinfo" ) )
+                                        {
+                                            MeerOutput->syslog_fileinfo = true;
+                                        }
+
+                                    else if ( !strcmp(value, "dhcp" ) )
+                                        {
+                                            MeerOutput->syslog_dhcp = true;
+                                        }
+
+                                    else if ( !strcmp(value, "stats" ) )
+                                        {
+                                            MeerOutput->syslog_stats = true;
+                                        }
+
+                                    else if ( !strcmp(value, "rdp" ) )
+                                        {
+                                            MeerOutput->syslog_rdp  = true;
+                                        }
+
+                                    else if ( !strcmp(value, "sip" ) )
+                                        {
+                                            MeerOutput->syslog_sip = true;
+                                        }
+
+                                    else if ( !strcmp(value, "ftp" ) )
+                                        {
+                                            MeerOutput->syslog_ftp = true;
+                                        }
+
+                                    else if ( !strcmp(value, "ikev2" ) )
+                                        {
+                                            MeerOutput->syslog_ikev2 = true;
+                                        }
+
+                                    else if ( !strcmp(value, "nfs" ) )
+                                        {
+                                            MeerOutput->syslog_nfs = true;
+                                        }
+
+                                    else if ( !strcmp(value, "tftp" ) )
+                                        {
+                                            MeerOutput->syslog_tftp = true;
+                                        }
+
+                                    else if ( !strcmp(value, "smb" ) )
+                                        {
+                                            MeerOutput->syslog_smb = true;
+                                        }
+
+                                    else if ( !strcmp(value, "dcerpc" ) )
+                                        {
+                                            MeerOutput->syslog_dcerpc = true;
+                                        }
+
+                                    else if ( !strcmp(value, "mqtt" ) )
+                                        {
+                                            MeerOutput->syslog_mqtt = true;
+                                        }
+
+                                    else if ( !strcmp(value, "netflow" ) )
+                                        {
+                                            MeerOutput->syslog_netflow = true;
+                                        }
+
+                                    else if ( !strcmp(value, "metadata" ) )
+                                        {
+                                            MeerOutput->syslog_metadata = true;
+                                        }
+
+                                    else if ( !strcmp(value, "dnp3" ) )
+                                        {
+                                            MeerOutput->syslog_dnp3 = true;
+                                        }
+
+                                    else if ( !strcmp(value, "anomaly" ) )
+                                        {
+                                            MeerOutput->syslog_anomaly = true;
+                                        }
+
+                                    else if ( !strcmp(value, "fingerprint" ) )
+                                        {
+                                            MeerOutput->syslog_fingerprint = true;
+                                        }
+
+                                }
+
+                        }
+
+#endif
 
                     if ( type == YAML_TYPE_OUTPUT && sub_type == YAML_MEER_FILE )
                         {

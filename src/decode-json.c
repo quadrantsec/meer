@@ -420,6 +420,15 @@ bool Decode_JSON( char *json_string )
             Output_File( json_string, event_type );
         }
 
+#ifdef WITH_SYSLOG
+
+    if ( MeerOutput->syslog_enabled == true )
+        {
+            Output_Syslog( json_string, event_type );
+        }
+
+#endif
+
 #ifdef HAVE_LIBHIREDIS
 
     if ( MeerOutput->redis_enabled == true )

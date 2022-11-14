@@ -274,3 +274,32 @@ program (for example, Sagan - https://sagan.io) to analyze the data.
       - fingerprint
   
 
+syslog
+------
+
+This allows you to route Suricata and Sagan EVE data to syslog.  You can then use
+your favorite syslog daemon (syslog-ng, rsyslog) to route the EVE data to it's
+final destination. 
+
+::
+
+
+  ###########################################################################
+  # syslog
+  # 
+  # The 'syslog' output plugin write EVE data to syslog.  You can then use 
+  # your favorite syslog daemon (rsyslog, syslog-ng, etc) to route data to 
+  # its final destination.
+  ###########################################################################
+
+  syslog:
+
+    enabled: yes
+    facility: LOG_AUTH
+    priority: LOG_ALERT
+    extra: LOG_PID
+
+    routing:
+
+      - alert
+

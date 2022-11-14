@@ -55,6 +55,7 @@ void Load_YAML_Config ( char *yaml_file );
 #define		YAML_MEER_BLUEDOT	5
 #define		YAML_MEER_ELASTICSEARCH	6
 #define		YAML_MEER_FILE		7
+#define		YAML_MEER_SYSLOG	8
 
 /***************/
 /* Input types */

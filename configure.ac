@@ -64,6 +64,12 @@ echo -n "installation for $host OS... "
 
 AC_C_BIGENDIAN(AC_SUBST([ENDIAN],[big]),AC_SUBST([ENDIAN],[little]))
 
+AC_ARG_ENABLE(syslog,
+  [  --disable-syslog        Disable syslog support.],
+  [ SYSLOG="$enableval"],
+  [ SYSLOG="yes" ]
+)
+
 AC_ARG_ENABLE(gzip,
   [  --enable-gzip           Enable libz/gzip file support.],
   [ GZIP="$enableval"],
@@ -248,6 +254,12 @@ if test "$LIBYAML" = "no"; then
     echo
     exit 1
 fi
+
+if test "$SYSLOG" = "yes"; then
+        AC_MSG_RESULT([------- Syslog support is enabled -------])
+        AC_CHECK_HEADER([syslog.h])
+        AC_DEFINE(WITH_SYSLOG, 1, With Syslog)
+        fi
 
 if test "$GZIP" = "yes"; then
        AC_MSG_RESULT([------- libz / gzip support is enabled -------])

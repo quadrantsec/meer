@@ -38,6 +38,7 @@ AUTOMAKE_OPIONS=foreign no-dependencies subdir-objects
 							      output-plugins/bluedot.c \
 							      output-plugins/elasticsearch.c \
 							      output-plugins/file.c \
+							      output-plugins/syslog.c \
 							      input-plugins/file.c \
 							      input-plugins/redis.c \
 							      input-plugins/commandline.c

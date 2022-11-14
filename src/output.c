@@ -49,6 +49,11 @@
 #include "output-plugins/pipe.h"
 #include "output-plugins/file.h"
 
+#ifdef WITH_SYSLOG
+#include <syslog.h>
+#include <output-plugins/syslog.h>
+#endif
+
 #ifdef WITH_ELASTICSEARCH
 #include <output-plugins/elasticsearch.h>
 #endif
@@ -216,6 +221,46 @@ void Init_Output( void )
 
 #endif
 
+#ifdef WITH_SYSLOG
+
+    if ( MeerOutput->file_enabled )
+        {
+
+            Meer_Log(NORMAL, "--[ Syslog information ]------------------------------------------");
+            Meer_Log(NORMAL, "");
+            Meer_Log(NORMAL, "Write 'alert'      : %s", MeerOutput->syslog_alert ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'stats'      : %s", MeerOutput->syslog_stats ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'email'      : %s", MeerOutput->syslog_email ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dns'        : %s", MeerOutput->syslog_dns ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'flow'       : %s", MeerOutput->syslog_flow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'http'       : %s", MeerOutput->syslog_http ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tls'        : %s", MeerOutput->syslog_tls ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ssh'        : %s", MeerOutput->syslog_ssh ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smtp'       : %s", MeerOutput->syslog_smtp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'files'      : %s", MeerOutput->syslog_files ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fileinfo'   : %s", MeerOutput->syslog_fileinfo ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dhcp'       : %s", MeerOutput->syslog_dhcp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'rdp'        : %s", MeerOutput->syslog_rdp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'sip'        : %s", MeerOutput->syslog_sip ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ftp'        : %s", MeerOutput->syslog_ftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'ikev2'      : %s", MeerOutput->syslog_ikev2 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'nfs'        : %s", MeerOutput->syslog_nfs ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'tftp'       : %s", MeerOutput->syslog_tftp ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'smb'        : %s", MeerOutput->syslog_smb ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dcerpc'     : %s", MeerOutput->syslog_dcerpc ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'mqtt'       : %s", MeerOutput->syslog_mqtt ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'netflow'    : %s", MeerOutput->syslog_netflow ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'metadata'   : %s", MeerOutput->syslog_metadata ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'dnp3'       : %s", MeerOutput->syslog_dnp3 ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'anomaly'    : %s", MeerOutput->syslog_anomaly ? "enabled" : "disabled" );
+            Meer_Log(NORMAL, "Write 'fingerprint': %s", MeerOutput->syslog_fingerprint ? "enabled" : "disabled" );
+
+            Meer_Log(NORMAL, "");
+
+        }
+
+#endif
+
     if ( MeerOutput->file_enabled )
         {
 
@@ -260,7 +305,6 @@ void Init_Output( void )
                 }
 
         }
-
 
     if ( MeerOutput->pipe_enabled )
         {
@@ -1212,6 +1256,174 @@ bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type, 
 }
 
 #endif
+
+#ifdef WITH_SYSLOG
+
+bool Output_Syslog ( const char *json_string, const char *event_type )
+{
+
+    if ( !strcmp(event_type, "alert" ) && MeerOutput->file_alert == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "files" ) && MeerOutput->file_files == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "flow" ) && MeerOutput->file_flow == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dns" ) && MeerOutput->file_dns == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "http" ) && MeerOutput->file_http == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "tls" ) && MeerOutput->file_tls == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ssh" ) && MeerOutput->file_ssh == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "smtp" ) && MeerOutput->file_smtp == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "email" ) && MeerOutput->file_email == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "fileinfo" ) && MeerOutput->file_fileinfo == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dhcp" ) && MeerOutput->file_dhcp == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "stats" ) && MeerOutput->file_stats == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "rdp" ) && MeerOutput->file_rdp == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "sip" ) && MeerOutput->file_sip == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( ( !strcmp(event_type, "ftp" ) || !strcmp(event_type, "ftp_data" ) ) && MeerOutput->file_ftp == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "ikev2" ) && MeerOutput->file_ikev2 == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "nfs" ) && MeerOutput->file_nfs == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "tftp" ) && MeerOutput->file_tftp == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "smb" ) && MeerOutput->file_smb == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dcerpc" ) && MeerOutput->file_dcerpc == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "mqtt" ) && MeerOutput->file_mqtt == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "netflow" ) && MeerOutput->file_netflow == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "metadata" ) && MeerOutput->file_metadata == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "dnp3" ) && MeerOutput->file_dnp3 == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "anomaly" ) && MeerOutput->file_anomaly == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    else if ( !strcmp(event_type, "fingerprint" ) && MeerOutput->file_fingerprint == true )
+        {
+            Output_Do_Syslog( json_string, event_type );
+            return(true);
+        }
+
+    return(false);
+
+}
+
+#endif
+
 
 bool Output_File ( const char *json_string, const char *event_type )
 {

@@ -217,6 +217,25 @@ input-plugins:
 output-plugins:
 
   ###########################################################################
+  # syslog
+  # 
+  # The 'syslog' output plugin write EVE data to syslog.  You can then use 
+  # your favorite syslog daemon (rsyslog, syslog-ng, etc) to route data to 
+  # its final destination.
+  ###########################################################################
+
+  syslog:
+
+    enabled: yes
+    facility: LOG_AUTH
+    priority: LOG_ALERT
+    extra: LOG_PID
+
+    routing:
+
+      - alert
+
+  ###########################################################################
   # file
   # 
   # The 'file' output writes post processed EVE data to a file.  For example,

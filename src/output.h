@@ -28,3 +28,5 @@ bool Output_Elasticsearch ( const char *json_string, const char *event_type, con
 bool Output_Do_Elasticsearch ( const char *json_string, const char *event_type, const char *id );
 bool Output_File ( const char *json_string, const char *event_type );
 bool Output_Redis( const char *json_string, const char *event_type );
+bool Output_Syslog ( const char *json_string, const char *event_type );
+

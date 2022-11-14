@@ -282,6 +282,43 @@ struct _MeerOutput
     bool external_anomaly;
     bool external_fingerprint;
 
+#ifdef WITH_SYSLOG
+
+    bool syslog_enabled;
+    int  syslog_facility;
+    int  syslog_priority;
+    int  syslog_options;
+
+    bool syslog_alert;
+    bool syslog_email;
+    bool syslog_files;
+    bool syslog_flow;
+    bool syslog_stats;
+    bool syslog_http;
+    bool syslog_smtp;
+    bool syslog_ssh;
+    bool syslog_tls;
+    bool syslog_dns;
+    bool syslog_fileinfo;
+    bool syslog_dhcp;
+    bool syslog_rdp;
+    bool syslog_sip;
+    bool syslog_ftp;
+    bool syslog_ikev2;
+    bool syslog_nfs;
+    bool syslog_tftp;
+    bool syslog_smb;
+    bool syslog_dcerpc;
+    bool syslog_mqtt;
+    bool syslog_netflow;
+    bool syslog_metadata;
+    bool syslog_dnp3;
+    bool syslog_anomaly;
+    bool syslog_fingerprint;
+
+#endif
+
+
     bool file_enabled;
     FILE *file_fd;
     char file_location[256];
