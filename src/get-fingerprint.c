@@ -36,6 +36,7 @@
 
 #include "output-plugins/redis.h"
 #include "get-fingerprint.h"
+#include "util-dns.h"
 
 extern struct _MeerConfig *MeerConfig;
 extern struct _MeerOutput *MeerOutput;
@@ -60,7 +61,6 @@ void Fingerprint_DHCP ( struct json_object *json_obj, const char *json_string )
         {
             dest_ip = (char *)json_object_get_string(tmp);
         }
-
 
     if (json_object_object_get_ex(json_obj, "dhcp", &tmp))
         {
@@ -181,6 +181,7 @@ bool Fingerprint_JSON_Event_Redis( struct json_object *json_obj, char *str, size
 
     char key[128] = { 0 };
     char src_ip[64] = { 0 };
+    char dns[255] = { 0 };
 
     uint64_t signature_id = 0;
 
@@ -221,6 +222,15 @@ bool Fingerprint_JSON_Event_Redis( struct json_object *json_obj, char *str, size
             strlcpy(src_ip, json_object_get_string(tmp), sizeof(src_ip) );
             json_object *jip = json_object_new_string( src_ip );
             json_object_object_add(json_obj,"ip", jip);
+        }
+
+    /* Add DNS, if enabled */
+
+    if ( MeerConfig->dns == true )
+        {
+            DNS_Lookup_Reverse( src_ip, dns, sizeof(dns) );
+            json_object *jdns = json_object_new_string( dns );
+            json_object_object_add(json_obj,"dns", jdns);
         }
 
     if (json_object_object_get_ex(json_obj, "payload", &tmp))		// Add to encode_json!

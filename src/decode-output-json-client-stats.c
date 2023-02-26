@@ -199,7 +199,7 @@ void Decode_Output_JSON_Client_Stats( struct json_object *json_obj, const char *
     json_object *jsensor_name = json_object_new_string( cs_sensor_name );
     json_object_object_add(encode_json,"sensor_name", jsensor_name);
 
-    if ( MeerConfig->dns )
+    if ( MeerConfig->dns == true )
         {
             DNS_Lookup_Reverse( cs_ipaddr, dns, sizeof(dns) );
             json_object *jdns = json_object_new_string( dns );
