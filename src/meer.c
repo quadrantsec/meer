@@ -104,7 +104,7 @@ int main (int argc, char *argv[])
     };
 
     static const char *short_options =
-        "cf:hDq";
+        "c:f:hDq";
 
     signed char c;
     int option_index = 0;
@@ -128,6 +128,7 @@ int main (int argc, char *argv[])
     memset(MeerConfig, 0, sizeof(_MeerConfig));
 
     strlcpy(MeerConfig->yaml_file, DEFAULT_CONFIG, sizeof(MeerConfig->yaml_file));
+
     MeerConfig->daemonize = false;
     MeerConfig->quiet = false;
 
@@ -138,7 +139,10 @@ int main (int argc, char *argv[])
                 {
 
                 case 'c':
-                    strlcpy(MeerConfig->yaml_file,optarg,sizeof(MeerConfig->yaml_file) - 1);
+		    printf("---> %s\n", optarg);
+		    fflush(stdout);
+	            exit(0);
+                    strlcpy(MeerConfig->yaml_file,optarg,sizeof(MeerConfig->yaml_file));
                     break;
 
                 case 'h':
@@ -155,6 +159,8 @@ int main (int argc, char *argv[])
                     break;
                 case 'f':
                     MeerInput->type = YAML_INPUT_COMMAND_LINE;
+		    printf("F -> %s\n", optarg);
+		    exit(0);
                     strlcpy(MeerConfig->command_line,optarg,sizeof(MeerConfig->command_line));
                     break;
 
