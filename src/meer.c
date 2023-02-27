@@ -139,9 +139,6 @@ int main (int argc, char *argv[])
                 {
 
                 case 'c':
-		    printf("---> %s\n", optarg);
-		    fflush(stdout);
-	            exit(0);
                     strlcpy(MeerConfig->yaml_file,optarg,sizeof(MeerConfig->yaml_file));
                     break;
 
@@ -159,8 +156,6 @@ int main (int argc, char *argv[])
                     break;
                 case 'f':
                     MeerInput->type = YAML_INPUT_COMMAND_LINE;
-		    printf("F -> %s\n", optarg);
-		    exit(0);
                     strlcpy(MeerConfig->command_line,optarg,sizeof(MeerConfig->command_line));
                     break;
 
