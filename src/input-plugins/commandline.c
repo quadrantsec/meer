@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
+#include <stdlib.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"             /* From autoconf */
