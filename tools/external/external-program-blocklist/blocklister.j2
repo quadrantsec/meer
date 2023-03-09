@@ -1,0 +1,194 @@
+#!/usr/bin/env perl
+
+#############################################################################
+# Based on blocklist.cgi by Champ Clark III and updated for building size
+# subnet limited collections by Zane C. Bowers-Hadley for the use with
+# like Fortigate etc.
+#
+# 20221230
+#############################################################################
+
+use DBI;
+use warnings;
+use strict;
+use Net::CIDR::Lite;
+use TOML qw(from_toml);
+use File::Slurp;
+use Time::Piece;
+
+my $config_file = '/usr/local/etc/blocklister.toml';
+
+# 7776000 = 90 days in seconds
+my $config = {
+	dsn         => 'DBI:MariaDB:database={{ BLOCKLISTER_DB }};host={{ BLOCKLISTER_SERVER }}',
+	user        => '{{ BLOCKLISTER_USER }}',
+	pass        => '{{ BLOCKLISTER_PASS }}',
+	max_size    => '{{ BLOCKLISTER_MAX_SIZE }}',
+	max_age     => '{{ BLOCKLISTER_MAX_AGE }}',
+	remote_only => '1',
+	delete      => '0',
+	delete_old  => '{{ BLOCKLISTER_RM_OLD }}',
+	cache_dir   => '/var/cache/blocklister',
+};
+
+if ( -f $config_file ) {
+	die( '"' . $config_file . '" does not exist' );
+
+	my $config_raw = slurp($config_file);
+	my ( $config_parsed, $err ) = from_toml($config_raw);
+	unless ($config) {
+		die "Error parsing toml: $err";
+	}
+
+	my @keys = keys( %{$config} );
+	foreach my $key (@keys) {
+		if ( defined( $config_parsed->{$key} ) ) {
+			$config->{$key} = $config_parsed->{$key};
+		}
+	}
+}
+
+if ( !-d $config->{cache_dir} ) {
+	mkdir( $config->{cache_dir} ) || die( '"' . $config->{cache_dir} . '" does not exist and could not be created' );
+}
+
+my $cache_file = $config->{cache_dir} . '/cache';
+
+my $cache = {};
+if ( !$config->{remote_only} ) {
+	if ( -f $cache_file ) {
+		my $cache_raw   = slurp($cache_file);
+		my @cache_split = split( /\n/, $cache_raw );
+		foreach my $line (@cache_split) {
+			my ( $ip, $time ) = split( /\,/, $line );
+			$cache->{$ip} = $time;
+		}
+	}
+}
+
+my $current_time = time;
+my $max_age      = $current_time - $config->{max_age};
+
+my $dbh  = DBI->connect( $config->{dsn}, $config->{user}, $config->{pass} ) || die "$DBI::errstr\n";
+my $dbh2 = DBI->connect( $config->{dsn}, $config->{user}, $config->{pass} ) || die "$DBI::errstr\n";
+
+my $sql = "SELECT id,ip,timestamp FROM drop_list";
+my $sth = $dbh->prepare($sql);
+$sth->execute || die "$DBI::errstr\n";
+
+while ( my (@bl) = $sth->fetchrow_array ) {
+	my $id        = $bl[0];
+	my $ip        = $bl[1];
+	my $timestamp = $bl[2];
+
+	# 2022-12-01 02:30:14
+	my $t = Time::Piece->strptime( $timestamp, '%Y-%m-%d %H:%M:%S' );
+
+	# check to see if max age if not zero and if not
+	# only add it if it falls inside the time frame we want
+	my $add_it = 1;
+	if ( $config->{max_age} != 0 && $t->epoch < $max_age ) {
+		$add_it = 0;
+	}
+	if ($add_it) {
+		$cache->{$ip} = $t->epoch;
+	}
+
+	# remove it if removing all or it is old and removing old
+	if ( $config->{delete} || ( $config->{delete_old} && !$add_it ) ) {
+		my $sql2 = "DELETE FROM drop_list WHERE id=$id";
+		my $sth2 = $dbh2->prepare($sql2);
+		$sth2->execute || die "$DBI::errstr\n";
+	}
+}
+
+# if not remote only and we have a max age set, check the cache
+# if remote only, then we did not add any old items
+if ( $config->{max_age} > 0 && !$config->{remote_only} ) {
+	my @keys = keys( %{$cache} );
+	foreach my $ip (@keys) {
+		if ( $$cache->{ip} < $max_age ) {
+			delete( $cache->{$ip} );
+		}
+	}
+}
+
+# save the updated cache if needed
+if ( !$config->{remote_only} ) {
+	my $cache_raw = '';
+	my @keys      = keys( %{$cache} );
+	foreach my $ip (@keys) {
+		$cache_raw = $cache_raw . $ip . ',' . $cache->{$ip} . "\n";
+	}
+	write_file( $cache_file, $cache_raw );
+}
+
+my $output = '';
+
+# put together the output file, looping until we have one small enough to use
+my $oversized = 1;
+my $resized   = 0;
+while ($oversized) {
+
+	# Net::CIDR::Lite can't work both, add each IP to it's respective one
+	my $cidr_ipv4 = Net::CIDR::Lite->new;
+	my $cidr_ipv6 = Net::CIDR::Lite->new;
+	my @keys      = keys( %{$cache} );
+	foreach my $ip (@keys) {
+		if ( $ip =~ /\./ ) {
+			$cidr_ipv4->add( $ip . "/32" );
+		}
+		else {
+			$cidr_ipv6->add( $ip . "/128" );
+		}
+	}
+
+	# put together the output
+	my @ipv4        = $cidr_ipv4->list;
+	my $output_ipv4 = join( "\n", @ipv4 ) . "\n";
+	my @ipv6        = $cidr_ipv6->list;
+	my $output_ipv6 = join( "\n", @ipv6 ) . "\n";
+	$output = $output_ipv4 . $output_ipv6;
+	$output =~ s/\n\n+/\n/g;
+
+	# remove subnet ending for full IPs
+	$output =~ s/\/32//g;
+	$output =~ s/\/128//g;
+
+	# check size
+	if ( length($output) < $config->{max_size} ) {
+		$oversized = 0;
+	}
+	else {
+		# if oversized still, remove the oldest key and try again
+		my $oldest;
+		foreach my $ip (@keys) {
+			if ( !defined($oldest) ) {
+				$oldest = $ip;
+			}
+			else {
+				if ( $cache->{$oldest} > $cache->{$ip} ) {
+					$oldest = $ip;
+				}
+			}
+		}
+		delete( $cache->{$oldest} );
+		$resized = 1;
+	}
+}
+
+# save the saved cache since some keys were removed if needed
+if ( !$config->{remote_only} ) {
+	my $cache_raw = '';
+	if ($resized) {
+		my @keys = keys( %{$cache} );
+		foreach my $ip (@keys) {
+			$cache_raw = $cache_raw . $ip . ',' . $cache->{$ip} . "\n";
+		}
+		write_file( $cache_file, $cache_raw );
+	}
+}
+
+write_file( $config->{cache_dir} . '/output', $output );
+
+exit 0;

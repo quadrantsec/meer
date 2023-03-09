@@ -1,0 +1,192 @@
+#!/usr/bin/perl
+
+#############################################################################
+# external-program-sql-blocklist - Simple routine that takes Surcata/Sagan
+# EVE data, parses it and sends a "blocklist" SQL database. This data can
+# then be retrieve by the get-blocklists.cgi.
+#
+# Champ Clark III (cclark@quadrantsec.com)
+# 20220907
+#
+#############################################################################
+
+use JSON;
+use Net::Subnet qw(subnet_matcher);
+use DBI;
+use File::Slurp;
+
+use warnings;
+use strict;
+
+#############################################################################
+# SQL Authentication Data
+#############################################################################
+
+my $my_username        = "{{ BLOCKLISTER_USER }}";
+my $my_password        = "{{ BLOCKLISTER_PASS }}";
+my $my_database        = "{{ BLOCKLISTER_DB }}";
+my $my_host            = "{{ BLOCKLISTER_SERVER }}";
+my $ignore_subnet_file = "/usr/local/etc/blocklister_ignore_subnets";
+my $LOG_FILE           = "{{ BLOCKLISTER_LOG }}";                       # Log file
+
+#############################################################################
+# Connect to SQL database!
+#############################################################################
+
+my $db  = "DBI:MariaDB:database=$my_database;host=$my_host";
+my $dbh = DBI->connect( $db, $my_username, $my_password ) || die "$DBI::errstr\n";
+
+my $sql;
+my $sth;
+
+#############################################################################
+# The $white_list are IP address that you do NOT to send blocks for.  You'll
+# likely want to put your network (internal & external) IP address ranges
+# within this list!
+#############################################################################
+
+my $ignore_raw = read_file($ignore_subnet_file);
+my @to_ignore  = split( /\n/, $ignore_raw );
+@to_ignore = grep( !/^[\ \t]*\#/, @to_ignore );
+@to_ignore = grep( !/^\w*$/,      @to_ignore );
+
+my $int = 0;
+while ( defined( $to_ignore[$int] ) ) {
+	$to_ignore[$int] =~ s/^[\ \t]*//;
+	$to_ignore[$int] =~ s/[\ \t].*$//;
+	$to_ignore[$int] =~ s/#.*$//;
+	$int++;
+}
+my $white_list = subnet_matcher @to_ignore;
+
+#########################################################################################
+# Build a list of ports to ignore. Array used for the templating purposes
+#########################################################################################
+
+my @ignore_ports_array = qw(
+	{{ BLOCKLISTER_IGNORE_PORTS }}
+);
+
+my %ignore_ports;
+foreach my $port (@ignore_ports_array) {
+	$ignore_ports{$port} = 1;
+}
+
+#############################################################################
+# You shouldn't need to mess with anything else below this
+#############################################################################
+
+my $json_d;
+my $target;
+my $src_ip;
+my $src_port;
+my $dest_ip;
+my $dest_port;
+my $signature;
+my $sig_id;
+
+# Handle signals cleanly...
+
+$SIG{'INT'}  = \&Signal_Handler;
+$SIG{'TERM'} = \&Signal_Handler;
+$SIG{'HUP'}  = \&Signal_Handler;
+
+open( LOG, ">> $LOG_FILE" ) || die "Cannot open $LOG_FILE!\n";
+
+# Wait on stdin and collect the incoming json.
+
+while (<>) {
+
+	Log("------------------------------------------------------------------------------");
+	Log( "** Received EVE: " . $_ );
+
+	$json_d = decode_json($_);
+
+	$src_ip    = $json_d->{src_ip};
+	$src_port  = $json_d->{src_port};
+	$dest_ip   = $json_d->{dest_ip};
+	$dest_port = $json_d->{dest_port};
+	$signature = $json_d->{alert}{signature};
+	$sig_id    = $json_d->{alert}{signature_id};
+
+	# Do some quick sanity checks for the data comming in.
+
+	if ( $src_ip eq "" ) {
+		Log("Error.  Soruce IP address is missing or couldn't be parsed.");
+		exit(1);
+	}
+
+	if ( $dest_ip eq "" ) {
+		Log("Error.  Destination IP address is missing or couldn't be parsed.");
+		exit(1);
+	}
+
+	if ( $signature eq "" ) {
+		Log("Error.  The 'siganture'  missing or couldn't be parsed.");
+		exit(1);
+	}
+
+	if ( $sig_id eq "" ) {
+		Log("Error.  The 'siganture_id'  missing or couldn't be parsed.");
+		exit(1);
+	}
+
+	Log("Parsed $src_ip -> $dest_ip");
+
+	# Got good data.  Try to figure out what "side" of the connection to send
+	# the block request for, prioritizing blocking the src_ip
+
+	if ( !$white_list->($src_ip) && !defined( $ignore_ports{$src_port} ) ) {
+		$target = $src_ip;
+	}
+	elsif ( !$white_list->($dest_ip) && !defined( $ignore_ports{$dest_port} ) ) {
+		$target = $dest_ip;
+	}
+
+	if ( !$target ) {
+		Log("No usable firewall targets in $src_ip -> $dest_ip.  Abort");
+		exit(0);
+	}
+
+	Log("Writing $target for '$signature' [Sig ID: $sig_id] to the database");
+
+	#############################################################################
+	# Target goes into SQL
+	#############################################################################
+
+	$sql = "REPLACE INTO drop_list ( `timestamp`, `ip`, `sid` ) VALUES ( now(), ?, ? )";
+	$sth = $dbh->prepare($sql);
+	$sth->bind_param( 1, $target );
+	$sth->bind_param( 2, $sig_id );
+	$sth->execute || die "$DBI::errstr\n";
+
+}
+
+Log("Execution complete.");
+
+close(LOG);
+exit(0);
+
+#############################################################################
+# Signal_Handler - What to do on signals..
+#############################################################################
+
+sub Signal_Handler {
+
+	close(LOG);
+	exit(0);
+
+}
+
+#############################################################################
+# Log - Simple "logging" routine to include timestamp.
+#############################################################################
+
+sub Log {
+
+	our $s;
+	local ($s) = @_;
+	my $dt = localtime();
+	print LOG "[$dt] $s\n";
+
+}
