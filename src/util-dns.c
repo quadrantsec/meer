@@ -59,6 +59,14 @@ void DNS_Lookup_Reverse( char *host, char *str, size_t size )
 
     char host_r[NI_MAXHOST] = { 0 };
 
+    /* Don't return a DNS lookup for the "bad IP" value */
+
+    if ( !strcmp( host, BAD_IP ) )
+        {
+            str[0] = '\0';
+            return;
+        }
+
     for (i=0; i<DnsCacheCount; i++)
         {
 

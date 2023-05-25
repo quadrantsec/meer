@@ -203,37 +203,18 @@ bool Decode_JSON( char *json_string )
                     json_object *jsrc_ip_orig = json_object_new_string(src_ip);
                     json_object_object_add(json_obj,"original_src_ip", jsrc_ip_orig);
 
-                    if ( Try_And_Fix_IP( src_ip, fixed_ip, sizeof( fixed_ip)) == true )
-                        {
+                    /* Over write the src_ip with the BAD_IP value */
 
-                            /* Copy over the "fixed" value */
+                    json_object *jsrc_ip = json_object_new_string(BAD_IP);
+                    json_object_object_add(json_obj,"src_ip", jsrc_ip);
 
-                            json_object *jsrc_ip = json_object_new_string( fixed_ip );
-                            json_object_object_add(json_obj,"src_ip", jsrc_ip);
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
+                    json_string = new_json_string;
 
-                            strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
-                            json_string = new_json_string;
+                    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing src_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, src_ip, BAD_IP);
 
-                            Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad src_ip '%s' to '%s'.", __FILE__, __LINE__, src_ip, fixed_ip );
-                            strlcpy( src_ip, fixed_ip, sizeof( src_ip ) );
+                    strlcpy( src_ip, BAD_IP, sizeof( src_ip ) );
 
-                        }
-                    else
-                        {
-
-                            /* Over write the src_ip with the BAD_IP value */
-
-                            json_object *jsrc_ip = json_object_new_string(BAD_IP);
-                            json_object_object_add(json_obj,"src_ip", jsrc_ip);
-
-                            strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
-                            json_string = new_json_string;
-
-                            Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing src_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, src_ip, BAD_IP);
-
-                            strlcpy( src_ip, BAD_IP, sizeof( src_ip ) );
-
-                        }
                 }
 
             /* Validate dest_ip address */
@@ -247,38 +228,17 @@ bool Decode_JSON( char *json_string )
                     json_object *jdest_ip_orig = json_object_new_string(dest_ip);
                     json_object_object_add(json_obj,"original_dest_ip", jdest_ip_orig);
 
+                    /* Over write the dest_ip with the BAD_IP value */
 
-                    if ( Try_And_Fix_IP( dest_ip, fixed_ip, sizeof( fixed_ip)) == true )
-                        {
+                    json_object *jdest_ip = json_object_new_string(BAD_IP);
+                    json_object_object_add(json_obj,"dest_ip", jdest_ip);
 
-                            /* Copy over the "fixed" value */
+                    strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
+                    json_string = new_json_string;
 
-                            json_object *jdest_ip = json_object_new_string( fixed_ip );
-                            json_object_object_add(json_obj,"dest_ip", jdest_ip);
+                    Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing dest_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, dest_ip, BAD_IP);
 
-                            strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
-                            json_string = new_json_string;
-
-                            Meer_Log(WARN, "[%s, line %d] Successfully 'fixed' bad dest_ip '%s' to '%s'.", __FILE__, __LINE__, dest_ip, fixed_ip );
-                            strlcpy( dest_ip, fixed_ip, sizeof( dest_ip ) );
-
-                        }
-                    else
-                        {
-
-                            /* Over write the dest_ip with the BAD_IP value */
-
-                            json_object *jdest_ip = json_object_new_string(BAD_IP);
-                            json_object_object_add(json_obj,"dest_ip", jdest_ip);
-
-                            strlcpy( new_json_string, json_object_to_json_string(json_obj), MeerConfig->payload_buffer_size);
-                            json_string = new_json_string;
-
-                            Meer_Log(WARN, "[%s, line %d] Was unsuccessful in fixing dest_ip '%s'. Replaced with '%s'.", __FILE__, __LINE__, dest_ip, BAD_IP);
-
-                            strlcpy( dest_ip, BAD_IP, sizeof( dest_ip ) );
-
-                        }
+                    strlcpy( dest_ip, BAD_IP, sizeof( dest_ip ) );
                 }
 
         } /* End of validation and exclusion */
@@ -394,9 +354,9 @@ bool Decode_JSON( char *json_string )
 
 #ifdef HAVE_LIBMAXMINDDB
 
-    /* Add GeoIP information */
+    /* Add GeoIP information - but NOT to stats */
 
-    if ( MeerConfig->geoip == true )
+    if ( MeerConfig->geoip == true && strcmp( event_type, "stats" ) )
         {
             Get_GeoIP( json_obj, new_json_string, src_ip, dest_ip );
             json_string = new_json_string;
