@@ -227,19 +227,10 @@ int main (int argc, char *argv[])
 
 #ifdef HAVE_LIBMAXMINDDB
 
-//    Meer_Log(NORMAL, "GeoIP support          : %s", MeerConfig->geoip ? "enabled" : "disabled" );
-
     if ( MeerConfig->geoip == true )
         {
-//            Meer_Log(NORMAL, "GeoIP database         : %s", MeerConfig->geoip_database );
-
             Open_GeoIP_Database();
-
-
         }
-
-//    Meer_Log(NORMAL, "");
-
 
 
 #endif
@@ -249,8 +240,6 @@ int main (int argc, char *argv[])
     if ( MeerInput->type == YAML_INPUT_COMMAND_LINE )
         {
             Command_Line();
-            //printf("GOT IT\n");
-            //exit(0);
         }
 
     if (  MeerInput->type == YAML_INPUT_FILE )
